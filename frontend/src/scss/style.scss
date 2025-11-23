@@ -1,0 +1,104 @@
+@use "@coreui/coreui/scss/coreui" as * with ( 
+  $enable-deprecation-messages: false,
+);
+@use "@coreui/chartjs/scss/coreui-chartjs";
+@use "vendors/simplebar";
+
+body {
+  background-color: var(--cui-tertiary-bg);
+}
+
+.wrapper {
+  width: 100%;
+  padding-inline: var(--cui-sidebar-occupy-start, 0) var(--cui-sidebar-occupy-end, 0);
+  will-change: auto;
+  @include transition(padding .15s);
+}
+
+.header > .container-fluid,
+.sidebar-header {
+  min-height: calc(4rem + 1px); // stylelint-disable-line function-disallowed-list
+}
+
+.sidebar-brand-full {
+  margin-left: 3px;
+}
+
+.sidebar-header {
+  .nav-underline-border {
+    --cui-nav-underline-border-link-padding-x: 1rem;
+    --cui-nav-underline-border-gap: 0;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    min-height: calc(4rem + 1px); // stylelint-disable-line function-disallowed-list
+  }
+}
+
+.sidebar-toggler {
+  margin-inline-start: auto;
+}
+
+.sidebar-narrow,
+.sidebar-narrow-unfoldable:not(:hover) {
+  .sidebar-toggler {
+    margin-inline-end: auto;
+  }
+}
+
+.header > .container-fluid + .container-fluid {
+  min-height: 3rem;
+}
+
+.footer {
+  min-height: calc(3rem + 1px); // stylelint-disable-line function-disallowed-list
+}
+
+@include color-mode(dark) {
+  body {
+    background-color: var(--cui-dark-bg-subtle);
+  }
+
+  .footer {
+    --cui-footer-bg: var(--cui-body-bg);
+  }
+}
+
+/* Asegúrate de que este CSS esté cargado en tu proyecto */
+.card-hover-scale:hover {
+    /* El elemento se agranda 5% al hacer hover */
+    transform: scale(1.05); 
+    /* Agregamos una transición para que el cambio sea suave */
+    transition: transform 0.3s ease-in-out; 
+    /* Mejoramos la visibilidad al agregar una sombra sutil */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.scale-up-center {
+    animation: scale-up-center 0.4s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+} 
+@keyframes scale-up-center { 
+    0% { transform: scale(.95); } /* Empezamos ligeramente más cerca para el efecto hover */
+    100% { transform: scale(1.03); } /* Terminamos ligeramente más grandes */
+}
+
+/* Estilo para posicionar cualquier cosa en la esquina inferior derecha */
+.alert-fixed-bottom-right {
+    /* Mantiene el elemento fijo respecto a la ventana del navegador */
+    position: fixed; 
+    
+    /* Lo coloca en la esquina inferior derecha */
+    bottom: 20px; 
+    right: 20px; 
+    
+    /* Asegura que esté por encima de casi todos los demás elementos, incluyendo modales */
+    z-index: 2000; 
+    
+    /* Define un ancho máximo para que la alerta no ocupe toda la pantalla */
+    max-width: 400px; 
+    
+    /* Ajustamos el componente interno AlertMessage (que usa CAlert) */
+    width: 100%;
+}

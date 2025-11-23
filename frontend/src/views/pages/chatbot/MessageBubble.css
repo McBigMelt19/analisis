@@ -1,0 +1,58 @@
+.message-bubble-wrapper {
+  display: flex;
+}
+
+.user-wrapper {
+  justify-content: flex-end;
+}
+
+.bot-wrapper {
+  justify-content: flex-start;
+}
+
+.message-bubble {
+  max-width: 70%;
+  padding: 10px 15px;
+  border-radius: 20px;
+  position: relative;
+  font-size: 0.9em;
+  line-height: 1.4;
+  word-wrap: break-word; /* Romper palabras largas */
+}
+
+.user-bubble {
+  background-color: #fff; /* Burbuja blanca para el usuario */
+  color: #333;
+  border-bottom-right-radius: 5px; /* Ajuste para la "cola" */
+}
+
+.bot-bubble {
+  background-color: #4CAF50; /* Burbuja verde para el bot */
+  color: #fff;
+  border-bottom-left-radius: 5px; /* Ajuste para la "cola" */
+}
+
+.message-time {
+  font-size: 0.7em;
+  color: rgba(255, 255, 255, 0.6);
+  position: absolute;
+  bottom: 5px;
+  right: 15px;
+  white-space: nowrap; /* Evita que la hora se rompa */
+}
+
+.user-bubble .message-time {
+    color: rgba(0, 0, 0, 0.4);
+}
+
+.message-status {
+    font-size: 0.7em;
+    color: rgba(255, 255, 255, 0.6);
+    position: absolute;
+    bottom: 5px;
+    right: 5px; /* Al lado de la hora */
+}
+
+.user-bubble .message-status {
+    color: #2196F3; /* Azul para el check */
+}

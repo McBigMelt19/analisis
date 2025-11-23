@@ -1,0 +1,38 @@
+.input-area-form {
+  display: flex;
+  gap: 10px;
+}
+
+.input-field {
+  flex-grow: 1;
+  padding: 10px 15px;
+  border: 1px solid #4a658a;
+  border-radius: 20px;
+  background-color: #3b506b;
+  color: white;
+  font-size: 0.9em;
+}
+
+.input-field::placeholder {
+  color: #aebfd0;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #81d4fa;
+}
+
+.send-button {
+  background-color: #2196F3; /* Azul para el botón de enviar */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: background-color 0.2s ease;
+}
+
+.send-button:hover {
+  background-color: #64b5f6;
+}

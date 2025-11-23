@@ -1,0 +1,30 @@
+.chatbot-container {
+  width: 100%;
+  max-width: 600px;
+  height: 80vh; /* Ajusta la altura del contenedor del chat */
+  background-color: #384f6d; /* Fondo oscuro como en tu imagen */
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  margin: 20px auto; /* Centrar el chat */
+}
+
+.messages-display {
+  flex-grow: 1;
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Espacio entre burbujas */
+}
+
+.input-area-container {
+  padding: 15px;
+  background-color: #2b3a4e; /* Un poco más oscuro para el área de input */
+  border-top: 1px solid #4a658a;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
