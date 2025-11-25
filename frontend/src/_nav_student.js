@@ -14,57 +14,7 @@ import {
   cilPuzzle
 } from '@coreui/icons'
 
-const _nav = [
-/*   {
-    component: CNavItem,
-    name: 'Dashboard',
-    to: '/dashboard',
-    icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Proveedors',
-    to: '/proveedors',
-    icon: <CIcon icon={cilSpreadsheet} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavGroup,
-    name: 'Stock',
-    to: '/stock',
-    icon: <CIcon icon={cilCart} customClassName="nav-icon" />,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Cars',
-        to: '/cars', 
-        icon: <CIcon icon={cilTruck} customClassName="nav-icon" />
-      },
-      {
-        component: CNavItem,
-        name: 'Parts',
-        to: '/parts',
-        icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />, 
-      },
-    ],
-  }, 
-    {
-    component: CNavItem,
-    name: 'reutilizable',
-    to: '/reutilizable',
-    icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
-  },
-    {
-    component: CNavItem,
-    name: 'datagrado',
-    to: '/datagrado',
-    icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
-  },
-    {
-    component: CNavItem,
-    name: 'menu/',
-    to: '/menu/',
-    icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
-  },*/
+const _nav_student = [
     {
     component: CNavGroup,
     name: 'Grados',
@@ -109,6 +59,6 @@ const _nav = [
   },        
     ],
   },
-]
+];
 
-export default _nav
+export default _nav_student;

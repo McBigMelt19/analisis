@@ -1,5 +1,5 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   CButton,
   CCard,
@@ -12,22 +12,32 @@ import {
   CInputGroup,
   CInputGroupText,
   CRow,
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
-import { cilLockLocked, cilUser } from '@coreui/icons'
+} from '@coreui/react';
+import CIcon from '@coreui/icons-react';
+import { cilLockLocked, cilUser } from '@coreui/icons';
+import { saveUserRole } from '../../../config/auth'; // Importamos la función de guardar rol
+import { auto } from '@popperjs/core';
 
 const Login = () => {
-  const backgroundImageLink = 'https://applescoop.org/image/wallpapers/iphone/ford-logo-unique-28-09-2024-1727566236-hd-wallpaper.jpg';
-  const backgroundStyle = {
-  backgroundImage: `url(${backgroundImageLink})`,
-  backgroundSize: 'cover',
-  backgroundSize: 'no-repeat',
-  backgroundSize: 'center',
-};
-  return (
+  const navigate = useNavigate();
 
-    <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center"
-    style={backgroundStyle}>
+  // Función que simula el inicio de sesión basado en el rol
+  const handleLogin = (role) => {
+    // 1. Guardar el rol en el almacenamiento
+    saveUserRole(role); 
+
+    // 2. Redirigir según el rol
+    if (role === 'teacher') {
+      // Llevar directamente al módulo del profesor
+      navigate('/teacher/content', { replace: true })
+    } else {
+      // Comportamiento por defecto para estudiantes
+      navigate('/home', { replace: true })
+    }
+  };
+
+  return (
+    <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
       <CContainer>
         <CRow className="justify-content-center">
           <CCol md={8}>
@@ -35,13 +45,15 @@ const Login = () => {
               <CCard className="p-4">
                 <CCardBody>
                   <CForm>
-                    <h1>Login</h1>
-                    <p className="text-body-secondary">Enter your information to access the FORD Administrative Panel.</p>
+                    <h1 className="text-center">Panel de Acceso</h1>
+                    <p className="text-body-secondary text-center">Selecciona el perfil para ingresar</p>
+                    
+                    {/* Campos de Login (manteniéndolos para la estética original) 
                     <CInputGroup className="mb-3">
                       <CInputGroupText>
                         <CIcon icon={cilUser} />
                       </CInputGroupText>
-                      <CFormInput placeholder="Username" autoComplete="username" />
+                      <CFormInput placeholder="Usuario" autoComplete="username" />
                     </CInputGroup>
                     <CInputGroup className="mb-4">
                       <CInputGroupText>
@@ -49,47 +61,69 @@ const Login = () => {
                       </CInputGroupText>
                       <CFormInput
                         type="password"
-                        placeholder="Password"
+                        placeholder="Contraseña"
                         autoComplete="current-password"
                       />
                     </CInputGroup>
-                    <CRow className="align-items-center">
-                      <CCol xs="auto">
-                        <CButton color="info" className="px-4">
-                          Login
+                    */}
+                    <CRow className="align-items-center justify-content-between">
+                      {/* Botón de Estudiante */}
+                      <CCol xs={6} >
+                        <CButton 
+                          color="primary" 
+                          className="px-4 w-100" 
+                          onClick={() => handleLogin('student')}
+                        >
+                          Acceder como Estudiante 🧑‍🎓
                         </CButton>
                       </CCol>
-                      <CCol xs="auto" className="ms-auto">
-                        <CButton color="info" className="px-10">
-                          Forgot password?
+                      
+                      {/* Botón de Profesor */}
+                      <CCol xs={6} >
+                        <CButton 
+                          color="info" 
+                          className="px-4 w-100" 
+                          onClick={() => handleLogin('teacher')}
+                        >
+                          Acceder como Profesor 🧑‍🏫
                         </CButton>
+                      </CCol>
+                    </CRow>
+                    
+                    <CRow className="mt-3">
+                      <CCol xs={12} className="text-center">
+                        <Link to="#">
+{/*                          <CButton color="link" className="px-0">
+                            ¿Olvidaste la Contraseña?
+                          </CButton>
+*/}                        </Link>
                       </CCol>
                     </CRow>
                   </CForm>
                 </CCardBody>
               </CCard>
-{/*              <CCard className="text-white bg-primary py-5" style={{ width: '44%' }}>
+              
+              {/* Bloque de Registro Opcional (Comentado en tu original) */}
+              <CCard className="text-white bg-secondary py-5 d-none d-md-block" style={{ width: '44%' }}>
                 <CCardBody className="text-center">
                   <div>
-                    <h2>Sign up</h2>
+                    <h2>¡Bienvenido!</h2>
                     <p>
-                      Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                      tempor incididunt ut labore et dolore magna aliqua.
+                      Disfruta de tu acceso para ver el portal educativo.
                     </p>
-                    <Link to="/register">
-                      <CButton color="primary" className="mt-3" active tabIndex={-1}>
-                        Register Now!
-                      </CButton>
-                    </Link>
+                    <p>
+                      Selecciona como quieres ver el contenido, si como estudiante o administrador.
+                    </p>
                   </div>
                 </CCardBody>
-              </CCard> */} 
+              </CCard>
+              
             </CCardGroup>
           </CCol>
         </CRow>
       </CContainer>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

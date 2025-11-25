@@ -15,9 +15,9 @@ import { AppSidebarNav } from './AppSidebarNav'
 
 import myPngLogo from '../assets/brand/logo.png'
 
-import navigation from '../_nav'
+import defaultNavigation from '../_nav'
 
-const AppSidebar = () => {
+const AppSidebar = ({ nav }) => {
   const dispatch = useDispatch()
   const unfoldable = useSelector((state) => state.sidebarUnfoldable)
   const sidebarShow = useSelector((state) => state.sidebarShow)
@@ -54,7 +54,8 @@ const AppSidebar = () => {
           onClick={() => dispatch({ type: 'set', sidebarShow: false })}
         />
       </CSidebarHeader>
-      <AppSidebarNav items={navigation} />
+      {/* Usa la navegación pasada por prop `nav` si existe, si no usa el _nav por defecto */}
+      <AppSidebarNav items={nav && nav.length ? nav : defaultNavigation} />
       <CSidebarFooter className="border-top d-none d-lg-flex">
         <CSidebarToggler
           onClick={() => dispatch({ type: 'set', sidebarUnfoldable: !unfoldable })}
