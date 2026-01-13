@@ -24,12 +24,12 @@ const Login = () => {
   // Función que simula el inicio de sesión basado en el rol
   const handleLogin = (role) => {
     // 1. Guardar el rol en el almacenamiento
-    saveUserRole(role); 
+    saveUserRole(role);
 
     // 2. Redirigir según el rol
     if (role === 'teacher') {
       // Llevar directamente al módulo del profesor
-      navigate('/teacher/content', { replace: true })
+      navigate('/teacher/dashboard', { replace: true })
     } else {
       // Comportamiento por defecto para estudiantes
       navigate('/home', { replace: true })
@@ -47,7 +47,7 @@ const Login = () => {
                   <CForm>
                     <h1 className="text-center">Panel de Acceso</h1>
                     <p className="text-body-secondary text-center">Selecciona el perfil para ingresar</p>
-                    
+
                     {/* Campos de Login (manteniéndolos para la estética original) 
                     <CInputGroup className="mb-3">
                       <CInputGroupText>
@@ -69,31 +69,31 @@ const Login = () => {
                     <CRow className="align-items-center justify-content-between">
                       {/* Botón de Estudiante */}
                       <CCol xs={6} >
-                        <CButton 
-                          color="primary" 
-                          className="px-4 w-100" 
+                        <CButton
+                          color="primary"
+                          className="px-4 w-100"
                           onClick={() => handleLogin('student')}
                         >
                           Acceder como Estudiante 🧑‍🎓
                         </CButton>
                       </CCol>
-                      
+
                       {/* Botón de Profesor */}
                       <CCol xs={6} >
-                        <CButton 
-                          color="info" 
-                          className="px-4 w-100" 
+                        <CButton
+                          color="info"
+                          className="px-4 w-100"
                           onClick={() => handleLogin('teacher')}
                         >
                           Acceder como Profesor 🧑‍🏫
                         </CButton>
                       </CCol>
                     </CRow>
-                    
+
                     <CRow className="mt-3">
                       <CCol xs={12} className="text-center">
                         <Link to="#">
-{/*                          <CButton color="link" className="px-0">
+                          {/*                          <CButton color="link" className="px-0">
                             ¿Olvidaste la Contraseña?
                           </CButton>
 */}                        </Link>
@@ -102,7 +102,7 @@ const Login = () => {
                   </CForm>
                 </CCardBody>
               </CCard>
-              
+
               {/* Bloque de Registro Opcional (Comentado en tu original) */}
               <CCard className="text-white bg-secondary py-5 d-none d-md-block" style={{ width: '44%' }}>
                 <CCardBody className="text-center">
@@ -117,7 +117,7 @@ const Login = () => {
                   </div>
                 </CCardBody>
               </CCard>
-              
+
             </CCardGroup>
           </CCol>
         </CRow>

@@ -1,0 +1,101 @@
+@use "@coreui/coreui/scss/coreui" as * with (
+  $enable-deprecation-messages: false,
+);
+
+// Define la paleta de colores basada en la bandera de Venezuela
+$primary: #FCD116; // Amarillo
+$secondary: #0033A0; // Azul
+$success: #A50034; // Rojo
+$tertiary: #F5F5F5; // Fondo claro
+
+// Cambiar la tipografía a una fuente infantil
+$font-family-base: 'Comic Sans MS', cursive, sans-serif;
+
+body {
+  background-color: $tertiary;
+  font-family: $font-family-base;
+}
+
+.wrapper {
+  width: 100%;
+  padding-inline: var(--cui-sidebar-occupy-start, 0) var(--cui-sidebar-occupy-end, 0);
+  will-change: auto;
+  @include transition(padding .15s);
+}
+
+.header > .container-fluid,
+.sidebar-header {
+  min-height: calc(4rem + 1px);
+}
+
+.sidebar-brand-full {
+  margin-left: 3px;
+}
+
+.sidebar-header {
+  .nav-underline-border {
+    --cui-nav-underline-border-link-padding-x: 1rem;
+    --cui-nav-underline-border-gap: 0;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    min-height: calc(4rem + 1px);
+    color: $secondary; // Cambiar color de texto
+  }
+}
+
+.sidebar-toggler {
+  margin-inline-start: auto;
+}
+
+.sidebar-narrow,
+.sidebar-narrow-unfoldable:not(:hover) {
+  .sidebar-toggler {
+    margin-inline-end: auto;
+  }
+}
+
+.header > .container-fluid + .container-fluid {
+  min-height: 3rem;
+}
+
+.footer {
+  min-height: calc(3rem + 1px);
+  background-color: $primary; // Cambiar color de fondo del pie de página
+}
+
+@include color-mode(dark) {
+  body {
+    background-color: var(--cui-dark-bg-subtle);
+  }
+
+  .footer {
+    --cui-footer-bg: var(--cui-body-bg);
+  }
+}
+
+.card-hover-scale:hover {
+    transform: scale(1.05); 
+    transition: transform 0.3s ease-in-out; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.scale-up-center {
+    animation: scale-up-center 0.4s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+} 
+
+@keyframes scale-up-center { 
+    0% { transform: scale(.95); } 
+    100% { transform: scale(1.03); } 
+}
+
+.alert-fixed-bottom-right {
+    position: fixed; 
+    bottom: 20px; 
+    right: 20px; 
+    z-index: 2000; 
+    max-width: 400px; 
+    width: 100%;
+}

@@ -1,0 +1,52 @@
+.alert-fixed-bottom-right {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 2000;
+    max-width: 400px;
+    width: 100%;
+    background-color: #FFD700; /* Color amarillo brillante */
+    border: 2px solid #0033A0; /* Color azul de la bandera */
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    font-family: 'Comic Sans MS', cursive, sans-serif; /* Fuente infantil */
+}
+
+.message-bubble {
+    background-color: #FF3D00; /* Color rojo de la bandera */
+    color: white;
+    border-radius: 15px;
+    padding: 10px;
+    margin: 5px 0;
+    max-width: 80%;
+    font-family: 'Comic Sans MS', cursive, sans-serif; /* Fuente infantil */
+}
+
+.input-area {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.input-area input {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid #0033A0; /* Color azul de la bandera */
+    border-radius: 15px;
+    font-family: 'Comic Sans MS', cursive, sans-serif; /* Fuente infantil */
+}
+
+.input-area button {
+    background-color: #FFD700; /* Color amarillo brillante */
+    border: none;
+    border-radius: 15px;
+    padding: 10px 15px;
+    margin-left: 10px;
+    cursor: pointer;
+    font-family: 'Comic Sans MS', cursive, sans-serif; /* Fuente infantil */
+}
+
+.input-area button:hover {
+    background-color: #FFC107; /* Color amarillo más claro al pasar el mouse */
+}

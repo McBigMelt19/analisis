@@ -35,19 +35,21 @@ const AppSidebar = ({ nav }) => {
     >
       <CSidebarHeader className="border-bottom">
         <CSidebarBrand className="d-none d-md-flex" to="/">
-        <img 
-          src={myPngLogo} 
-          alt="ford" 
-          style={{ height: '70px', width: 'auto', padding: '10px 40px' }} 
-        />
-      </CSidebarBrand>
-      <CSidebarBrand className="d-md-none" to="/">
-        <img 
-          src={myPngLogo} 
-          alt="ford" 
-          style={{ height: '30px' }} 
-        />
-      </CSidebarBrand>
+          <div className="logo-sticker">
+            <img
+              src={myPngLogo}
+              alt="ford"
+              style={{ height: '70px', width: 'auto', padding: '5px' }}
+            />
+          </div>
+        </CSidebarBrand>
+        <CSidebarBrand className="d-md-none" to="/">
+          <img
+            src={myPngLogo}
+            alt="ford"
+            style={{ height: '30px' }}
+          />
+        </CSidebarBrand>
         <CCloseButton
           className="d-lg-none"
           dark

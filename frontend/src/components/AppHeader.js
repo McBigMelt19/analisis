@@ -28,6 +28,7 @@ import {
 import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
 import { getUserRole } from '../config/auth'
+import { logo } from '../assets/brand/logo' // sticker logo svg
 
 const AppHeader = () => {
   const headerRef = useRef()
@@ -56,6 +57,12 @@ const AppHeader = () => {
         >
           <CIcon icon={cilMenu} size="lg" />
         </CHeaderToggler>
+
+        {/* logo dentro de un sticker infantil */}
+        <div className="logo-sticker d-flex align-items-center me-3" aria-hidden>
+          {logo}
+        </div>
+
         <CHeaderNav className="d-none d-md-flex">
           <CNavItem>
             <CNavLink to="/dashboard" as={NavLink}>

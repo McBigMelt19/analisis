@@ -1,0 +1,20 @@
+.simplebar-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background-color: #FFD700; /* Color amarillo brillante de la bandera de Venezuela */
+}
+
+.simplebar-track {
+  background-color: #0033A0; /* Color azul de la bandera de Venezuela */
+}
+
+.simplebar-scrollbar {
+  background-color: #FCD116; /* Color amarillo de la bandera de Venezuela */
+  border-radius: 10px;
+}
+
+.simplebar-scrollbar:before {
+  background-color: #C8102E; /* Color rojo de la bandera de Venezuela */
+  border-radius: 10px;
+}
