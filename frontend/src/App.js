@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect } from 'react'
-import { HashRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, HashRouter, Route, Routes } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 
 import { CSpinner, useColorModes } from '@coreui/react'
@@ -7,6 +7,15 @@ import './scss/style.scss'
 
 // We use those styles to show code examples, you should remove them in your application.
 import './scss/examples.scss'
+
+// --- 1. DEFINICIÓN DE LOADING (Corrección del ReferenceError) ---
+// Usamos el CSpinner de CoreUI, que ya está importado.
+const loading = (
+  <div className="pt-3 text-center">
+    <CSpinner color="primary" />
+  </div>
+)
+// -----------------------------------------------------------------
 
 // Containers
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
@@ -36,23 +45,22 @@ const App = () => {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <HashRouter>
+    // Es redundante usar HashRouter y BrowserRouter anidados. 
+    // Usaremos BrowserRouter como estándar para mejor SEO y URLs limpias.
+    <BrowserRouter>
       <Suspense
-        fallback={
-          <div className="pt-3 text-center">
-            <CSpinner color="primary" variant="grow" />
-          </div>
-        }
+        fallback={loading} // <-- 'loading' ya está definido
       >
         <Routes>
           <Route exact path="/login" name="Login Page" element={<Login />} />
           <Route exact path="/register" name="Register Page" element={<Register />} />
           <Route exact path="/404" name="Page 404" element={<Page404 />} />
           <Route exact path="/500" name="Page 500" element={<Page500 />} />
-          <Route path="*" name="Home" element={<DefaultLayout />} />
+          {/* La ruta protegida por DefaultLayout */}
+          <Route path="*" name="home" element={<DefaultLayout />} />
         </Routes>
       </Suspense>
-    </HashRouter>
+    </BrowserRouter>
   )
 }
 

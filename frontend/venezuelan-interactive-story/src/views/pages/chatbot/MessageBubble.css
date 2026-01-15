@@ -1,0 +1,36 @@
+.message-bubble {
+  background-color: #FFD700; /* Color amarillo brillante, inspirado en la bandera de Venezuela */
+  color: #000; /* Texto en negro para un buen contraste */
+  border-radius: 15px;
+  padding: 10px 15px;
+  margin: 5px 0;
+  max-width: 80%;
+  position: relative;
+  font-family: 'Comic Sans MS', cursive, sans-serif; /* Fuente infantil */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+
+  &.from-user {
+    background-color: #3CB371; /* Color verde para mensajes del usuario */
+    align-self: flex-end; /* Alinear a la derecha */
+  }
+
+  &.from-bot {
+    background-color: #FF6347; /* Color rojo para mensajes del bot */
+    align-self: flex-start; /* Alinear a la izquierda */
+  }
+
+  &:hover {
+    transform: scale(1.05); /* Efecto de aumento al pasar el mouse */
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 100%; /* Posicionar la punta de la burbuja */
+    left: 10px; /* Ajustar la posición */
+    border-width: 10px;
+    border-style: solid;
+    border-color: transparent transparent #FFD700 transparent; /* Triángulo apuntando hacia arriba */
+  }
+}

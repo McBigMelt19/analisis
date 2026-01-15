@@ -5,6 +5,14 @@
 @use "@coreui/coreui/scss/mixins/breakpoints" as *;
 @use "@coreui/coreui/scss/mixins/color-mode" as *;
 
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&family=Nunito:wght@400;700&display=swap');
+
+$primary-color: #FFC72C; // Amarillo vibrante
+$secondary-color: #004587; // Azul profundo
+$tertiary-color: #E64A19; // Rojo-acento
+
+$font-family-base: 'Fredoka', 'Nunito', sans-serif;
+
 .example {
   &:not(:first-child) {
     margin-top: 1.5rem;
@@ -18,7 +26,6 @@
     margin-top: 1.5rem;
   }
 
-  // Components examples
   .preview {
     + p {
       margin-top: 2rem;
@@ -46,13 +53,11 @@
       margin-bottom: 0;
     }
 
-    // Images
     > svg + svg,
     > img + img {
       margin-left: .5rem;
     }
 
-    // Buttons
     .col > .btn,
     .col-auto > .btn,
     > .btn,
@@ -63,7 +68,6 @@
       margin-top: .5rem;
     }
 
-    // List groups
     > .list-group {
       max-width: 400px;
     }
@@ -72,7 +76,6 @@
       max-width: 100%;
     }
 
-    // Navbars
     .fixed-top,
     .sticky-top {
       position: static;
@@ -83,6 +86,30 @@
       position: static;
       margin: 1rem -1rem -1rem;
     }
+
+    @include media-breakpoint-up(sm) {
+      .fixed-top,
+      .sticky-top {
+        margin: -1.5rem -1.5rem 1rem;
+      }
+      .fixed-bottom {
+        margin: 1rem -1.5rem -1.5rem;
+      }
+    }
+
+    .pagination {
+      margin-top: .5rem;
+      margin-bottom: .5rem;
+    }
+
+    .docs-example-modal {
+      .modal {
+        position: static;
+        display: block;
+      }
+    }
+  }
+}
 
     @include media-breakpoint-up(sm) {
       .fixed-top,
@@ -106,8 +133,7 @@
         display: block;
       }
     }
-  }
-}
+  
 
 @include color-mode(dark) {
   .example .tab-content {

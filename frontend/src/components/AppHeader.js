@@ -27,10 +27,13 @@ import {
 
 import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
+import { useAuth } from '../context/AuthContext'
+import { logo } from '../assets/brand/logo' // sticker logo svg
 
 const AppHeader = () => {
   const headerRef = useRef()
   const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
+  const { currentUser } = useAuth()
 
   const dispatch = useDispatch()
   const sidebarShow = useSelector((state) => state.sidebarShow)
@@ -45,6 +48,7 @@ const AppHeader = () => {
     return () => document.removeEventListener('scroll', handleScroll)
   }, [])
 
+
   return (
     <CHeader position="sticky" className="mb-4 p-0" ref={headerRef}>
       <CContainer className="border-bottom px-4" fluid>
@@ -54,6 +58,12 @@ const AppHeader = () => {
         >
           <CIcon icon={cilMenu} size="lg" />
         </CHeaderToggler>
+
+        {/* logo dentro de un sticker infantil */}
+        <div className="logo-sticker d-flex align-items-center me-3" aria-hidden>
+          {logo}
+        </div>
+
         <CHeaderNav className="d-none d-md-flex">
           <CNavItem>
             <CNavLink to="/dashboard" as={NavLink}>
@@ -85,6 +95,11 @@ const AppHeader = () => {
           </CNavItem>
         </CHeaderNav>
         <CHeaderNav>
+          <CNavItem className="d-flex align-items-center me-2">
+            <span className="text-muted small">
+              {currentUser ? `${currentUser.name} (${currentUser.role === 'teacher' ? 'Profesor' : 'Estudiante'})` : 'Invitado'}
+            </span>
+          </CNavItem>
           <li className="nav-item py-1">
             <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
           </li>

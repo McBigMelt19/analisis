@@ -16,7 +16,8 @@
     "build": "vite build",
     "lint": "eslint",
     "serve": "vite preview",
-    "start": "vite"
+    "start": "vite",
+    "server": "json-server --watch db.json --port 3001"
   },
   "dependencies": {
     "@coreui/chartjs": "^4.1.0",
@@ -26,10 +27,12 @@
     "@coreui/react": "^5.9.1",
     "@coreui/react-chartjs": "^3.0.0",
     "@coreui/utils": "^2.0.2",
+    "@google/generative-ai": "^0.24.1",
     "@popperjs/core": "^2.11.8",
     "chart.js": "^4.5.1",
     "classnames": "^2.5.1",
     "core-js": "^3.46.0",
+    "json-server": "^1.0.0-beta.3",
     "prop-types": "^15.8.1",
     "react": "^19.2.0",
     "react-chatbotify": "^2.4.1",

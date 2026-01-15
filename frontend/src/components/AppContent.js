@@ -11,23 +11,25 @@ const AppContent = () => {
       <Suspense fallback={<CSpinner color="primary" />}>
         <Routes>
           {routes.map((route, idx) => {
+            if (!route.element) return null
+            const Element = route.element
             return (
-              route.element && (
-                <Route
-                  key={idx}
-                  path={route.path}
-                  exact={route.exact}
-                  name={route.name}
-                  element={<route.element />}
-                />
-              )
+              <Route
+                key={idx} // clave simple basada en índice
+                path={route.path}
+                name={route.name}
+                element={<Element />}
+              />
             )
           })}
-          <Route path="/" element={<Navigate to="dashboard" replace />} />
+
+          {/* Si el usuario llega a una ruta no registrada, enviamos a /home */}
+          <Route path="*" element={<Navigate to="/home" replace />} />
         </Routes>
       </Suspense>
     </CContainer>
   )
 }
 
+// Nota: Asegúrate de que el path en App.js para DefaultLayout es path="*"
 export default React.memo(AppContent)

@@ -1,104 +1,168 @@
-@use "@coreui/coreui/scss/coreui" as * with ( 
+@use "@coreui/coreui/scss/coreui" as * with (
   $enable-deprecation-messages: false,
+  $primary: #FFC72C,
+  $secondary: #004587,
+  $body-bg: #FBF7F1,
+  $card-bg: #FFF8E6,
+  $font-family-base: ('Fredoka', 'Nunito', sans-serif)
 );
+
 @use "@coreui/chartjs/scss/coreui-chartjs";
 @use "vendors/simplebar";
 
+// Variables locales para uso en este archivo (si se necesitan fuera del scope de coreui)
+$primary: #FFC72C;
+$secondary: #004587;
+$accent: #E64A19;
+$body-bg: #FBF7F1;
+$card-bg: #FFF8E6;
+$font-family-base: 'Fredoka', 'Nunito', sans-serif;
+
+$font-family-base: 'Fredoka', 'Nunito', sans-serif;
+
 body {
-  background-color: var(--cui-tertiary-bg);
+  background-color: $body-bg;
+  font-family: $font-family-base;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2b2b2b;
+  /* sutil textura pergamino con degradado */
+  background-image:
+    radial-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255,255,255,0.6), rgba(250,240,225,0.4));
+  background-size: 40px 40px, 100% 100%;
 }
 
-.wrapper {
-  width: 100%;
-  padding-inline: var(--cui-sidebar-occupy-start, 0) var(--cui-sidebar-occupy-end, 0);
-  will-change: auto;
-  @include transition(padding .15s);
+/* Layout wrapper con patrón más vibrante */
+.venezuelan-layout {
+  background: linear-gradient(180deg, rgba(255,246,216,0.6), rgba(251,247,241,0.9));
+  min-height: 100vh;
 }
 
-.header > .container-fluid,
-.sidebar-header {
-  min-height: calc(4rem + 1px); // stylelint-disable-line function-disallowed-list
+/* Sidebar: azul profundo, links en amarillo y acentos */
+.c-sidebar {
+  background-color: $secondary !important;
+  color: $primary;
+  border-right: 0;
+  box-shadow: 8px 0 20px rgba(0,0,0,0.08);
 }
 
-.sidebar-brand-full {
-  margin-left: 3px;
+/* Sidebar header/brand sticker para logo */
+.logo-sticker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,250,230,0.9));
+  border-radius: 14px;
+  padding: 6px;
+  margin: 6px 10px;
+  box-shadow: 0 8px 18px rgba(2,6,23,0.25);
+  border: 3px dashed rgba(255,199,44,0.18);
+  transform: rotate(-3deg);
 }
 
-.sidebar-header {
-  .nav-underline-border {
-    --cui-nav-underline-border-link-padding-x: 1rem;
-    --cui-nav-underline-border-gap: 0;
-  }
-
-  .nav-link {
-    display: flex;
-    align-items: center;
-    min-height: calc(4rem + 1px); // stylelint-disable-line function-disallowed-list
-  }
+/* Nav link styles (CoreUI uses .nav-link inside sidebar) */
+.c-sidebar .nav-link {
+  color: rgba(255, 243, 179, 0.95);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  transition: all .18s ease-in-out;
 }
 
-.sidebar-toggler {
-  margin-inline-start: auto;
+.c-sidebar .nav-link:hover {
+  color: #ffffff;
+  background: linear-gradient(90deg, rgba(255,199,44,0.12), rgba(255,199,44,0.03));
+  transform: translateX(6px);
+  border-radius: 10px;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.08);
 }
 
-.sidebar-narrow,
-.sidebar-narrow-unfoldable:not(:hover) {
-  .sidebar-toggler {
-    margin-inline-end: auto;
-  }
+.c-sidebar .nav-link.active,
+.c-sidebar .nav-item .nav-link.active {
+  background: linear-gradient(90deg, rgba(255,199,44,0.18), rgba(255,199,44,0.06));
+  color: #111827;
+  box-shadow: 0 6px 16px rgba(4,12,30,0.15);
+  border-radius: 10px;
 }
 
-.header > .container-fluid + .container-fluid {
-  min-height: 3rem;
-}
-
+/* Footer */
 .footer {
-  min-height: calc(3rem + 1px); // stylelint-disable-line function-disallowed-list
+  min-height: calc(3rem + 1px);
+  background-color: $primary; 
+  color: $secondary;
 }
 
-@include color-mode(dark) {
-  body {
-    background-color: var(--cui-dark-bg-subtle);
-  }
-
-  .footer {
-    --cui-footer-bg: var(--cui-body-bg);
-  }
+/* Efectos para tarjetas y botones tipo libro/cofre para grados */
+.grade-btn {
+  display: block;
+  width: 100%;
+  padding: .7rem .9rem;
+  margin: .35rem 0;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #FFF1C7, #FFE091);
+  border: 2px solid rgba(0,0,0,0.06);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+  color: $secondary;
+  font-weight: 800;
+  text-align: left;
+  text-decoration: none;
 }
 
-/* Asegúrate de que este CSS esté cargado en tu proyecto */
+/* Versión "libro" con icono lateral */
+.grade-btn .nav-icon {
+  background: linear-gradient(90deg, rgba(0,0,0,0.06), rgba(255,255,255,0.12));
+  border-radius: 8px;
+  padding: 6px;
+  margin-right: .6rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Hero dentro de la navegación (puede actuar como portada en la zona superior) */
+.home-hero {
+  padding: 1rem;
+  border-radius: 12px;
+  margin: .5rem;
+  background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,247,230,0.7));
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+/* Títulos creativos */
+.nav-title, .c-nav-title {
+  font-family: $font-family-base;
+  font-weight: 800;
+  color: $primary;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.06);
+}
+
+/* Ajustes responsivos y utilitarios */
+@media (max-width: 768px) {
+  .logo-sticker { transform: rotate(0deg); padding: 4px; }
+  .grade-btn { padding: .6rem .7rem; }
+}
+
+/* Mantener utilidades previas */
 .card-hover-scale:hover {
-    /* El elemento se agranda 5% al hacer hover */
     transform: scale(1.05); 
-    /* Agregamos una transición para que el cambio sea suave */
     transition: transform 0.3s ease-in-out; 
-    /* Mejoramos la visibilidad al agregar una sombra sutil */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .scale-up-center {
     animation: scale-up-center 0.4s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
 } 
+
 @keyframes scale-up-center { 
-    0% { transform: scale(.95); } /* Empezamos ligeramente más cerca para el efecto hover */
-    100% { transform: scale(1.03); } /* Terminamos ligeramente más grandes */
+    0% { transform: scale(.95); } 
+    100% { transform: scale(1.03); } 
 }
 
-/* Estilo para posicionar cualquier cosa en la esquina inferior derecha */
 .alert-fixed-bottom-right {
-    /* Mantiene el elemento fijo respecto a la ventana del navegador */
     position: fixed; 
-    
-    /* Lo coloca en la esquina inferior derecha */
     bottom: 20px; 
     right: 20px; 
-    
-    /* Asegura que esté por encima de casi todos los demás elementos, incluyendo modales */
     z-index: 2000; 
-    
-    /* Define un ancho máximo para que la alerta no ocupe toda la pantalla */
     max-width: 400px; 
-    
-    /* Ajustamos el componente interno AlertMessage (que usa CAlert) */
     width: 100%;
 }

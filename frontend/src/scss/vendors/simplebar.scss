@@ -2,4 +2,19 @@
   display: flex;
   flex-direction: column;
   min-height: 100%;
+  background-color: #FFF7E6; /* tono pergamino claro */
+}
+
+.simplebar-track {
+  background-color: #003E73; /* azul profundo */
+}
+
+.simplebar-scrollbar {
+  background-color: #FFC72C; /* amarillo brillante */
+  border-radius: 10px;
+}
+
+.simplebar-scrollbar:before {
+  background-color: #E03B3B; /* rojo-acento */
+  border-radius: 10px;
 }
