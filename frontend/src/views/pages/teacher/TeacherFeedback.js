@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
     CCard,
     CCardBody,
@@ -14,84 +14,279 @@ import {
     CFormLabel,
     CFormSelect,
     CFormTextarea,
+    CSpinner,
+    CBadge,
+    CAlert,
+    CRow,
+    CCol,
 } from '@coreui/react'
+import { useAuth } from '../../../context/AuthContext'
+import CIcon from '@coreui/icons-react'
+import { cilCheckCircle } from '@coreui/icons'
 
 const TeacherFeedback = () => {
-    const [feedbacks, setFeedbacks] = useState([
-        { student: 'María González', activity: 'Examen: Independencia', date: '12/03/2025', comments: 'Excelente trabajo en el análisis de causas de la independencia.' },
-        { student: 'José Martínez', activity: 'Trabajo: Simón Bolívar', date: '09/03/2025', comments: 'Buen trabajo, pero podrías profundizar más en la influencia de Bolívar.' },
-    ]);
+    const { currentUser } = useAuth()
+    const [students, setStudents] = useState([])
+    const [topics, setTopics] = useState([])
+    const [feedbacks, setFeedbacks] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState('')
+    const [success, setSuccess] = useState('')
+
+    // Form state
+    const [selectedStudent, setSelectedStudent] = useState('')
+    const [selectedTopic, setSelectedTopic] = useState('')
+    const [feedbackText, setFeedbackText] = useState('')
+    const [submitting, setSubmitting] = useState(false)
+
+    useEffect(() => {
+        if (currentUser && currentUser.role === 'teacher') {
+            fetchData()
+        }
+    }, [currentUser])
+
+    const fetchData = async () => {
+        setLoading(true)
+        try {
+            // Fetch students del grado
+            const studentsRes = await fetch(
+                `http://localhost:3001/users?role=student&grade_id=${currentUser.grade_id}`,
+            )
+            const studentsData = await studentsRes.json()
+            setStudents(studentsData)
+
+            // Fetch topics del grado
+            const topicsRes = await fetch(
+                `http://localhost:3001/topics?grade_id=${currentUser.grade_id}`,
+            )
+            const topicsData = await topicsRes.json()
+            if (topicsData.length > 0) {
+                setTopics(topicsData[0].temas)
+            }
+
+            // Fetch feedbacks del profesor
+            const feedbacksRes = await fetch(
+                `http://localhost:3001/feedbacks?teacher_id=${currentUser.id}`,
+            )
+            const feedbacksData = await feedbacksRes.json()
+            setFeedbacks(feedbacksData)
+        } catch (error) {
+            console.error('Error cargando datos:', error)
+            setError('Error al cargar datos. Verifica que json-server esté corriendo.')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        setError('')
+        setSuccess('')
+
+        if (!selectedStudent || !selectedTopic || !feedbackText.trim()) {
+            setError('Por favor completa todos los campos')
+            return
+        }
+
+        setSubmitting(true)
+
+        try {
+            const payload = {
+                student_id: parseInt(selectedStudent),
+                teacher_id: currentUser.id,
+                topic: selectedTopic,
+                feedback: feedbackText,
+                date: new Date().toISOString().split('T')[0],
+            }
+
+            const response = await fetch('http://localhost:3001/feedbacks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            })
+
+            if (response.ok) {
+                const newFeedback = await response.json()
+                setFeedbacks([newFeedback, ...feedbacks])
+                setSuccess('✅ Retroalimentación enviada exitosamente')
+
+                // Reset form
+                setSelectedStudent('')
+                setSelectedTopic('')
+                setFeedbackText('')
+
+                // Clear success message after 3 seconds
+                setTimeout(() => setSuccess(''), 3000)
+            } else {
+                setError('Error al guardar la retroalimentación')
+            }
+        } catch (error) {
+            console.error('Error enviando feedback:', error)
+            setError('Error al enviar la retroalimentación')
+        } finally {
+            setSubmitting(false)
+        }
+    }
+
+    const getStudentName = (studentId) => {
+        const student = students.find((s) => s.id === studentId)
+        return student ? student.name : 'Desconocido'
+    }
+
+    if (!currentUser || currentUser.role !== 'teacher') {
+        return <div className="alert alert-warning m-4">Esta página es solo para profesores.</div>
+    }
+
+    if (loading) {
+        return (
+            <div className="text-center p-5">
+                <CSpinner color="primary" />
+                <p className="mt-3 text-muted">Cargando retroalimentación...</p>
+            </div>
+        )
+    }
 
     return (
         <div className="teacher-feedback">
-            <h2 className="text-primary mb-4" style={{ borderBottom: '2px solid #fcd116', paddingBottom: '10px' }}>Retroalimentación</h2>
-            <p>Proporciona comentarios y sugerencias a los estudiantes sobre su desempeño.</p>
+            <CRow className="mb-4">
+                <CCol>
+                    <h2
+                        className="text-primary"
+                        style={{ borderBottom: '2px solid #fcd116', paddingBottom: '10px' }}
+                    >
+                        💬 Retroalimentación a Estudiantes
+                    </h2>
+                    <p className="text-muted">
+                        Proporciona comentarios y sugerencias personalizadas a tus estudiantes sobre su
+                        desempeño en los diferentes temas.
+                    </p>
+                </CCol>
+            </CRow>
 
+            {/* Formulario de Retroalimentación */}
             <CCard className="mb-4 shadow-sm">
+                <CCardHeader className="bg-light">
+                    <h5 className="mb-0">Nueva Retroalimentación</h5>
+                </CCardHeader>
                 <CCardBody>
-                    <CForm>
+                    {error && <CAlert color="danger">{error}</CAlert>}
+                    {success && (
+                        <CAlert color="success">
+                            <CIcon icon={cilCheckCircle} className="me-2" />
+                            {success}
+                        </CAlert>
+                    )}
+
+                    <CForm onSubmit={handleSubmit}>
                         <div className="mb-3">
-                            <CFormLabel htmlFor="feedback-student">Seleccionar Estudiante:</CFormLabel>
-                            <CFormSelect id="feedback-student">
+                            <CFormLabel htmlFor="feedback-student">
+                                <strong>Seleccionar Estudiante:</strong>
+                            </CFormLabel>
+                            <CFormSelect
+                                id="feedback-student"
+                                value={selectedStudent}
+                                onChange={(e) => setSelectedStudent(e.target.value)}
+                                required
+                            >
                                 <option value="">-- Selecciona un estudiante --</option>
-                                <option value="1">María González</option>
-                                <option value="2">José Martínez</option>
-                                <option value="3">Ana López</option>
-                                <option value="4">Carlos Pérez</option>
+                                {students.map((student) => (
+                                    <option key={student.id} value={student.id}>
+                                        {student.name} ({student.learning_style})
+                                    </option>
+                                ))}
                             </CFormSelect>
                         </div>
 
                         <div className="mb-3">
-                            <CFormLabel htmlFor="feedback-activity">Actividad Relacionada:</CFormLabel>
-                            <CFormSelect id="feedback-activity">
-                                <option value="">-- Selecciona una actividad --</option>
-                                <option value="1">Examen: Independencia</option>
-                                <option value="2">Trabajo: Simón Bolívar</option>
-                                <option value="3">Proyecto: Historia Local</option>
+                            <CFormLabel htmlFor="feedback-topic">
+                                <strong>Tema Relacionado:</strong>
+                            </CFormLabel>
+                            <CFormSelect
+                                id="feedback-topic"
+                                value={selectedTopic}
+                                onChange={(e) => setSelectedTopic(e.target.value)}
+                                required
+                            >
+                                <option value="">-- Selecciona un tema --</option>
+                                {topics.map((topic, index) => (
+                                    <option key={index} value={topic}>
+                                        {topic}
+                                    </option>
+                                ))}
                             </CFormSelect>
                         </div>
 
                         <div className="mb-3">
-                            <CFormLabel htmlFor="feedback-content">Retroalimentación:</CFormLabel>
-                            <CFormTextarea id="feedback-content" rows={4} placeholder="Escribe aquí tus comentarios para el estudiante..."></CFormTextarea>
+                            <CFormLabel htmlFor="feedback-content">
+                                <strong>Retroalimentación:</strong>
+                            </CFormLabel>
+                            <CFormTextarea
+                                id="feedback-content"
+                                rows={4}
+                                placeholder="Escribe aquí tus comentarios para el estudiante..."
+                                value={feedbackText}
+                                onChange={(e) => setFeedbackText(e.target.value)}
+                                required
+                            />
+                            <small className="text-muted">
+                                Sé específico y constructivo. Destaca fortalezas y áreas de mejora.
+                            </small>
                         </div>
 
-                        <CButton color="secondary" className="text-white">Enviar Retroalimentación</CButton>
+                        <CButton color="primary" type="submit" disabled={submitting}>
+                            {submitting ? (
+                                <>
+                                    <CSpinner size="sm" className="me-2" />
+                                    Enviando...
+                                </>
+                            ) : (
+                                'Enviar Retroalimentación'
+                            )}
+                        </CButton>
                     </CForm>
                 </CCardBody>
             </CCard>
 
+            {/* Historial de Retroalimentación */}
             <CCard className="shadow-sm">
                 <CCardHeader className="bg-light">
-                    <h3 className="mb-0 text-secondary">Historial de Retroalimentación</h3>
+                    <h5 className="mb-0">Historial de Retroalimentación ({feedbacks.length})</h5>
                 </CCardHeader>
                 <CCardBody>
-                    <div className="table-responsive">
-                        <CTable hover bordered>
-                            <CTableHead color="light">
-                                <CTableRow>
-                                    <CTableHeaderCell>Estudiante</CTableHeaderCell>
-                                    <CTableHeaderCell>Actividad</CTableHeaderCell>
-                                    <CTableHeaderCell>Fecha</CTableHeaderCell>
-                                    <CTableHeaderCell>Comentarios</CTableHeaderCell>
-                                    <CTableHeaderCell>Acciones</CTableHeaderCell>
-                                </CTableRow>
-                            </CTableHead>
-                            <CTableBody>
-                                {feedbacks.map((f, index) => (
-                                    <CTableRow key={index}>
-                                        <CTableDataCell>{f.student}</CTableDataCell>
-                                        <CTableDataCell>{f.activity}</CTableDataCell>
-                                        <CTableDataCell>{f.date}</CTableDataCell>
-                                        <CTableDataCell>{f.comments}</CTableDataCell>
-                                        <CTableDataCell>
-                                            <CButton size="sm" color="secondary" className="text-white">Ver</CButton>
-                                        </CTableDataCell>
+                    {feedbacks.length > 0 ? (
+                        <div className="table-responsive">
+                            <CTable hover bordered>
+                                <CTableHead color="light">
+                                    <CTableRow>
+                                        <CTableHeaderCell>Fecha</CTableHeaderCell>
+                                        <CTableHeaderCell>Estudiante</CTableHeaderCell>
+                                        <CTableHeaderCell>Tema</CTableHeaderCell>
+                                        <CTableHeaderCell>Comentarios</CTableHeaderCell>
                                     </CTableRow>
-                                ))}
-                            </CTableBody>
-                        </CTable>
-                    </div>
+                                </CTableHead>
+                                <CTableBody>
+                                    {feedbacks.map((f) => (
+                                        <CTableRow key={f.id}>
+                                            <CTableDataCell>
+                                                <CBadge color="info">{f.date}</CBadge>
+                                            </CTableDataCell>
+                                            <CTableDataCell>
+                                                <strong>{getStudentName(f.student_id)}</strong>
+                                            </CTableDataCell>
+                                            <CTableDataCell>{f.topic}</CTableDataCell>
+                                            <CTableDataCell>{f.feedback}</CTableDataCell>
+                                        </CTableRow>
+                                    ))}
+                                </CTableBody>
+                            </CTable>
+                        </div>
+                    ) : (
+                        <div className="alert alert-info mb-0">
+                            <p className="mb-0">
+                                Aún no has enviado retroalimentación. Usa el formulario arriba para comenzar.
+                            </p>
+                        </div>
+                    )}
                 </CCardBody>
             </CCard>
         </div>

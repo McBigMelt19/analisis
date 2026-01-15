@@ -12,15 +12,40 @@ import {
 import CIcon from '@coreui/icons-react'
 
 import { AppSidebarNav } from './AppSidebarNav'
+import { useAuth } from '../context/AuthContext'
 
 import myPngLogo from '../assets/brand/logo.png'
 
-import defaultNavigation from '../_nav'
+import defaultNavigation, { getStudentNav } from '../_nav_student'
+import _navTeacher from '../_nav_teacher'
 
 const AppSidebar = ({ nav }) => {
   const dispatch = useDispatch()
   const unfoldable = useSelector((state) => state.sidebarUnfoldable)
   const sidebarShow = useSelector((state) => state.sidebarShow)
+  const { currentUser } = useAuth()
+
+  // 🎯 Determinar qué navegación mostrar según el rol del usuario
+  const getNavigation = () => {
+    // Si se pasa nav como prop, usarlo
+    if (nav && nav.length) {
+      return nav
+    }
+
+    // Si no hay usuario autenticado, usar navegación por defecto
+    if (!currentUser) {
+      return defaultNavigation
+    }
+
+    // Navegación según el rol
+    if (currentUser.role === 'student') {
+      return getStudentNav(currentUser) // Filtrado por grado
+    } else if (currentUser.role === 'teacher') {
+      return _navTeacher
+    }
+
+    return defaultNavigation
+  }
 
   return (
     <CSidebar
@@ -44,11 +69,7 @@ const AppSidebar = ({ nav }) => {
           </div>
         </CSidebarBrand>
         <CSidebarBrand className="d-md-none" to="/">
-          <img
-            src={myPngLogo}
-            alt="ford"
-            style={{ height: '30px' }}
-          />
+          <img src={myPngLogo} alt="ford" style={{ height: '30px' }} />
         </CSidebarBrand>
         <CCloseButton
           className="d-lg-none"
@@ -56,8 +77,8 @@ const AppSidebar = ({ nav }) => {
           onClick={() => dispatch({ type: 'set', sidebarShow: false })}
         />
       </CSidebarHeader>
-      {/* Usa la navegación pasada por prop `nav` si existe, si no usa el _nav por defecto */}
-      <AppSidebarNav items={nav && nav.length ? nav : defaultNavigation} />
+      {/* Usa la navegación dinámica basada en el rol del usuario */}
+      <AppSidebarNav items={getNavigation()} />
       <CSidebarFooter className="border-top d-none d-lg-flex">
         <CSidebarToggler
           onClick={() => dispatch({ type: 'set', sidebarUnfoldable: !unfoldable })}
@@ -68,3 +89,4 @@ const AppSidebar = ({ nav }) => {
 }
 
 export default React.memo(AppSidebar)
+

@@ -12,28 +12,40 @@ import {
   CInputGroup,
   CInputGroupText,
   CRow,
+  CAlert,
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilLockLocked, cilUser } from '@coreui/icons';
-import { saveUserRole } from '../../../config/auth'; // Importamos la función de guardar rol
-import { auto } from '@popperjs/core';
+import { useAuth } from '../../../context/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  // Función que simula el inicio de sesión basado en el rol
-  const handleLogin = (role) => {
-    // 1. Guardar el rol en el almacenamiento
-    saveUserRole(role);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-    // 2. Redirigir según el rol
-    if (role === 'teacher') {
-      // Llevar directamente al módulo del profesor
-      navigate('/teacher/dashboard', { replace: true })
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    const result = await login(username, password);
+
+    if (result.success) {
+      // Redirigir según el rol
+      if (result.user.role === 'teacher') {
+        navigate('/teacher/dashboard', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
     } else {
-      // Comportamiento por defecto para estudiantes
-      navigate('/home', { replace: true })
+      setError(result.message);
     }
+
+    setLoading(false);
   };
 
   return (
@@ -44,17 +56,29 @@ const Login = () => {
             <CCardGroup>
               <CCard className="p-4">
                 <CCardBody>
-                  <CForm>
-                    <h1 className="text-center">Panel de Acceso</h1>
-                    <p className="text-body-secondary text-center">Selecciona el perfil para ingresar</p>
+                  <CForm onSubmit={handleSubmit}>
+                    <h1 className="text-center">Iniciar Sesión</h1>
+                    <p className="text-body-secondary text-center">Historia de Venezuela - LMS</p>
 
-                    {/* Campos de Login (manteniéndolos para la estética original) 
+                    {error && (
+                      <CAlert color="danger" dismissible onClose={() => setError('')}>
+                        {error}
+                      </CAlert>
+                    )}
+
                     <CInputGroup className="mb-3">
                       <CInputGroupText>
                         <CIcon icon={cilUser} />
                       </CInputGroupText>
-                      <CFormInput placeholder="Usuario" autoComplete="username" />
+                      <CFormInput
+                        placeholder="Usuario"
+                        autoComplete="username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        required
+                      />
                     </CInputGroup>
+
                     <CInputGroup className="mb-4">
                       <CInputGroupText>
                         <CIcon icon={cilLockLocked} />
@@ -63,40 +87,30 @@ const Login = () => {
                         type="password"
                         placeholder="Contraseña"
                         autoComplete="current-password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
                       />
                     </CInputGroup>
-                    */}
-                    <CRow className="align-items-center justify-content-between">
-                      {/* Botón de Estudiante */}
-                      <CCol xs={6} >
+
+                    <CRow>
+                      <CCol xs={12}>
                         <CButton
                           color="primary"
                           className="px-4 w-100"
-                          onClick={() => handleLogin('student')}
+                          type="submit"
+                          disabled={loading}
                         >
-                          Acceder como Estudiante 🧑‍🎓
-                        </CButton>
-                      </CCol>
-
-                      {/* Botón de Profesor */}
-                      <CCol xs={6} >
-                        <CButton
-                          color="info"
-                          className="px-4 w-100"
-                          onClick={() => handleLogin('teacher')}
-                        >
-                          Acceder como Profesor 🧑‍🏫
+                          {loading ? 'Iniciando sesión...' : 'Ingresar'}
                         </CButton>
                       </CCol>
                     </CRow>
 
                     <CRow className="mt-3">
-                      <CCol xs={12} className="text-center">
-                        <Link to="#">
-                          {/*                          <CButton color="link" className="px-0">
-                            ¿Olvidaste la Contraseña?
-                          </CButton>
-*/}                        </Link>
+                      <CCol xs={12} className="text-center text-muted">
+                        <small>
+                          💡 Tip: Usa "prof.maria.rodriguez" o "juan.silva" / Password: "123456"
+                        </small>
                       </CCol>
                     </CRow>
                   </CForm>

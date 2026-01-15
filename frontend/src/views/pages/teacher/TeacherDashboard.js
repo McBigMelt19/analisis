@@ -1,115 +1,170 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
 import {
   CCard,
   CCardBody,
-  CRow,
+  CCardHeader,
   CCol,
+  CRow,
+  CTable,
+  CTableBody,
+  CTableDataCell,
+  CTableHead,
+  CTableHeaderCell,
+  CTableRow,
+  CButton,
+  CBadge,
+  CSpinner,
   CAvatar,
-  CWidgetStatsF,
 } from '@coreui/react'
-import CIcon from '@coreui/icons-react'
-import {
-  cilList,
-  cilCloudUpload,
-  cilCommentSquare,
-  cilPlus,
-  cilArrowRight,
-} from '@coreui/icons'
+import { useAuth } from '../../../context/AuthContext'
+import StudentProgressModal from '../../../components/StudentProgressModal'
 
 const TeacherDashboard = () => {
+  const { currentUser } = useAuth()
+  const [students, setStudents] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [selectedStudent, setSelectedStudent] = useState(null)
+  const [modalVisible, setModalVisible] = useState(false)
+
+  useEffect(() => {
+    if (currentUser && currentUser.role === 'teacher') {
+      fetchStudents()
+    }
+  }, [currentUser])
+
+  const fetchStudents = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:3001/users?role=student&grade_id=${currentUser.grade_id}`,
+      )
+
+      if (!response.ok) {
+        throw new Error('Error al cargar estudiantes')
+      }
+
+      const data = await response.json()
+      setStudents(data)
+    } catch (error) {
+      console.error('Error cargando estudiantes:', error)
+      setError('No se pudieron cargar los estudiantes. Verifica que json-server esté corriendo.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getLearningStyleColor = (style) => {
+    switch (style) {
+      case 'Visual':
+        return 'info'
+      case 'Auditivo':
+        return 'warning'
+      case 'Kinestésico':
+        return 'success'
+      default:
+        return 'secondary'
+    }
+  }
+
+  const getInitials = (name) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2)
+  }
+
+  const openProgressModal = (student) => {
+    setSelectedStudent(student)
+    setModalVisible(true)
+  }
+
+  if (!currentUser || currentUser.role !== 'teacher') {
+    return <div className="alert alert-warning m-4">Esta página es solo para profesores.</div>
+  }
+
+  if (loading) {
+    return (
+      <div className="text-center p-5">
+        <CSpinner color="primary" />
+        <p className="mt-3 text-muted">Cargando dashboard...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="alert alert-danger m-4">
+        {error}
+        <br />
+        <small>
+          Ejecuta: <code>npm run server</code>
+        </small>
+      </div>
+    )
+  }
+
   return (
-    <div className="teacher-dashboard-welcome">
-      <CCard className="mb-4 shadow-sm border-0 bg-white">
-        <CCardBody className="p-4">
-          <div className="d-flex justify-content-between align-items-center flex-wrap">
-            <div className="welcome-message">
-              <h2 className="text-secondary fw-bold mb-1">Bienvenido, Prof. Carlos Rodríguez</h2>
-              <p className="text-muted mb-0">Panel de control y acceso rápido a tus herramientas.</p>
-            </div>
-            <div className="user-info d-flex align-items-center mt-3 mt-md-0">
-              <div
-                className="user-avatar rounded-circle d-flex align-items-center justify-content-center text-white fw-bold me-2"
-                style={{ width: '50px', height: '50px', backgroundColor: '#00247d', fontSize: '1.2em' }}
-              >
-                CR
-              </div>
-              <span className="fw-semibold text-dark">Prof. Carlos Rodríguez</span>
-            </div>
-          </div>
+    <div>
+      <CRow className="mb-4">
+        <CCol>
+          <h2>Bienvenido, {currentUser.name}</h2>
+          <p className="text-muted">Grado: {currentUser.grade_id}°</p>
+        </CCol>
+      </CRow>
+
+      <CCard>
+        <CCardHeader>
+          <strong>Mis Estudiantes ({students.length})</strong>
+        </CCardHeader>
+        <CCardBody>
+          <CTable hover responsive>
+            <CTableHead>
+              <CTableRow>
+                <CTableHeaderCell>Estudiante</CTableHeaderCell>
+                <CTableHeaderCell>Email</CTableHeaderCell>
+                <CTableHeaderCell>Estilo de Aprendizaje</CTableHeaderCell>
+                <CTableHeaderCell>Acciones</CTableHeaderCell>
+              </CTableRow>
+            </CTableHead>
+            <CTableBody>
+              {students.map((student) => (
+                <CTableRow key={student.id}>
+                  <CTableDataCell>
+                    <div className="d-flex align-items-center">
+                      <CAvatar color="primary" textColor="white" className="me-2">
+                        {getInitials(student.name)}
+                      </CAvatar>
+                      <strong>{student.name}</strong>
+                    </div>
+                  </CTableDataCell>
+                  <CTableDataCell>{student.email}</CTableDataCell>
+                  <CTableDataCell>
+                    <CBadge color={getLearningStyleColor(student.learning_style)}>
+                      {student.learning_style}
+                    </CBadge>
+                  </CTableDataCell>
+                  <CTableDataCell>
+                    <CButton color="primary" size="sm" onClick={() => openProgressModal(student)}>
+                      Ver Progreso
+                    </CButton>
+                  </CTableDataCell>
+                </CTableRow>
+              ))}
+            </CTableBody>
+          </CTable>
         </CCardBody>
       </CCard>
 
-      <h4 className="mb-3 text-secondary">Acceso Rápido</h4>
-      <CRow>
-        <CCol xs={12} sm={6} lg={3}>
-          <Link to="/teacher/content" className="text-decoration-none">
-            <CCard className="mb-4 shadow-sm h-100 hover-effect border-top-primary border-top-3">
-              <CCardBody className="d-flex flex-column align-items-center text-center p-4">
-                <div className="p-3 bg-light rounded-circle mb-3 text-primary">
-                  <CIcon icon={cilList} size="xl" />
-                </div>
-                <h5 className="text-dark">Gestión de Contenido</h5>
-                <p className="text-muted small">Administra lecciones y materiales.</p>
-                <div className="mt-auto text-primary fw-semibold d-flex align-items-center">
-                  Acceder <CIcon icon={cilArrowRight} size="sm" className="ms-1" />
-                </div>
-              </CCardBody>
-            </CCard>
-          </Link>
-        </CCol>
-
-        <CCol xs={12} sm={6} lg={3}>
-          <Link to="/teacher/upload-grades" className="text-decoration-none">
-            <CCard className="mb-4 shadow-sm h-100 hover-effect border-top-info border-top-3">
-              <CCardBody className="d-flex flex-column align-items-center text-center p-4">
-                <div className="p-3 bg-light rounded-circle mb-3 text-info">
-                  <CIcon icon={cilCloudUpload} size="xl" />
-                </div>
-                <h5 className="text-dark">Subir Notas</h5>
-                <p className="text-muted small">Registra calificaciones de estudiantes.</p>
-                <div className="mt-auto text-info fw-semibold d-flex align-items-center">
-                  Acceder <CIcon icon={cilArrowRight} size="sm" className="ms-1" />
-                </div>
-              </CCardBody>
-            </CCard>
-          </Link>
-        </CCol>
-
-        <CCol xs={12} sm={6} lg={3}>
-          <Link to="/teacher/feedback" className="text-decoration-none">
-            <CCard className="mb-4 shadow-sm h-100 hover-effect border-top-warning border-top-3">
-              <CCardBody className="d-flex flex-column align-items-center text-center p-4">
-                <div className="p-3 bg-light rounded-circle mb-3 text-warning">
-                  <CIcon icon={cilCommentSquare} size="xl" />
-                </div>
-                <h5 className="text-dark">Retroalimentación</h5>
-                <p className="text-muted small">Envía comentarios y sugerencias.</p>
-                <div className="mt-auto text-warning fw-semibold d-flex align-items-center">
-                  Acceder <CIcon icon={cilArrowRight} size="sm" className="ms-1" />
-                </div>
-              </CCardBody>
-            </CCard>
-          </Link>
-        </CCol>
-
-        <CCol xs={12} sm={6} lg={3}>
-          <Link to="/teacher/add-content" className="text-decoration-none">
-            <CCard className="mb-4 shadow-sm h-100 hover-effect border-top-success border-top-3">
-              <CCardBody className="d-flex flex-column align-items-center text-center p-4">
-                <div className="p-3 bg-light rounded-circle mb-3 text-success">
-                  <CIcon icon={cilPlus} size="xl" />
-                </div>
-                <h5 className="text-dark">Agregar Contenido</h5>
-                <p className="text-muted small">Crea nuevo material educativo.</p>
-                <div className="mt-auto text-success fw-semibold d-flex align-items-center">
-                  Acceder <CIcon icon={cilArrowRight} size="sm" className="ms-1" />
-                </div>
-              </CCardBody>
-            </CCard>
-          </Link>
-        </CCol>
-      </CRow>
+      {/* Modal de Progreso */}
+      {selectedStudent && (
+        <StudentProgressModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          studentId={selectedStudent.id}
+        />
+      )}
     </div>
   )
 }

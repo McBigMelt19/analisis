@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import {
@@ -27,13 +27,13 @@ import {
 
 import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
-import { getUserRole } from '../config/auth'
+import { useAuth } from '../context/AuthContext'
 import { logo } from '../assets/brand/logo' // sticker logo svg
 
 const AppHeader = () => {
   const headerRef = useRef()
   const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
-  const [role, setRole] = useState(() => getUserRole())
+  const { currentUser } = useAuth()
 
   const dispatch = useDispatch()
   const sidebarShow = useSelector((state) => state.sidebarShow)
@@ -47,6 +47,7 @@ const AppHeader = () => {
     document.addEventListener('scroll', handleScroll)
     return () => document.removeEventListener('scroll', handleScroll)
   }, [])
+
 
   return (
     <CHeader position="sticky" className="mb-4 p-0" ref={headerRef}>
@@ -95,7 +96,9 @@ const AppHeader = () => {
         </CHeaderNav>
         <CHeaderNav>
           <CNavItem className="d-flex align-items-center me-2">
-            <span className="text-muted small">Rol: {role ? role : 'Invitado'}</span>
+            <span className="text-muted small">
+              {currentUser ? `${currentUser.name} (${currentUser.role === 'teacher' ? 'Profesor' : 'Estudiante'})` : 'Invitado'}
+            </span>
           </CNavItem>
           <li className="nav-item py-1">
             <div className="vr h-100 mx-2 text-body text-opacity-75"></div>

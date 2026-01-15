@@ -1,0 +1,891 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "username": "prof.maria.rodriguez",
+      "password": "123456",
+      "role": "teacher",
+      "name": "María Rodríguez",
+      "email": "maria.rodriguez@lms.ve",
+      "grade_id": 1,
+      "avatar": "https://i.pravatar.cc/150?img=1"
+    },
+    {
+      "id": "2",
+      "username": "prof.carlos.gonzalez",
+      "password": "123456",
+      "role": "teacher",
+      "name": "Carlos González",
+      "email": "carlos.gonzalez@lms.ve",
+      "grade_id": 2,
+      "avatar": "https://i.pravatar.cc/150?img=12"
+    },
+    {
+      "id": "3",
+      "username": "prof.ana.martinez",
+      "password": "123456",
+      "role": "teacher",
+      "name": "Ana Martínez",
+      "email": "ana.martinez@lms.ve",
+      "grade_id": 3,
+      "avatar": "https://i.pravatar.cc/150?img=5"
+    },
+    {
+      "id": "4",
+      "username": "prof.jose.perez",
+      "password": "123456",
+      "role": "teacher",
+      "name": "José Pérez",
+      "email": "jose.perez@lms.ve",
+      "grade_id": 4,
+      "avatar": "https://i.pravatar.cc/150?img=13"
+    },
+    {
+      "id": "5",
+      "username": "prof.luisa.fernandez",
+      "password": "123456",
+      "role": "teacher",
+      "name": "Luisa Fernández",
+      "email": "luisa.fernandez@lms.ve",
+      "grade_id": 5,
+      "avatar": "https://i.pravatar.cc/150?img=9"
+    },
+    {
+      "id": "6",
+      "username": "prof.pedro.ramirez",
+      "password": "123456",
+      "role": "teacher",
+      "name": "Pedro Ramírez",
+      "email": "pedro.ramirez@lms.ve",
+      "grade_id": 6,
+      "avatar": "https://i.pravatar.cc/150?img=14"
+    },
+    {
+      "id": "7",
+      "username": "juan.silva",
+      "password": "123456",
+      "role": "student",
+      "name": "Juan Silva",
+      "email": "juan.silva@estudiante.ve",
+      "grade_id": 1,
+      "learning_style": "Visual",
+      "avatar": "https://i.pravatar.cc/150?img=33"
+    },
+    {
+      "id": "8",
+      "username": "sofia.morales",
+      "password": "123456",
+      "role": "student",
+      "name": "Sofía Morales",
+      "email": "sofia.morales@estudiante.ve",
+      "grade_id": 1,
+      "learning_style": "Auditivo",
+      "avatar": "https://i.pravatar.cc/150?img=44"
+    },
+    {
+      "id": "9",
+      "username": "diego.lopez",
+      "password": "123456",
+      "role": "student",
+      "name": "Diego López",
+      "email": "diego.lopez@estudiante.ve",
+      "grade_id": 1,
+      "learning_style": "Kinestésico",
+      "avatar": "https://i.pravatar.cc/150?img=51"
+    },
+    {
+      "id": "10",
+      "username": "valentina.torres",
+      "password": "123456",
+      "role": "student",
+      "name": "Valentina Torres",
+      "email": "valentina.torres@estudiante.ve",
+      "grade_id": 2,
+      "learning_style": "Visual",
+      "avatar": "https://i.pravatar.cc/150?img=45"
+    },
+    {
+      "id": "11",
+      "username": "andres.castillo",
+      "password": "123456",
+      "role": "student",
+      "name": "Andrés Castillo",
+      "email": "andres.castillo@estudiante.ve",
+      "grade_id": 2,
+      "learning_style": "Auditivo",
+      "avatar": "https://i.pravatar.cc/150?img=52"
+    },
+    {
+      "id": "12",
+      "username": "isabella.herrera",
+      "password": "123456",
+      "role": "student",
+      "name": "Isabella Herrera",
+      "email": "isabella.herrera@estudiante.ve",
+      "grade_id": 2,
+      "learning_style": "Kinestésico",
+      "avatar": "https://i.pravatar.cc/150?img=47"
+    },
+    {
+      "id": "13",
+      "username": "santiago.rojas",
+      "password": "123456",
+      "role": "student",
+      "name": "Santiago Rojas",
+      "email": "santiago.rojas@estudiante.ve",
+      "grade_id": 3,
+      "learning_style": "Visual",
+      "avatar": "https://i.pravatar.cc/150?img=53"
+    },
+    {
+      "id": "14",
+      "username": "camila.mendez",
+      "password": "123456",
+      "role": "student",
+      "name": "Camila Méndez",
+      "email": "camila.mendez@estudiante.ve",
+      "grade_id": 3,
+      "learning_style": "Auditivo",
+      "avatar": "https://i.pravatar.cc/150?img=48"
+    },
+    {
+      "id": "15",
+      "username": "mateo.vargas",
+      "password": "123456",
+      "role": "student",
+      "name": "Mateo Vargas",
+      "email": "mateo.vargas@estudiante.ve",
+      "grade_id": 3,
+      "learning_style": "Kinestésico",
+      "avatar": "https://i.pravatar.cc/150?img=54"
+    },
+    {
+      "id": "16",
+      "username": "lucia.ortiz",
+      "password": "123456",
+      "role": "student",
+      "name": "Lucía Ortiz",
+      "email": "lucia.ortiz@estudiante.ve",
+      "grade_id": 4,
+      "learning_style": "Visual",
+      "avatar": "https://i.pravatar.cc/150?img=49"
+    },
+    {
+      "id": "17",
+      "username": "gabriel.sanchez",
+      "password": "123456",
+      "role": "student",
+      "name": "Gabriel Sánchez",
+      "email": "gabriel.sanchez@estudiante.ve",
+      "grade_id": 4,
+      "learning_style": "Auditivo",
+      "avatar": "https://i.pravatar.cc/150?img=55"
+    },
+    {
+      "id": "18",
+      "username": "emma.reyes",
+      "password": "123456",
+      "role": "student",
+      "name": "Emma Reyes",
+      "email": "emma.reyes@estudiante.ve",
+      "grade_id": 4,
+      "learning_style": "Kinestésico",
+      "avatar": "https://i.pravatar.cc/150?img=50"
+    },
+    {
+      "id": "19",
+      "username": "nicolas.diaz",
+      "password": "123456",
+      "role": "student",
+      "name": "Nicolás Díaz",
+      "email": "nicolas.diaz@estudiante.ve",
+      "grade_id": 5,
+      "learning_style": "Visual",
+      "avatar": "https://i.pravatar.cc/150?img=56"
+    },
+    {
+      "id": "20",
+      "username": "maria.jimenez",
+      "password": "123456",
+      "role": "student",
+      "name": "María Jiménez",
+      "email": "maria.jimenez@estudiante.ve",
+      "grade_id": 5,
+      "learning_style": "Auditivo",
+      "avatar": "https://i.pravatar.cc/150?img=46"
+    },
+    {
+      "id": "21",
+      "username": "sebastian.cruz",
+      "password": "123456",
+      "role": "student",
+      "name": "Sebastián Cruz",
+      "email": "sebastian.cruz@estudiante.ve",
+      "grade_id": 5,
+      "learning_style": "Kinestésico",
+      "avatar": "https://i.pravatar.cc/150?img=57"
+    },
+    {
+      "id": "22",
+      "username": "valeria.flores",
+      "password": "123456",
+      "role": "student",
+      "name": "Valeria Flores",
+      "email": "valeria.flores@estudiante.ve",
+      "grade_id": 6,
+      "learning_style": "Visual",
+      "avatar": "https://i.pravatar.cc/150?img=43"
+    },
+    {
+      "id": "23",
+      "username": "daniel.gutierrez",
+      "password": "123456",
+      "role": "student",
+      "name": "Daniel Gutiérrez",
+      "email": "daniel.gutierrez@estudiante.ve",
+      "grade_id": 6,
+      "learning_style": "Auditivo",
+      "avatar": "https://i.pravatar.cc/150?img=58"
+    },
+    {
+      "id": "24",
+      "username": "martina.alvarez",
+      "password": "123456",
+      "role": "student",
+      "name": "Martina Álvarez",
+      "email": "martina.alvarez@estudiante.ve",
+      "grade_id": 6,
+      "learning_style": "Kinestésico",
+      "avatar": "https://i.pravatar.cc/150?img=42"
+    }
+  ],
+  "grades": [
+    {
+      "id": "1",
+      "name": "1er Grado",
+      "description": "Introducción a la Historia de Venezuela",
+      "age_range": "6-7 años"
+    },
+    {
+      "id": "2",
+      "name": "2do Grado",
+      "description": "Símbolos y Geografía de Venezuela",
+      "age_range": "7-8 años"
+    },
+    {
+      "id": "3",
+      "name": "3er Grado",
+      "description": "Pueblos Originarios y Colonización",
+      "age_range": "8-9 años"
+    },
+    {
+      "id": "4",
+      "name": "4to Grado",
+      "description": "Independencia de Venezuela",
+      "age_range": "9-10 años"
+    },
+    {
+      "id": "5",
+      "name": "5to Grado",
+      "description": "República y Siglo XIX",
+      "age_range": "10-11 años"
+    },
+    {
+      "id": "6",
+      "name": "6to Grado",
+      "description": "Venezuela Contemporánea",
+      "age_range": "11-12 años"
+    }
+  ],
+  "progress": [
+    {
+      "id": "1",
+      "student_id": 7,
+      "grade_id": 1,
+      "activity_type": "quiz",
+      "topic": "Símbolos Patrios",
+      "score": 85,
+      "max_score": 100,
+      "date": "2026-01-05",
+      "completed": true
+    },
+    {
+      "id": "2",
+      "student_id": 7,
+      "grade_id": 1,
+      "activity_type": "activity",
+      "topic": "Bandera de Venezuela",
+      "score": 90,
+      "max_score": 100,
+      "date": "2026-01-07",
+      "completed": true
+    },
+    {
+      "student_id": "7",
+      "grade_id": 1,
+      "activity_type": "evaluacion",
+      "topic": "Himno Nacional",
+      "score": 19,
+      "max_score": 20,
+      "date": "2026-01-14",
+      "completed": true,
+      "id": "3"
+    },
+    {
+      "id": "4",
+      "student_id": 8,
+      "grade_id": 1,
+      "activity_type": "quiz",
+      "topic": "Símbolos Patrios",
+      "score": 60,
+      "max_score": 100,
+      "date": "2026-01-05",
+      "completed": true
+    },
+    {
+      "student_id": "8",
+      "grade_id": 1,
+      "activity_type": "evaluacion",
+      "topic": "Escudo Nacional",
+      "score": 20,
+      "max_score": 20,
+      "date": "2026-01-14",
+      "completed": true,
+      "id": "5"
+    },
+    {
+      "id": "6",
+      "student_id": 9,
+      "grade_id": 1,
+      "activity_type": "quiz",
+      "topic": "Símbolos Patrios",
+      "score": 95,
+      "max_score": 100,
+      "date": "2026-01-05",
+      "completed": true
+    },
+    {
+      "student_id": "9",
+      "grade_id": 1,
+      "activity_type": "evaluacion",
+      "topic": "Colores de la Bandera",
+      "score": 20,
+      "max_score": 20,
+      "date": "2026-01-14",
+      "completed": true,
+      "id": "7"
+    },
+    {
+      "id": "8",
+      "student_id": 10,
+      "grade_id": 2,
+      "activity_type": "quiz",
+      "topic": "Regiones de Venezuela",
+      "score": 88,
+      "max_score": 100,
+      "date": "2026-01-06",
+      "completed": true
+    },
+    {
+      "id": "9",
+      "student_id": 10,
+      "grade_id": 2,
+      "activity_type": "activity",
+      "topic": "Mapa de Venezuela",
+      "score": 92,
+      "max_score": 100,
+      "date": "2026-01-09",
+      "completed": true
+    },
+    {
+      "id": "10",
+      "student_id": 11,
+      "grade_id": 2,
+      "activity_type": "quiz",
+      "topic": "Estados de Venezuela",
+      "score": 55,
+      "max_score": 100,
+      "date": "2026-01-06",
+      "completed": true
+    },
+    {
+      "id": "11",
+      "student_id": 11,
+      "grade_id": 2,
+      "activity_type": "activity",
+      "topic": "Capitales",
+      "score": 65,
+      "max_score": 100,
+      "date": "2026-01-10",
+      "completed": true
+    },
+    {
+      "id": "12",
+      "student_id": 12,
+      "grade_id": 2,
+      "activity_type": "quiz",
+      "topic": "Geografía Venezolana",
+      "score": 78,
+      "max_score": 100,
+      "date": "2026-01-07",
+      "completed": true
+    },
+    {
+      "id": "13",
+      "student_id": 13,
+      "grade_id": 3,
+      "activity_type": "quiz",
+      "topic": "Pueblos Indígenas",
+      "score": 82,
+      "max_score": 100,
+      "date": "2026-01-04",
+      "completed": true
+    },
+    {
+      "id": "14",
+      "student_id": 13,
+      "grade_id": 3,
+      "activity_type": "activity",
+      "topic": "Llegada de Colón",
+      "score": 87,
+      "max_score": 100,
+      "date": "2026-01-08",
+      "completed": true
+    },
+    {
+      "id": "15",
+      "student_id": 14,
+      "grade_id": 3,
+      "activity_type": "quiz",
+      "topic": "Cultura Indígena",
+      "score": 90,
+      "max_score": 100,
+      "date": "2026-01-05",
+      "completed": true
+    },
+    {
+      "id": "16",
+      "student_id": 14,
+      "grade_id": 3,
+      "activity_type": "activity",
+      "topic": "Época Colonial",
+      "score": 85,
+      "max_score": 100,
+      "date": "2026-01-09",
+      "completed": true
+    },
+    {
+      "id": "17",
+      "student_id": 15,
+      "grade_id": 3,
+      "activity_type": "quiz",
+      "topic": "Conquista Española",
+      "score": 50,
+      "max_score": 100,
+      "date": "2026-01-06",
+      "completed": true
+    },
+    {
+      "id": "18",
+      "student_id": 15,
+      "grade_id": 3,
+      "activity_type": "activity",
+      "topic": "Fundación de Caracas",
+      "score": 68,
+      "max_score": 100,
+      "date": "2026-01-11",
+      "completed": true
+    },
+    {
+      "id": "19",
+      "student_id": 16,
+      "grade_id": 4,
+      "activity_type": "quiz",
+      "topic": "Simón Bolívar",
+      "score": 98,
+      "max_score": 100,
+      "date": "2026-01-03",
+      "completed": true
+    },
+    {
+      "id": "20",
+      "student_id": 16,
+      "grade_id": 4,
+      "activity_type": "activity",
+      "topic": "Batalla de Carabobo",
+      "score": 95,
+      "max_score": 100,
+      "date": "2026-01-07",
+      "completed": true
+    },
+    {
+      "id": "21",
+      "student_id": 16,
+      "grade_id": 4,
+      "activity_type": "quiz",
+      "topic": "Independencia",
+      "score": 92,
+      "max_score": 100,
+      "date": "2026-01-10",
+      "completed": true
+    },
+    {
+      "id": "22",
+      "student_id": 17,
+      "grade_id": 4,
+      "activity_type": "quiz",
+      "topic": "Próceres de la Independencia",
+      "score": 72,
+      "max_score": 100,
+      "date": "2026-01-04",
+      "completed": true
+    },
+    {
+      "id": "23",
+      "student_id": 17,
+      "grade_id": 4,
+      "activity_type": "activity",
+      "topic": "5 de Julio de 1811",
+      "score": 80,
+      "max_score": 100,
+      "date": "2026-01-08",
+      "completed": true
+    },
+    {
+      "id": "24",
+      "student_id": 18,
+      "grade_id": 4,
+      "activity_type": "quiz",
+      "topic": "Guerra de Independencia",
+      "score": 65,
+      "max_score": 100,
+      "date": "2026-01-05",
+      "completed": true
+    },
+    {
+      "id": "25",
+      "student_id": 19,
+      "grade_id": 5,
+      "activity_type": "quiz",
+      "topic": "La Gran Colombia",
+      "score": 88,
+      "max_score": 100,
+      "date": "2026-01-02",
+      "completed": true
+    },
+    {
+      "id": "26",
+      "student_id": 19,
+      "grade_id": 5,
+      "activity_type": "activity",
+      "topic": "Federación y Centralismo",
+      "score": 84,
+      "max_score": 100,
+      "date": "2026-01-06",
+      "completed": true
+    },
+    {
+      "id": "27",
+      "student_id": 20,
+      "grade_id": 5,
+      "activity_type": "quiz",
+      "topic": "Guerra Federal",
+      "score": 76,
+      "max_score": 100,
+      "date": "2026-01-03",
+      "completed": true
+    },
+    {
+      "id": "28",
+      "student_id": 20,
+      "grade_id": 5,
+      "activity_type": "activity",
+      "topic": "Presidentes del Siglo XIX",
+      "score": 70,
+      "max_score": 100,
+      "date": "2026-01-09",
+      "completed": true
+    },
+    {
+      "id": "29",
+      "student_id": 21,
+      "grade_id": 5,
+      "activity_type": "quiz",
+      "topic": "Economía del Siglo XIX",
+      "score": 58,
+      "max_score": 100,
+      "date": "2026-01-04",
+      "completed": true
+    },
+    {
+      "id": "30",
+      "student_id": 21,
+      "grade_id": 5,
+      "activity_type": "activity",
+      "topic": "Café y Cacao",
+      "score": 62,
+      "max_score": 100,
+      "date": "2026-01-10",
+      "completed": true
+    },
+    {
+      "id": "31",
+      "student_id": 22,
+      "grade_id": 6,
+      "activity_type": "quiz",
+      "topic": "Democracia en Venezuela",
+      "score": 94,
+      "max_score": 100,
+      "date": "2026-01-01",
+      "completed": true
+    },
+    {
+      "id": "32",
+      "student_id": 22,
+      "grade_id": 6,
+      "activity_type": "activity",
+      "topic": "Industria Petrolera",
+      "score": 90,
+      "max_score": 100,
+      "date": "2026-01-05",
+      "completed": true
+    },
+    {
+      "id": "33",
+      "student_id": 22,
+      "grade_id": 6,
+      "activity_type": "quiz",
+      "topic": "Siglo XX",
+      "score": 88,
+      "max_score": 100,
+      "date": "2026-01-09",
+      "completed": true
+    },
+    {
+      "id": "34",
+      "student_id": 23,
+      "grade_id": 6,
+      "activity_type": "quiz",
+      "topic": "Petróleo y Economía",
+      "score": 80,
+      "max_score": 100,
+      "date": "2026-01-02",
+      "completed": true
+    },
+    {
+      "id": "35",
+      "student_id": 23,
+      "grade_id": 6,
+      "activity_type": "activity",
+      "topic": "Venezuela Moderna",
+      "score": 75,
+      "max_score": 100,
+      "date": "2026-01-07",
+      "completed": true
+    },
+    {
+      "id": "36",
+      "student_id": 24,
+      "grade_id": 6,
+      "activity_type": "quiz",
+      "topic": "Cultura Contemporánea",
+      "score": 68,
+      "max_score": 100,
+      "date": "2026-01-03",
+      "completed": true
+    },
+    {
+      "id": "37",
+      "student_id": 24,
+      "grade_id": 6,
+      "activity_type": "activity",
+      "topic": "Venezuela Actual",
+      "score": 72,
+      "max_score": 100,
+      "date": "2026-01-08",
+      "completed": true
+    },
+    {
+      "id": "4240",
+      "student_id": "8",
+      "grade_id": 1,
+      "activity_type": "evaluacion",
+      "topic": "Símbolos Patrios de Venezuela",
+      "score": 20,
+      "max_score": 20,
+      "date": "2026-01-14",
+      "completed": true
+    },
+    {
+      "id": "efeb",
+      "student_id": "8",
+      "grade_id": 1,
+      "activity_type": "evaluacion",
+      "topic": "Símbolos Patrios de Venezuela",
+      "score": 20,
+      "max_score": 20,
+      "date": "2026-01-14",
+      "completed": true
+    },
+    {
+      "id": "74df",
+      "student_id": "8",
+      "grade_id": 1,
+      "activity_type": "evaluacion",
+      "topic": "Bandera Nacional",
+      "score": 10,
+      "max_score": 20,
+      "date": "2026-01-14",
+      "completed": true
+    },
+    {
+      "id": "5085",
+      "student_id": "8",
+      "grade_id": 1,
+      "activity_type": "evaluacion",
+      "topic": "Bandera Nacional",
+      "score": 10,
+      "max_score": 20,
+      "date": "2026-01-14",
+      "completed": true
+    },
+    {
+      "id": "0fb5",
+      "student_id": "7",
+      "grade_id": 1,
+      "activity_type": "evaluacion",
+      "topic": "Símbolos Patrios de Venezuela",
+      "score": 1,
+      "max_score": 20,
+      "date": "2026-01-14",
+      "completed": true
+    },
+    {
+      "id": "20d0",
+      "student_id": "7",
+      "grade_id": 1,
+      "activity_type": "evaluacion",
+      "topic": "Símbolos Patrios de Venezuela",
+      "score": 1,
+      "max_score": 20,
+      "date": "2026-01-14",
+      "completed": true
+    }
+  ],
+  "topics": [
+    {
+      "id": "1",
+      "grade_id": 1,
+      "grade_name": "1er Grado",
+      "temas": [
+        "Símbolos Patrios de Venezuela",
+        "Bandera Nacional",
+        "Escudo Nacional",
+        "Himno Nacional",
+        "Árbol Nacional (Araguaney)",
+        "Ave Nacional (Turpial)",
+        "Flor Nacional (Orquídea)",
+        "Colores de la Bandera",
+        "Significado de los Símbolos"
+      ],
+      "edad_objetivo": "6-7 años",
+      "nivel_complejidad": "Básico",
+      "restricciones_ia": "Usa lenguaje muy simple. Prioriza imágenes y colores. Evita fechas complejas. No hables de guerras o política."
+    },
+    {
+      "id": "2",
+      "grade_id": 2,
+      "grade_name": "2do Grado",
+      "temas": [
+        "Geografía de Venezuela",
+        "Regiones Naturales",
+        "Estados de Venezuela",
+        "Capitales de los Estados",
+        "Mapa de Venezuela",
+        "Ríos Principales (Orinoco, Caroní)",
+        "Montañas (Andes, Roraima)",
+        "Playas y Costas",
+        "Clima de Venezuela"
+      ],
+      "edad_objetivo": "7-8 años",
+      "nivel_complejidad": "Básico-Intermedio",
+      "restricciones_ia": "Usa mapas y diagramas. Relaciona geografía con animales y plantas. Lenguaje sencillo pero descriptivo."
+    },
+    {
+      "id": "3",
+      "grade_id": 3,
+      "grade_name": "3er Grado",
+      "temas": [
+        "Pueblos Indígenas de Venezuela",
+        "Cultura de los Caribes",
+        "Cultura de los Timoto-Cuicas",
+        "Cultura de los Wayúu",
+        "Llegada de Cristóbal Colón",
+        "Conquista Española",
+        "Fundación de Caracas",
+        "Época Colonial",
+        "Vida en la Colonia"
+      ],
+      "edad_objetivo": "8-9 años",
+      "nivel_complejidad": "Intermedio",
+      "restricciones_ia": "Introduce conceptos históricos básicos. Usa narraciones tipo cuento. Evita violencia explícita. Enfócate en cultura y vida cotidiana."
+    },
+    {
+      "id": "4",
+      "grade_id": 4,
+      "grade_name": "4to Grado",
+      "temas": [
+        "Simón Bolívar - Biografía",
+        "Próceres de la Independencia",
+        "Francisco de Miranda",
+        "5 de Julio de 1811",
+        "Declaración de Independencia",
+        "Batalla de Carabobo",
+        "Guerra de Independencia",
+        "Campaña Admirable",
+        "Libertad de Venezuela"
+      ],
+      "edad_objetivo": "9-10 años",
+      "nivel_complejidad": "Intermedio",
+      "restricciones_ia": "Enfatiza valores de libertad y heroísmo. Usa líneas de tiempo. Presenta batallas sin detalles violentos. Resalta biografías inspiradoras."
+    },
+    {
+      "id": "5",
+      "grade_id": 5,
+      "grade_name": "5to Grado",
+      "temas": [
+        "La Gran Colombia",
+        "Separación de Venezuela",
+        "Guerra Federal",
+        "Federalismo vs Centralismo",
+        "Presidentes del Siglo XIX",
+        "José Antonio Páez",
+        "Antonio Guzmán Blanco",
+        "Economía Agrícola (Café y Cacao)",
+        "Sociedad del Siglo XIX"
+      ],
+      "edad_objetivo": "10-11 años",
+      "nivel_complejidad": "Intermedio-Avanzado",
+      "restricciones_ia": "Introduce conceptos políticos básicos. Usa comparaciones y causas-efectos. Relaciona historia con economía de forma simple."
+    },
+    {
+      "id": "6",
+      "grade_id": 6,
+      "grade_name": "6to Grado",
+      "temas": [
+        "Democracia en Venezuela",
+        "Industria Petrolera",
+        "Descubrimiento del Petróleo",
+        "Venezuela en el Siglo XX",
+        "Rómulo Betancourt",
+        "Modernización de Venezuela",
+        "Cultura Contemporánea",
+        "Venezuela Actual",
+        "Economía Petrolera"
+      ],
+      "edad_objetivo": "11-12 años",
+      "nivel_complejidad": "Avanzado",
+      "restricciones_ia": "Permite análisis crítico básico. Usa gráficos económicos simples. Conecta pasado con presente. Evita temas políticos controversiales actuales."
+    }
+  ]
+}

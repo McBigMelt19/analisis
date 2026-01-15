@@ -1,109 +1,381 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
     CCard,
     CCardBody,
     CCardHeader,
-    CCol,
-    CRow,
     CButton,
-    CTable,
-    CTableHead,
-    CTableRow,
-    CTableHeaderCell,
-    CTableBody,
-    CTableDataCell,
-    CForm,
-    CFormLabel,
-    CFormSelect,
+    CSpinner,
     CFormInput,
-    CFormTextarea,
+    CRow,
+    CCol,
+    CBadge,
+    CAlert,
 } from '@coreui/react'
+import { useAuth } from '../../../context/AuthContext'
+import StudentProgressModal from '../../../components/StudentProgressModal'
+import CIcon from '@coreui/icons-react'
+import { cilCheckCircle, cilWarning, cilChart } from '@coreui/icons'
 
 const TeacherGrades = () => {
-    // Basic state for simulation
-    const [grades, setGrades] = useState([
-        { student: 'María González', activity: 'Examen: Independencia', grade: 18.5, date: '10/03/2025' },
-        { student: 'José Martínez', activity: 'Trabajo: Simón Bolívar', grade: 16.0, date: '08/03/2025' },
-        { student: 'Ana López', activity: 'Proyecto: Historia Local', grade: 19.0, date: '05/03/2025' },
-    ]);
+    const { currentUser } = useAuth()
+    const [students, setStudents] = useState([])
+    const [topics, setTopics] = useState([])
+    const [grades, setGrades] = useState({}) // { `${topicId}_${studentId}`: { score, saved, id } }
+    const [topicDates, setTopicDates] = useState({}) // { `${topic}`: 'YYYY-MM-DD' }
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState('')
+    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
+    const [selectedStudent, setSelectedStudent] = useState(null)
+    const [modalVisible, setModalVisible] = useState(false)
+
+    useEffect(() => {
+        if (currentUser && currentUser.role === 'teacher') {
+            fetchData()
+        }
+    }, [currentUser])
+
+    const fetchData = async () => {
+        setLoading(true)
+        setError('')
+        try {
+            // Fetch students del grado del profesor
+            const studentsRes = await fetch(
+                `http://localhost:3001/users?role=student&grade_id=${currentUser.grade_id}`,
+            )
+            const studentsData = await studentsRes.json()
+            setStudents(studentsData)
+
+            // Fetch topics del grado
+            const topicsRes = await fetch(
+                `http://localhost:3001/topics?grade_id=${currentUser.grade_id}`,
+            )
+            const topicsData = await topicsRes.json()
+            if (topicsData.length > 0) {
+                setTopics(topicsData[0].temas)
+
+                // Inicializar fechas para cada tema
+                const initialDates = {}
+                topicsData[0].temas.forEach((tema) => {
+                    initialDates[tema] = selectedDate
+                })
+                setTopicDates(initialDates)
+            }
+
+            // Fetch existing grades
+            const gradesRes = await fetch(
+                `http://localhost:3001/progress?grade_id=${currentUser.grade_id}`,
+            )
+            const gradesData = await gradesRes.json()
+
+            // Organizar grades en un objeto para fácil acceso
+            const gradesMap = {}
+            gradesData.forEach((grade) => {
+                const key = `${grade.topic}_${grade.student_id}`
+                gradesMap[key] = {
+                    score: grade.score,
+                    saved: true,
+                    id: grade.id,
+                }
+            })
+            setGrades(gradesMap)
+        } catch (error) {
+            console.error('Error cargando datos:', error)
+            setError('Error al cargar datos. Verifica que json-server esté corriendo.')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const handleGradeChange = (topic, studentId, value) => {
+        const key = `${topic}_${studentId}`
+        const numValue = parseFloat(value)
+
+        // Validar rango 1-20
+        if (value === '' || (numValue >= 1 && numValue <= 20)) {
+            setGrades((prev) => ({
+                ...prev,
+                [key]: {
+                    ...prev[key],
+                    score: value === '' ? '' : numValue,
+                    saved: false,
+                },
+            }))
+        }
+    }
+
+    const saveGrade = async (topic, studentId) => {
+        const key = `${topic}_${studentId}`
+        const gradeData = grades[key]
+
+        if (!gradeData || gradeData.score === '') return
+
+        try {
+            const payload = {
+                student_id: studentId,
+                grade_id: currentUser.grade_id,
+                activity_type: 'evaluacion',
+                topic: topic,
+                score: gradeData.score,
+                max_score: 20,
+                date: topicDates[topic] || selectedDate,
+                completed: true,
+            }
+
+            let response
+            if (gradeData.id) {
+                // Update existing grade
+                response = await fetch(`http://localhost:3001/progress/${gradeData.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ...payload, id: gradeData.id }),
+                })
+            } else {
+                // Create new grade
+                response = await fetch('http://localhost:3001/progress', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                })
+            }
+
+            if (response.ok) {
+                const savedData = await response.json()
+                setGrades((prev) => ({
+                    ...prev,
+                    [key]: {
+                        score: gradeData.score,
+                        saved: true,
+                        id: savedData.id,
+                    },
+                }))
+            }
+        } catch (error) {
+            console.error('Error guardando nota:', error)
+            alert('Error al guardar la nota')
+        }
+    }
+
+    const handleKeyPress = (e, topic, studentId) => {
+        if (e.key === 'Enter') {
+            saveGrade(topic, studentId)
+            e.target.blur()
+        }
+    }
+
+    const openProgressModal = (student) => {
+        setSelectedStudent(student)
+        setModalVisible(true)
+    }
+
+    if (!currentUser || currentUser.role !== 'teacher') {
+        return (
+            <div className="alert alert-warning m-4">
+                Esta página es solo para profesores.
+            </div>
+        )
+    }
+
+    if (loading) {
+        return (
+            <div className="text-center p-5">
+                <CSpinner color="primary" />
+                <p className="mt-3 text-muted">Cargando sistema de calificaciones...</p>
+            </div>
+        )
+    }
+
+    if (error) {
+        return (
+            <div className="alert alert-danger m-4">
+                {error}
+                <br />
+                <small>
+                    Ejecuta: <code>npm run server</code>
+                </small>
+            </div>
+        )
+    }
 
     return (
         <div className="teacher-grades">
-            <h2 className="text-primary mb-4" style={{ borderBottom: '2px solid #fcd116', paddingBottom: '10px' }}>Subir Notas</h2>
-            <p>Gestiona y actualiza las calificaciones de los estudiantes.</p>
+            <CRow className="mb-4">
+                <CCol>
+                    <h2 className="text-primary" style={{ borderBottom: '2px solid #fcd116', paddingBottom: '10px' }}>
+                        📊 Sistema de Calificaciones - Grado {currentUser.grade_id}°
+                    </h2>
+                    <p className="text-muted">
+                        Ingresa las calificaciones (01-20) de tus estudiantes. Las notas se guardan automáticamente al presionar Enter o cambiar de celda.
+                    </p>
+                </CCol>
+            </CRow>
 
-            <CCard className="mb-4 shadow-sm">
+            {/* Selector de Fecha */}
+            <CCard className="mb-4">
                 <CCardBody>
-                    <CForm>
-                        <div className="mb-3">
-                            <CFormLabel htmlFor="student-select">Seleccionar Estudiante:</CFormLabel>
-                            <CFormSelect id="student-select">
-                                <option value="">-- Selecciona un estudiante --</option>
-                                <option value="1">María González</option>
-                                <option value="2">José Martínez</option>
-                                <option value="3">Ana López</option>
-                                <option value="4">Carlos Pérez</option>
-                            </CFormSelect>
-                        </div>
-
-                        <div className="mb-3">
-                            <CFormLabel htmlFor="activity-select">Seleccionar Actividad:</CFormLabel>
-                            <CFormSelect id="activity-select">
-                                <option value="">-- Selecciona una actividad --</option>
-                                <option value="1">Examen: Independencia</option>
-                                <option value="2">Trabajo: Simón Bolívar</option>
-                                <option value="3">Proyecto: Historia Local</option>
-                            </CFormSelect>
-                        </div>
-
-                        <div className="mb-3">
-                            <CFormLabel htmlFor="grade">Calificación (0-20):</CFormLabel>
-                            <CFormInput type="number" id="grade" min="0" max="20" step="0.5" />
-                        </div>
-
-                        <div className="mb-3">
-                            <CFormLabel htmlFor="comments">Comentarios:</CFormLabel>
-                            <CFormTextarea id="comments" rows={3} placeholder="Observaciones sobre la calificación..."></CFormTextarea>
-                        </div>
-
-                        <CButton color="secondary" className="text-white">Guardar Calificación</CButton>
-                    </CForm>
+                    <CRow className="align-items-center">
+                        <CCol md={4}>
+                            <label className="form-label">
+                                <strong>Fecha de Evaluación:</strong>
+                            </label>
+                            <CFormInput
+                                type="date"
+                                value={selectedDate}
+                                onChange={(e) => setSelectedDate(e.target.value)}
+                            />
+                        </CCol>
+                        <CCol md={8} className="text-md-end mt-3 mt-md-0">
+                            <CAlert color="info" className="mb-0 d-inline-block">
+                                <CIcon icon={cilWarning} className="me-2" />
+                                <strong>Tip:</strong> Presiona <kbd>Enter</kbd> o haz clic fuera del campo para guardar
+                            </CAlert>
+                        </CCol>
+                    </CRow>
                 </CCardBody>
             </CCard>
 
-            <CCard className="shadow-sm">
+            {/* Cuadrícula de Calificaciones */}
+            <CCard>
                 <CCardHeader className="bg-light">
-                    <h3 className="mb-0 text-secondary">Calificaciones Registradas</h3>
+                    <h5 className="mb-0">Cuadrícula de Calificaciones</h5>
                 </CCardHeader>
-                <CCardBody>
-                    <div className="table-responsive">
-                        <CTable hover bordered>
-                            <CTableHead color="light">
-                                <CTableRow>
-                                    <CTableHeaderCell>Estudiante</CTableHeaderCell>
-                                    <CTableHeaderCell>Actividad</CTableHeaderCell>
-                                    <CTableHeaderCell>Calificación</CTableHeaderCell>
-                                    <CTableHeaderCell>Fecha</CTableHeaderCell>
-                                    <CTableHeaderCell>Acciones</CTableHeaderCell>
-                                </CTableRow>
-                            </CTableHead>
-                            <CTableBody>
-                                {grades.map((g, index) => (
-                                    <CTableRow key={index}>
-                                        <CTableDataCell>{g.student}</CTableDataCell>
-                                        <CTableDataCell>{g.activity}</CTableDataCell>
-                                        <CTableDataCell>{g.grade}</CTableDataCell>
-                                        <CTableDataCell>{g.date}</CTableDataCell>
-                                        <CTableDataCell>
-                                            <CButton size="sm" color="secondary" className="text-white">Editar</CButton>
-                                        </CTableDataCell>
-                                    </CTableRow>
+                <CCardBody className="p-0">
+                    <div className="table-responsive grades-grid">
+                        <table className="table table-bordered table-hover mb-0">
+                            <thead className="table-light sticky-top">
+                                <tr>
+                                    <th className="text-center align-middle" style={{ minWidth: '200px', position: 'sticky', left: 0, zIndex: 10, backgroundColor: '#f8f9fa' }}>
+                                        Tema / Estudiante
+                                    </th>
+                                    <th className="text-center align-middle" style={{ minWidth: '120px', backgroundColor: '#f8f9fa' }}>
+                                        Fecha
+                                    </th>
+                                    {students.map((student) => (
+                                        <th key={student.id} className="text-center" style={{ minWidth: '150px' }}>
+                                            <div className="mb-1">
+                                                <strong>{student.name.split(' ')[0]}</strong>
+                                                <br />
+                                                <small className="text-muted">{student.name.split(' ').slice(1).join(' ')}</small>
+                                            </div>
+                                            <CBadge
+                                                color={
+                                                    student.learning_style === 'Visual'
+                                                        ? 'info'
+                                                        : student.learning_style === 'Auditivo'
+                                                            ? 'warning'
+                                                            : 'success'
+                                                }
+                                                className="mb-2"
+                                            >
+                                                {student.learning_style}
+                                            </CBadge>
+                                            <br />
+                                            <CButton
+                                                size="sm"
+                                                color="primary"
+                                                variant="outline"
+                                                onClick={() => openProgressModal(student)}
+                                            >
+                                                <CIcon icon={cilChart} className="me-1" />
+                                                Ver Progreso
+                                            </CButton>
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {topics.map((topic, topicIndex) => (
+                                    <tr key={topicIndex}>
+                                        <td className="align-middle" style={{ position: 'sticky', left: 0, zIndex: 5, backgroundColor: '#fff' }}>
+                                            <strong>{topic}</strong>
+                                        </td>
+                                        <td className="text-center p-2">
+                                            <CFormInput
+                                                type="date"
+                                                value={topicDates[topic] || selectedDate}
+                                                onChange={(e) => setTopicDates(prev => ({ ...prev, [topic]: e.target.value }))}
+                                                className="text-center"
+                                                style={{ width: '110px', margin: '0 auto', fontSize: '0.85rem' }}
+                                            />
+                                        </td>
+                                        {students.map((student) => {
+                                            const key = `${topic}_${student.id}`
+                                            const gradeData = grades[key] || { score: '', saved: false }
+                                            return (
+                                                <td key={student.id} className="text-center p-2">
+                                                    <div className="position-relative">
+                                                        <CFormInput
+                                                            type="number"
+                                                            min="1"
+                                                            max="20"
+                                                            step="0.5"
+                                                            value={gradeData.score}
+                                                            onChange={(e) => handleGradeChange(topic, student.id, e.target.value)}
+                                                            onBlur={() => saveGrade(topic, student.id)}
+                                                            onKeyPress={(e) => handleKeyPress(e, topic, student.id)}
+                                                            className={`text-center ${gradeData.saved ? 'border-success bg-success bg-opacity-10' : ''}`}
+                                                            style={{ width: '80px', margin: '0 auto' }}
+                                                            placeholder="--"
+                                                        />
+                                                        {gradeData.saved && gradeData.score !== '' && (
+                                                            <CIcon
+                                                                icon={cilCheckCircle}
+                                                                className="text-success position-absolute"
+                                                                style={{ top: '50%', right: '5px', transform: 'translateY(-50%)' }}
+                                                                size="sm"
+                                                            />
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            )
+                                        })}
+                                    </tr>
                                 ))}
-                            </CTableBody>
-                        </CTable>
+                            </tbody>
+                        </table>
                     </div>
                 </CCardBody>
             </CCard>
+
+            {/* Leyenda */}
+            <CCard className="mt-3">
+                <CCardBody>
+                    <CRow>
+                        <CCol md={6}>
+                            <h6>Escala de Calificaciones:</h6>
+                            <ul className="list-unstyled mb-0">
+                                <li>
+                                    <CBadge color="success">18-20</CBadge> Excelente
+                                </li>
+                                <li>
+                                    <CBadge color="warning">14-17</CBadge> Aprobado
+                                </li>
+                                <li>
+                                    <CBadge color="danger">01-13</CBadge> Necesita Mejorar
+                                </li>
+                            </ul>
+                        </CCol>
+                        <CCol md={6}>
+                            <h6>Estadísticas:</h6>
+                            <p className="mb-0">
+                                <strong>Total de Estudiantes:</strong> {students.length}
+                                <br />
+                                <strong>Total de Temas:</strong> {topics.length}
+                                <br />
+                                <strong>Total de Celdas:</strong> {students.length * topics.length}
+                            </p>
+                        </CCol>
+                    </CRow>
+                </CCardBody>
+            </CCard>
+
+            {/* Modal de Progreso */}
+            {selectedStudent && (
+                <StudentProgressModal
+                    visible={modalVisible}
+                    onClose={() => setModalVisible(false)}
+                    studentId={selectedStudent.id}
+                />
+            )}
         </div>
     )
 }
