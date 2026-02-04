@@ -109,7 +109,7 @@ const Login = () => {
                     <CRow className="mt-3">
                       <CCol xs={12} className="text-center text-muted">
                         <small>
-                          💡 Tip: Usa "prof.maria.rodriguez" o "juan.silva" / Password: "123456"
+
                         </small>
                       </CCol>
                     </CRow>

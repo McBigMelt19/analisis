@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { CCard, CCardHeader, CCardBody, CForm, CFormTextarea, CButton, CInputGroup, CBadge } from '@coreui/react';
 import { useAuth } from '../context/AuthContext';
 
@@ -17,38 +16,11 @@ const PersonalizedContent = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [allowedTopics, setAllowedTopics] = useState(null);
     const chatEndRef = useRef(null);
-    const chatSessionRef = useRef(null);
 
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    // 💡 Función para generar el System Prompt dinámicamente
+    const getSystemPrompt = () => {
+        if (!currentUser || !allowedTopics) return "";
 
-    // Cargar temas permitidos según el grado del estudiante
-    useEffect(() => {
-        const fetchTopics = async () => {
-            if (!currentUser || currentUser.role !== 'student') {
-                return;
-            }
-
-            try {
-                const response = await fetch(`http://localhost:3001/topics?grade_id=${currentUser.grade_id}`);
-                const data = await response.json();
-                if (data.length > 0) {
-                    setAllowedTopics(data[0]);
-                }
-            } catch (error) {
-                console.error('Error cargando temas:', error);
-            }
-        };
-
-        fetchTopics();
-    }, [currentUser]);
-
-    // Inicializar chat cuando tengamos temas y API key
-    useEffect(() => {
-        if (!apiKey || !currentUser || !allowedTopics) {
-            return;
-        }
-
-        // 🎯 CONSTRUIR SYSTEM PROMPT PERSONALIZADO
         const getLearningStyleInstructions = () => {
             switch (currentUser.learning_style) {
                 case 'Visual':
@@ -71,7 +43,7 @@ const PersonalizedContent = () => {
             }
         };
 
-        const systemInstruction = `Eres un profesor de Historia de Venezuela experto y muy amigable.
+        return `Eres un profesor de Historia de Venezuela experto y muy amigable.
 
 **Perfil del Estudiante:**
 - Nombre: ${currentUser.name}
@@ -89,12 +61,40 @@ ${allowedTopics.temas.join(', ')}
 ${getLearningStyleInstructions()}
 
 **Reglas Estrictas:**
-1. Si te preguntan sobre algo fuera de los temas permitidos (ej: Segunda Guerra Mundial, dinosaurios, matemáticas), responde: "Eso es muy interesante, pero en este grado estudiamos Historia de Venezuela. ¿Quieres saber sobre [sugiere un tema relacionado de la lista permitida]?"
+1. Si te preguntan sobre algo fuera de los temas permitidos (ej: Segunda Guerra Mundial, dinosaurios, matemáticas), responde: "Eso es muy interesante, pero solo puedo hablar sobre la historia de Venezuela", por mas que siga insistiendo en el tema corta la conversaciony no sugieras que puedes dar mas informacion.
 2. Usa lenguaje apropiado para niños de ${allowedTopics.edad_objetivo}.
 3. Sé motivador, positivo y entusiasta.
 4. Respuestas cortas (máximo 3 párrafos de 2-3 líneas cada uno).
 5. Usa emojis relevantes para hacer las respuestas más atractivas.
-6. Si no estás seguro de un tema, admítelo honestamente.`;
+6. Si no estás seguro de un tema, admítelo honestamente y sugiere que investiguemos juntos en otra fuente`;
+    };
+
+    // Cargar temas permitidos según el grado del estudiante
+    useEffect(() => {
+        const fetchTopics = async () => {
+            if (!currentUser || currentUser.role !== 'student') {
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3001/topics?grade_id=${currentUser.grade_id}`);
+                const data = await response.json();
+                if (data.length > 0) {
+                    setAllowedTopics(data[0]);
+                }
+            } catch (error) {
+                console.error('Error cargando temas:', error);
+            }
+        };
+
+        fetchTopics();
+    }, [currentUser]);
+
+    // Inicializar mensaje de bienvenida cuando tengamos los datos
+    useEffect(() => {
+        if (!currentUser || !allowedTopics) {
+            return;
+        }
 
         const initialMessage = {
             id: 1,
@@ -114,35 +114,7 @@ ${allowedTopics.temas.length > 5 ? `...y ${allowedTopics.temas.length - 5} temas
         };
 
         setMessages([initialMessage]);
-
-        try {
-            const genAI = new GoogleGenerativeAI(apiKey);
-            const model = genAI.getGenerativeModel({
-                model: "gemini-1.5-pro-latest",
-            });
-
-            // Crear el chat con el system instruction en el historial
-            chatSessionRef.current = model.startChat({
-                history: [
-                    {
-                        role: "user",
-                        parts: [{ text: systemInstruction }],
-                    },
-                    {
-                        role: "model",
-                        parts: [{ text: `¡Entendido! Estoy listo para enseñar Historia de Venezuela a ${currentUser.name} de ${allowedTopics.grade_name} con estilo ${currentUser.learning_style.toLowerCase()}.` }],
-                    },
-                ],
-            });
-        } catch (error) {
-            console.error("Error inicializando Gemini:", error);
-            setMessages([{
-                id: 1,
-                role: 'assistant',
-                content: "⚠️ **Error de Configuración**: No se pudo inicializar el chatbot. Verifica que la API Key esté configurada en el archivo .env"
-            }]);
-        }
-    }, [apiKey, currentUser, allowedTopics]);
+    }, [currentUser, allowedTopics]);
 
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -159,79 +131,49 @@ ${allowedTopics.temas.length > 5 ? `...y ${allowedTopics.temas.length - 5} temas
         setIsLoading(true);
 
         try {
-            if (!chatSessionRef.current) {
-                throw new Error("El chat no se inicializó correctamente. Verifica la API Key.");
-            }
+            // 1. Preparamos el historial para Ollama
+            const historyForOllama = messages.map(msg => ({
+                role: msg.role,
+                content: msg.content
+            }));
 
-            const result = await chatSessionRef.current.sendMessage(userMessage);
-            const responseText = result.response.text();
+            // Añadimos el mensaje actual
+            historyForOllama.push({ role: 'user', content: userMessage });
+
+            // 2. Hacemos la petición a Ollama con el System Prompt
+            const response = await fetch(import.meta.env.VITE_OLLAMA_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: "llama3.2",
+                    messages: [
+                        { role: "system", content: getSystemPrompt() }, // ✅ Ahora es accesible
+                        ...historyForOllama
+                    ],
+                    stream: false
+                })
+            });
+
+            const data = await response.json();
 
             const assistantResponse = {
                 id: Date.now() + 1,
                 role: 'assistant',
-                content: responseText,
+                content: data.message.content,
             };
             setMessages(prev => [...prev, assistantResponse]);
 
         } catch (error) {
-            console.error("Error completo:", error);
-            const errorText = error.message?.toLowerCase() || "";
-            let errorMsg = "Lo siento, hubo un error de conexión.";
-
-            if (errorText.includes("api key") || errorText.includes("403")) {
-                errorMsg = `⚠️ **Error de Autenticación**
-
-La API Key no es válida o está mal configurada.
-
-**Solución:**
-1. Ve a: https://aistudio.google.com/app/apikey
-2. Crea una nueva API Key
-3. Cópiala en el archivo \`.env\`:
-   \`VITE_GEMINI_API_KEY=TU_NUEVA_KEY\`
-4. Reinicia el servidor: Ctrl+C y luego \`npm start\``;
-
-            } else if (errorText.includes("429") || errorText.includes("quota") || errorText.includes("resource exhausted")) {
-                errorMsg = `🚫 **Límite de Cuota Alcanzado**
-
-Has usado todas las peticiones gratuitas disponibles para esta API Key.
-
-**Opciones:**
-1. **Esperar:** La cuota se resetea cada minuto (límite: 15 requests/min)
-2. **Nueva API Key:** Crea otra en https://aistudio.google.com/app/apikey
-3. **Actualizar .env:** Cambia \`VITE_GEMINI_API_KEY\` y reinicia el servidor
-4. **Modo Pago:** Activa facturación en Google Cloud (si necesitas más cuota)
-
-**Límites Gratuitos de Gemini:**
-- 15 requests por minuto
-- 1,500 requests por día
-- 1 millón de tokens por minuto`;
-
-            } else if (errorText.includes("fetch failed") || errorText.includes("network")) {
-                errorMsg = `🌐 **Error de Red**
-
-No se pudo conectar con la API de Gemini.
-
-**Verifica:**
-- Tu conexión a internet
-- Que no haya firewall bloqueando generativelanguage.googleapis.com
-- Extensiones del navegador (AdBlock puede bloquear APIs)`;
-
-            } else {
-                errorMsg = `⚠️ **Error Técnico**
-
-${error.message}
-
-Si el problema persiste, verifica la consola del navegador (F12).`;
-            }
-
+            console.error("Error con Ollama:", error);
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,
                 role: 'assistant',
-                content: errorMsg
+                content: "⚠️ No pude conectar con Ollama. Asegúrate de que el servidor esté corriendo con 'ollama serve'."
             }]);
         } finally {
             setIsLoading(false);
         }
+
     };
 
     if (!currentUser) {

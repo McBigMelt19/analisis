@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   CCard,
   CCardBody,
@@ -16,11 +17,20 @@ import {
   CSpinner,
   CAvatar,
 } from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import {
+  cilBook,
+  cilClipboard,
+  cilCommentSquare,
+  cilCloudUpload,
+  cilChartLine,
+} from '@coreui/icons'
 import { useAuth } from '../../../context/AuthContext'
 import StudentProgressModal from '../../../components/StudentProgressModal'
 
 const TeacherDashboard = () => {
   const { currentUser } = useAuth()
+  const navigate = useNavigate()
   const [students, setStudents] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -80,6 +90,42 @@ const TeacherDashboard = () => {
     setModalVisible(true)
   }
 
+  // Tarjetas de navegación rápida
+  const quickAccessCards = [
+    {
+      title: 'Contenidos',
+      description: 'Ver y gestionar contenidos educativos',
+      icon: cilBook,
+      color: 'primary',
+      path: '/teacher/content',
+      gradient: 'linear-gradient(135deg, #004587 0%, #0066cc 100%)',
+    },
+    {
+      title: 'Calificaciones',
+      description: 'Subir y gestionar calificaciones',
+      icon: cilClipboard,
+      color: 'success',
+      path: '/teacher/upload-grades',
+      gradient: 'linear-gradient(135deg, #FFC72C 0%, #FFD966 100%)',
+    },
+    {
+      title: 'Retroalimentación',
+      description: 'Dar feedback a estudiantes',
+      icon: cilCommentSquare,
+      color: 'warning',
+      path: '/teacher/feedback',
+      gradient: 'linear-gradient(135deg, #E64A19 0%, #FF6B3D 100%)',
+    },
+    {
+      title: 'Agregar Contenido',
+      description: 'Subir nuevo material educativo',
+      icon: cilCloudUpload,
+      color: 'info',
+      path: '/teacher/add-content',
+      gradient: 'linear-gradient(135deg, #006699 0%, #0088cc 100%)',
+    },
+  ]
+
   if (!currentUser || currentUser.role !== 'teacher') {
     return <div className="alert alert-warning m-4">Esta página es solo para profesores.</div>
   }
@@ -112,6 +158,41 @@ const TeacherDashboard = () => {
           <h2>Bienvenido, {currentUser.name}</h2>
           <p className="text-muted">Grado: {currentUser.grade_id}°</p>
         </CCol>
+      </CRow>
+
+      {/* Tarjetas de Acceso Rápido */}
+      <CRow className="mb-4">
+        {quickAccessCards.map((card, index) => (
+          <CCol xs={12} sm={6} lg={3} key={index} className="mb-3">
+            <CCard
+              className="h-100 shadow-sm border-0"
+              style={{
+                background: card.gradient,
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-5px)'
+                e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.2)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)'
+              }}
+              onClick={() => navigate(card.path)}
+            >
+              <CCardBody className="text-center text-white p-4">
+                <div className="mb-3">
+                  <CIcon icon={card.icon} size="3xl" />
+                </div>
+                <h5 className="fw-bold mb-2">{card.title}</h5>
+                <p className="small mb-0" style={{ opacity: 0.9 }}>
+                  {card.description}
+                </p>
+              </CCardBody>
+            </CCard>
+          </CCol>
+        ))}
       </CRow>
 
       <CCard>
