@@ -187,7 +187,7 @@ ESTILO: ${effectiveUser.learning_style}.`;
             </CCardHeader>
 
             <CCardBody className="d-flex flex-column p-0 bg-light">
-                <div className="flex-grow-1 overflow-y-auto p-3" style={{ maxHeight: '65vh' }}>
+                <div className="flex-grow-1 overflow-y-auto p-3" style={{ height: '80vh', minHeight: '500px', backgroundColor: COLORS.CHAT_BG }}>
                     {messages.map((msg) => (
                         <div key={msg.id} className={`d-flex flex-column mb-3 ${msg.role === 'user' ? 'align-items-end' : 'align-items-start'}`}>
 
