@@ -51,7 +51,7 @@ const routes = [
   { path: '/teacher/add-content', name: 'TeacherAddContent', element: TeacherAddContent },
 
   // Auth Routes
-  { path: '/login', name: 'Login', element: Login },
+  //{ path: '/login', name: 'Login', element: Login },
 ]
 
 export default routes
