@@ -19,9 +19,6 @@ const TeacherGrades = React.lazy(() => import('./views/pages/teacher/TeacherGrad
 const TeacherFeedback = React.lazy(() => import('./views/pages/teacher/TeacherFeedback'))
 const TeacherAddContent = React.lazy(() => import('./views/pages/teacher/TeacherAddContent'))
 
-// Auth Pages
-const Login = React.lazy(() => import('./views/pages/login/Login'))
-
 const routes = [
   // 🔥 ESTA ES LA CLAVE: La ruta raíz "/" ahora carga el Chatbot directo
   { path: '/', exact: true, name: 'Asistente IA', element: PersonalizedContent },
@@ -49,9 +46,6 @@ const routes = [
   { path: '/teacher/upload-grades', name: 'TeacherGrades', element: TeacherGrades },
   { path: '/teacher/feedback', name: 'TeacherFeedback', element: TeacherFeedback },
   { path: '/teacher/add-content', name: 'TeacherAddContent', element: TeacherAddContent },
-
-  // Auth Routes
-  //{ path: '/login', name: 'Login', element: Login },
 ]
 
 export default routes
