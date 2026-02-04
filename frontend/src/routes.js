@@ -23,12 +23,15 @@ const TeacherAddContent = React.lazy(() => import('./views/pages/teacher/Teacher
 const Login = React.lazy(() => import('./views/pages/login/Login'))
 
 const routes = [
+  // 🔥 ESTA ES LA CLAVE: La ruta raíz "/" ahora carga el Chatbot directo
+  { path: '/', exact: true, name: 'Asistente IA', element: PersonalizedContent },
+
   // Student Routes
   { path: '/home', name: 'Home', element: HomePageCoreUI },
   { path: '/student/home', name: 'StudentHome', element: HomePageCoreUI },
   { path: '/student/grade/:grade', name: 'GradePage', element: GradePageCoreUI },
 
-  // Student Component Routes (standalone access if needed)
+  // Student Component Routes
   { path: '/PersonalizedContent', name: 'PersonalizedContent', element: PersonalizedContent },
   { path: '/InteractiveTimeline', name: 'InteractiveTimeline', element: InteractiveTimeline },
   { path: '/GamifiedQuiz', name: 'GamifiedQuiz', element: GamifiedQuiz },

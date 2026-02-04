@@ -1,21 +1,17 @@
 import React, { Suspense, useEffect } from 'react'
-import { BrowserRouter, HashRouter, Route, Routes } from 'react-router-dom'
+import { HashRouter, Route, Routes } from 'react-router-dom' // 💡 Usamos HashRouter para evitar errores en Netlify
 import { useSelector } from 'react-redux'
 
 import { CSpinner, useColorModes } from '@coreui/react'
 import './scss/style.scss'
-
-// We use those styles to show code examples, you should remove them in your application.
 import './scss/examples.scss'
 
-// --- 1. DEFINICIÓN DE LOADING (Corrección del ReferenceError) ---
-// Usamos el CSpinner de CoreUI, que ya está importado.
+// Definition of Loading
 const loading = (
   <div className="pt-3 text-center">
     <CSpinner color="primary" />
   </div>
 )
-// -----------------------------------------------------------------
 
 // Containers
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
@@ -42,25 +38,22 @@ const App = () => {
     }
 
     setColorMode(storedTheme)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
-    // Es redundante usar HashRouter y BrowserRouter anidados. 
-    // Usaremos BrowserRouter como estándar para mejor SEO y URLs limpias.
-    <BrowserRouter>
-      <Suspense
-        fallback={loading} // <-- 'loading' ya está definido
-      >
+    // 💡 CAMBIO CRÍTICO: HashRouter asegura que la app cargue bien en Netlify/GitHub Pages
+    <HashRouter>
+      <Suspense fallback={loading}>
         <Routes>
           <Route exact path="/login" name="Login Page" element={<Login />} />
           <Route exact path="/register" name="Register Page" element={<Register />} />
           <Route exact path="/404" name="Page 404" element={<Page404 />} />
           <Route exact path="/500" name="Page 500" element={<Page500 />} />
-          {/* La ruta protegida por DefaultLayout */}
-          <Route path="*" name="home" element={<DefaultLayout />} />
+          {/* DefaultLayout cargará las rutas definidas en routes.js (incluyendo el Chatbot en /) */}
+          <Route path="*" name="Home" element={<DefaultLayout />} />
         </Routes>
       </Suspense>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
 
