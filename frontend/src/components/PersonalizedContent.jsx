@@ -1,89 +1,112 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { CCard, CCardHeader, CCardBody, CForm, CFormTextarea, CButton, CInputGroup, CBadge, CCollapse, CCardFooter } from '@coreui/react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { CCard, CCardHeader, CCardBody, CForm, CFormTextarea, CButton, CInputGroup, CBadge } from '@coreui/react';
 import { useAuth } from '../context/AuthContext';
 
 const COLORS = {
-    ASSISTANT_BG: '#FFF3E0', // Un tono crema más suave
-    USER_BG: '#E3F2FD',      // Azul muy suave
+    ASSISTANT_BG: '#FFF3E0',
+    USER_BG: '#E3F2FD',
     HEADER_BG: '#5D4037',
     CHAT_BG: '#FFFFFF',
-    LOGIC_TEXT: '#666',      // Color para la explicación lógica
+    LOGIC_TEXT: '#666',
 };
 
-// 💡 CONFIGURACIÓN DE GROQ
+// CONFIGURACIÓN DE GROQ
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-const GROQ_MODEL = "llama3-70b-8192"; // Modelo rápido y potente
+const GROQ_MODEL = "llama-3.1-8b-instant"; // Modelo rápido y actual
 
 const PersonalizedContent = () => {
-    const { currentUser } = useAuth(); // Puede ser null si no hay login
+    const { currentUser } = useAuth();
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [allowedTopics, setAllowedTopics] = useState(null);
     const chatEndRef = useRef(null);
 
-    // 💡 USUARIO POR DEFECTO (Para que funcione sin Login)
-    const effectiveUser = currentUser || {
-        name: "Explorador",
-        role: "student",
-        grade_id: 4, // Asumimos 4to grado por defecto
-        learning_style: "Visual"
-    };
+    // 💡 SOLUCIÓN AL BUCLE INFINITO: Usamos useMemo
+    // Esto asegura que el objeto 'effectiveUser' sea EL MISMO en memoria
+    // a menos que cambie algo real. Así el useEffect no se vuelve loco.
+    const effectiveUser = useMemo(() => {
+        return currentUser || {
+            name: "Explorador",
+            role: "student",
+            grade_id: 4,
+            learning_style: "Visual"
+        };
+    }, [currentUser]); // Solo se recalcula si currentUser cambia
 
-    // 💡 SYSTEM PROMPT MEJORADO (EXPLICABILIDAD + ROBUSTEZ)
+    // SYSTEM PROMPT
     const getSystemPrompt = () => {
         if (!allowedTopics) return "";
 
         return `Eres un profesor de Historia de Venezuela experto.
-        
 TU OBJETIVO: Enseñar a un niño de ${allowedTopics.grade_name} (${allowedTopics.edad_objetivo}).
 
 IMPORTANTE: DEBES RESPONDER SIEMPRE EN FORMATO JSON ESTRICTO.
-No saludes fuera del JSON. Tu respuesta debe tener esta estructura exacta:
+Estructura:
 {
-  "respuesta_nino": "Aquí escribes la respuesta adaptada para el niño, usando emojis, clara y divertida.",
-  "explicacion_logica": "Aquí escribes (para el profesor/auditor) qué fuentes históricas usaste, fechas exactas y por qué tu respuesta es verídica. Ej: 'Basado en datos de la Guerra Federal (1859-1863)...'"
+  "respuesta_nino": "Respuesta adaptada, amigable y con emojis.",
+  "explicacion_logica": "Fuente histórica y justificación breve."
 }
 
-TEMA ACTUAL: El usuario preguntará sobre: ${allowedTopics.temas.join(', ')}.
-Si preguntan de otro tema, en "respuesta_nino" di amablemente que no sabes, y en "explicacion_logica" pon "Tema fuera de dominio".
-
+TEMA: ${allowedTopics.temas.join(', ')}.
 ESTILO: ${effectiveUser.learning_style}.`;
     };
 
-    // Cargar temas (Si falla el servidor local, usa datos de respaldo)
+    // 💡 CARGA DE DATOS INTELIGENTE
     useEffect(() => {
-        const fetchTopics = async () => {
+        const loadTopics = async () => {
+            // DATOS DE RESPALDO (Fijos)
+            const fallbackData = {
+                grade_name: "4to Grado",
+                edad_objetivo: "9-10 años",
+                temas: ["Simón Bolívar", "Independencia", "Símbolos Patrios"],
+                restricciones_ia: "No violencia explícita."
+            };
+
+            // Detectamos si estamos en localhost o en Netlify
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+            // Si estamos en Netlify (Producción), USAMOS EL RESPALDO DIRECTAMENTE
+            // Esto evita el error rojo de conexión en la consola.
+            if (!isLocalhost) {
+                console.log("🚀 Modo Producción: Usando datos internos.");
+                setAllowedTopics(fallbackData);
+                return;
+            }
+
+            // Solo intentamos fetch si estamos en local
             try {
-                // Intentamos conectar a json-server
                 const response = await fetch(`http://localhost:3001/topics?grade_id=${effectiveUser.grade_id}`);
                 if (!response.ok) throw new Error("No server");
                 const data = await response.json();
-                if (data.length > 0) setAllowedTopics(data[0]);
+                if (data.length > 0) {
+                    setAllowedTopics(data[0]);
+                } else {
+                    setAllowedTopics(fallbackData);
+                }
             } catch (error) {
-                console.warn("⚠️ Usando datos de respaldo (JSON Server no detectado o error)");
-                // 💡 DATOS FALLBACK (Para que la app no muera si db.json falla)
-                setAllowedTopics({
-                    grade_name: "4to Grado",
-                    edad_objetivo: "9-10 años",
-                    temas: ["Simón Bolívar", "Independencia", "Símbolos Patrios"],
-                    restricciones_ia: "No violencia explícita."
-                });
+                console.warn("⚠️ Usando datos de respaldo (Localhost sin JSON Server)");
+                setAllowedTopics(fallbackData);
             }
         };
-        fetchTopics();
-    }, [effectiveUser]);
+
+        loadTopics();
+    }, [effectiveUser]); // ✅ Ahora effectiveUser es estable gracias a useMemo
 
     // Mensaje inicial
     useEffect(() => {
         if (!allowedTopics) return;
-        setMessages([{
-            id: 1,
-            role: 'assistant',
-            content: `¡Hola ${effectiveUser.name}! 🇻🇪 Soy tu profe de Historia.\nPodemos hablar de: ${allowedTopics.temas.slice(0, 3).join(', ')}.`,
-            logic: "Sistema inicializado correctamente."
-        }]);
-    }, [allowedTopics]);
+        // Solo enviamos el mensaje inicial si la lista de mensajes está vacía
+        setMessages(prev => {
+            if (prev.length > 0) return prev;
+            return [{
+                id: 1,
+                role: 'assistant',
+                content: `¡Hola ${effectiveUser.name}! 🇻🇪 Soy tu profe de Historia.\nPodemos hablar de: ${allowedTopics.temas.slice(0, 3).join(', ')}.`,
+                logic: "Sistema inicializado correctamente."
+            }];
+        });
+    }, [allowedTopics, effectiveUser.name]);
 
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -100,13 +123,10 @@ ESTILO: ${effectiveUser.learning_style}.`;
         setIsLoading(true);
 
         try {
-            // Historial limpio para Groq
             const historyForAI = messages.map(msg => ({
                 role: msg.role === 'assistant' ? 'assistant' : 'user',
-                content: msg.content // Enviamos solo el contenido, sin metadatos extra
+                content: msg.content
             }));
-
-            console.log("Enviando a Groq:", { historyForAI, userMessage }); // 👀 Para ver qué enviamos
 
             const response = await fetch(GROQ_API_URL, {
                 method: "POST",
@@ -115,38 +135,32 @@ ESTILO: ${effectiveUser.learning_style}.`;
                     "Authorization": `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`
                 },
                 body: JSON.stringify({
-                    model: "llama-3.1-8b-instant", // ⚠️ CAMBIO: Usamos el modelo 8b que es más estable y rápido
+                    model: GROQ_MODEL,
                     messages: [
                         { role: "system", content: getSystemPrompt() },
                         ...historyForAI,
                         { role: "user", content: userMessage }
                     ],
                     temperature: 0.5,
-                    // response_format: { type: "json_object" } <--- ⚠️ LO QUITAMOS para evitar el Error 400
                 })
             });
 
-            const data = await response.json();
-
-            // 🛑 CAPTURAR EL ERROR REAL DE GROQ
             if (!response.ok) {
-                console.error("❌ ERROR DETALLADO GROQ:", data);
-                throw new Error(data.error?.message || "Error desconocido de Groq");
+                const errData = await response.json();
+                throw new Error(errData.error?.message || "Error Groq");
             }
 
+            const data = await response.json();
             const aiRawContent = data.choices[0].message.content;
 
-            // ... (el resto del código de parseo JSON sigue igual)
             let parsedContent, logicContent;
             try {
                 const jsonResponse = JSON.parse(aiRawContent);
                 parsedContent = jsonResponse.respuesta_nino;
                 logicContent = jsonResponse.explicacion_logica;
             } catch (e) {
-                // Si falla el JSON, intentamos limpiar un poco por si la IA puso texto antes del JSON
-                console.warn("La IA no devolvió JSON puro, intentando recuperar...");
                 parsedContent = aiRawContent;
-                logicContent = "No se pudo generar la traza lógica estructurada.";
+                logicContent = "No se pudo generar la traza lógica.";
             }
 
             setMessages(prev => [...prev, {
@@ -157,12 +171,12 @@ ESTILO: ${effectiveUser.learning_style}.`;
             }]);
 
         } catch (error) {
-            console.error("🔥 Error Final:", error);
+            console.error("Error Groq:", error);
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,
                 role: 'assistant',
-                content: `⚠️ Error técnico: ${error.message}. Intenta de nuevo.`,
-                logic: "Fallo de conexión"
+                content: "⚠️ Error de conexión. Revisa tu internet.",
+                logic: error.message
             }]);
         } finally {
             setIsLoading(false);
@@ -179,19 +193,17 @@ ESTILO: ${effectiveUser.learning_style}.`;
                         <h5 className="mb-0">🇻🇪 Historia Bot</h5>
                         <small style={{ opacity: 0.8 }}>Modo: {effectiveUser.learning_style}</small>
                     </div>
-                    {/* Botón "Secreto" para el profesor */}
-                    <CBadge color="warning" shape="rounded-pill" title="Nivel de Confianza: Alto">
-                        IA Activa ⚡
-                    </CBadge>
+                    <CBadge color="warning" shape="rounded-pill">IA Activa ⚡</CBadge>
                 </div>
             </CCardHeader>
 
+            {/* AQUÍ ESTÁ EL TAMAÑO AGRANDADO DEL CHAT */}
             <CCardBody className="d-flex flex-column p-0 bg-light">
-                <div className="flex-grow-1 overflow-y-auto p-3" style={{ height: '80vh', minHeight: '500px', backgroundColor: COLORS.CHAT_BG }}>
+                <div className="flex-grow-1 overflow-y-auto p-3"
+                    style={{ height: '80vh', minHeight: '500px', backgroundColor: COLORS.CHAT_BG }}>
+
                     {messages.map((msg) => (
                         <div key={msg.id} className={`d-flex flex-column mb-3 ${msg.role === 'user' ? 'align-items-end' : 'align-items-start'}`}>
-
-                            {/* BURBUJA DE CHAT */}
                             <div className="p-3 rounded-3 shadow-sm"
                                 style={{
                                     maxWidth: '85%',
@@ -202,20 +214,19 @@ ESTILO: ${effectiveUser.learning_style}.`;
                                 <p className="mb-0" style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</p>
                             </div>
 
-                            {/* 💡 EXPLICABILIDAD (SOLO visible en mensajes del asistente) */}
                             {msg.role === 'assistant' && msg.logic && (
                                 <div className="mt-1 ms-1" style={{ maxWidth: '85%' }}>
                                     <details style={{ fontSize: '0.75rem', color: COLORS.LOGIC_TEXT, cursor: 'pointer' }}>
-                                        <summary>🔍 Ver razonamiento lógico (Para el Profesor)</summary>
+                                        <summary>🔍 Ver lógica (Profesor)</summary>
                                         <div className="p-2 mt-1 border rounded bg-white">
-                                            <em>Fuente/Lógica:</em> {msg.logic}
+                                            <em>Fuente:</em> {msg.logic}
                                         </div>
                                     </details>
                                 </div>
                             )}
                         </div>
                     ))}
-                    {isLoading && <div className="text-muted ms-3">⏳ Consultando libros de historia...</div>}
+                    {isLoading && <div className="text-muted ms-3">⏳ Escribiendo...</div>}
                     <div ref={chatEndRef} />
                 </div>
 
@@ -225,7 +236,7 @@ ESTILO: ${effectiveUser.learning_style}.`;
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(e); } }}
-                            placeholder="Haz una pregunta de historia..."
+                            placeholder="Haz una pregunta..."
                             rows={1}
                             style={{ resize: 'none' }}
                         />
