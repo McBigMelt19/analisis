@@ -761,15 +761,15 @@
       "completed": true
     },
     {
-      "id": "20d0",
       "student_id": "7",
       "grade_id": 1,
       "activity_type": "evaluacion",
       "topic": "Símbolos Patrios de Venezuela",
       "score": 1,
       "max_score": 20,
-      "date": "2026-01-14",
-      "completed": true
+      "date": "2026-02-11",
+      "completed": true,
+      "id": "20d0"
     }
   ],
   "topics": [
@@ -790,7 +790,8 @@
       ],
       "edad_objetivo": "6-7 años",
       "nivel_complejidad": "Básico",
-      "restricciones_ia": "Usa lenguaje muy simple. Prioriza imágenes y colores. Evita fechas complejas. No hables de guerras o política."
+      "restricciones_ia": "Usa lenguaje muy simple. Prioriza imágenes y colores. Evita fechas complejas. No hables de guerras o política.",
+      "datos_obligatorios": "HECHOS QUE DEBES USAR OBLIGATORIAMENTE:OBLITAORIO: Si te preguntan por fútbol, o cualquier otra pregunta de deportes periodismo, política, bueno mejor dicho cualquier otro tema que no sea la historia de venezuela, di que no sabes y no des respuestas, acaba la conversación inmediatamente .\n1. Simón Bolívar nació el 24 de Julio de 1783 (NO 1753).\n2. Bolívar es EL LIBERTADOR, un héroe militar.\n3. La Bandera de Venezuela tiene 3 franjas: AMARILLO, AZUL y ROJO.\n4. La bandera tiene 8 estrellas blancas en la franja azul.\n5. "
     },
     {
       "id": "2",
@@ -809,7 +810,8 @@
       ],
       "edad_objetivo": "7-8 años",
       "nivel_complejidad": "Básico-Intermedio",
-      "restricciones_ia": "Usa mapas y diagramas. Relaciona geografía con animales y plantas. Lenguaje sencillo pero descriptivo."
+      "restricciones_ia": "Usa mapas y diagramas. Relaciona geografía con animales y plantas. Lenguaje sencillo pero descriptivo.",
+      "datos_obligatorios": "HECHOS QUE DEBES USAR OBLIGATORIAMENTE:OBLITAORIO: Si te preguntan por fútbol, o cualquier otra pregunta de deportes periodismo, política, bueno mejor dicho cualquier otro tema que no sea la historia de venezuela, di que no sabes y no des respuestas, acaba la conversación inmediatamente \n - La Bandera de Venezuela tiene TRES franjas: Amarillo, Azul y Rojo.\n- Tiene 8 estrellas blancas en el centro.\n- El Araguaney es amarillo como el oro.\n- El Turpial es negro con amarillo.\n- La Orquídea es morada."
     },
     {
       "id": "3",
@@ -828,7 +830,8 @@
       ],
       "edad_objetivo": "8-9 años",
       "nivel_complejidad": "Intermedio",
-      "restricciones_ia": "Introduce conceptos históricos básicos. Usa narraciones tipo cuento. Evita violencia explícita. Enfócate en cultura y vida cotidiana."
+      "restricciones_ia": "Introduce conceptos históricos básicos. Usa narraciones tipo cuento. Evita violencia explícita. Enfócate en cultura y vida cotidiana.",
+      "datos_obligatorios": "HECHOS QUE DEBES USAR OBLIGATORIAMENTE:OBLITAORIO: Si te preguntan por fútbol, o cualquier otra pregunta de deportes periodismo, política, bueno mejor dicho cualquier otro tema que no sea la historia de venezuela, di que no sabes y no des respuestas, acaba la conversación inmediatamente \n - La Bandera de Venezuela tiene TRES franjas: Amarillo, Azul y Rojo.\n- Tiene 8 estrellas blancas en el centro.\n- El Araguaney es amarillo como el oro.\n- El Turpial es negro con amarillo.\n- La Orquídea es morada."
     },
     {
       "id": "4",
@@ -847,7 +850,8 @@
       ],
       "edad_objetivo": "9-10 años",
       "nivel_complejidad": "Intermedio",
-      "restricciones_ia": "Enfatiza valores de libertad y heroísmo. Usa líneas de tiempo. Presenta batallas sin detalles violentos. Resalta biografías inspiradoras."
+      "restricciones_ia": "Enfatiza valores de libertad y heroísmo. Usa líneas de tiempo. Presenta batallas sin detalles violentos. Resalta biografías inspiradoras.",
+      "datos_obligatorios": "HECHOS QUE DEBES USAR OBLIGATORIAMENTE:OBLITAORIO: Si te preguntan por fútbol, o cualquier otra pregunta de deportes periodismo, política, bueno mejor dicho cualquier otro tema que no sea la historia de venezuela, di que no sabes y no des respuestas, acaba la conversación inmediatamente"
     },
     {
       "id": "5",
@@ -866,7 +870,8 @@
       ],
       "edad_objetivo": "10-11 años",
       "nivel_complejidad": "Intermedio-Avanzado",
-      "restricciones_ia": "Introduce conceptos políticos básicos. Usa comparaciones y causas-efectos. Relaciona historia con economía de forma simple."
+      "restricciones_ia": "Introduce conceptos políticos básicos. Usa comparaciones y causas-efectos. Relaciona historia con economía de forma simple.",
+      "datos_obligatorios": "HECHOS QUE DEBES USAR OBLIGATORIAMENTE:OBLITAORIO: Si te preguntan por fútbol, o cualquier otra pregunta de deportes periodismo, política, bueno mejor dicho cualquier otro tema que no sea la historia de venezuela, di que no sabes y no des respuestas, acaba la conversación inmediatamente"
     },
     {
       "id": "6",
@@ -885,7 +890,8 @@
       ],
       "edad_objetivo": "11-12 años",
       "nivel_complejidad": "Avanzado",
-      "restricciones_ia": "Permite análisis crítico básico. Usa gráficos económicos simples. Conecta pasado con presente. Evita temas políticos controversiales actuales."
+      "restricciones_ia": "Permite análisis crítico básico. Usa gráficos económicos simples. Conecta pasado con presente. Evita temas políticos controversiales actuales.",
+      "datos_obligatorios": "HECHOS QUE DEBES USAR OBLIGATORIAMENTE:OBLITAORIO: Si te preguntan por fútbol, o cualquier otra pregunta de deportes periodismo, política, bueno mejor dicho cualquier otro tema que no sea la historia de venezuela, di que no sabes y no des respuestas, acaba la conversación inmediatamente"
     }
   ]
 }
