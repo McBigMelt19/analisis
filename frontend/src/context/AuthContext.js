@@ -33,26 +33,29 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (username, password) => {
         try {
-            // Llamada a json-server
-            const response = await fetch(
-                `http://localhost:3001/users?username=${username}&password=${password}`,
-            )
+            const normalizedUsername = username.trim()
+            const normalizedPassword = password.trim()
+            const normalizedLogin = normalizedUsername.toLowerCase()
+            const encodedLogin = encodeURIComponent(normalizedLogin)
 
-            // Verificar si la respuesta es exitosa
+            // Llamada a json-server buscando el usuario por username o por email
+            let response = await fetch(`http://localhost:3001/users?username=${encodedLogin}`)
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`)
             }
 
-            // Verificar que la respuesta sea JSON
-            const contentType = response.headers.get('content-type')
-            if (!contentType || !contentType.includes('application/json')) {
-                throw new Error('El servidor no está devolviendo JSON. Verifica que json-server esté corriendo en el puerto 3001.')
+            let users = await response.json()
+            if (users.length === 0) {
+                response = await fetch(`http://localhost:3001/users?email=${encodedLogin}`)
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`)
+                }
+                users = await response.json()
             }
 
-            const users = await response.json()
+            const user = users.find((u) => u.password === normalizedPassword)
 
-            if (users.length > 0) {
-                const user = users[0]
+            if (user) {
                 setCurrentUser(user)
                 setIsAuthenticated(true)
                 localStorage.setItem('currentUser', JSON.stringify(user))

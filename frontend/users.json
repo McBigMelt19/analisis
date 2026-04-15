@@ -1,0 +1,260 @@
+[
+  {
+    "id": "1",
+    "username": "prof.maria.rodriguez",
+    "password": "123456",
+    "role": "teacher",
+    "name": "María Rodríguez",
+    "email": "maria.rodriguez@lms.ve",
+    "grade_id": 1,
+    "avatar": "https://i.pravatar.cc/150?img=1"
+  },
+  {
+    "id": "2",
+    "username": "prof.carlos.gonzalez",
+    "password": "123456",
+    "role": "teacher",
+    "name": "Carlos González",
+    "email": "carlos.gonzalez@lms.ve",
+    "grade_id": 2,
+    "avatar": "https://i.pravatar.cc/150?img=12"
+  },
+  {
+    "id": "3",
+    "username": "prof.ana.martinez",
+    "password": "123456",
+    "role": "teacher",
+    "name": "Ana Martínez",
+    "email": "ana.martinez@lms.ve",
+    "grade_id": 3,
+    "avatar": "https://i.pravatar.cc/150?img=5"
+  },
+  {
+    "id": "4",
+    "username": "prof.jose.perez",
+    "password": "123456",
+    "role": "teacher",
+    "name": "José Pérez",
+    "email": "jose.perez@lms.ve",
+    "grade_id": 4,
+    "avatar": "https://i.pravatar.cc/150?img=13"
+  },
+  {
+    "id": "5",
+    "username": "prof.luisa.fernandez",
+    "password": "123456",
+    "role": "teacher",
+    "name": "Luisa Fernández",
+    "email": "luisa.fernandez@lms.ve",
+    "grade_id": 5,
+    "avatar": "https://i.pravatar.cc/150?img=9"
+  },
+  {
+    "id": "6",
+    "username": "prof.pedro.ramirez",
+    "password": "123456",
+    "role": "teacher",
+    "name": "Pedro Ramírez",
+    "email": "pedro.ramirez@lms.ve",
+    "grade_id": 6,
+    "avatar": "https://i.pravatar.cc/150?img=14"
+  },
+  {
+    "id": "7",
+    "username": "juan.silva",
+    "password": "123456",
+    "role": "student",
+    "name": "Juan Silva",
+    "email": "juan.silva@estudiante.ve",
+    "grade_id": 1,
+    "learning_style": "Visual",
+    "avatar": "https://i.pravatar.cc/150?img=33"
+  },
+  {
+    "id": "8",
+    "username": "sofia.morales",
+    "password": "123456",
+    "role": "student",
+    "name": "Sofía Morales",
+    "email": "sofia.morales@estudiante.ve",
+    "grade_id": 1,
+    "learning_style": "Auditivo",
+    "avatar": "https://i.pravatar.cc/150?img=44"
+  },
+  {
+    "id": "9",
+    "username": "diego.lopez",
+    "password": "123456",
+    "role": "student",
+    "name": "Diego López",
+    "email": "diego.lopez@estudiante.ve",
+    "grade_id": 1,
+    "learning_style": "Kinestésico",
+    "avatar": "https://i.pravatar.cc/150?img=51"
+  },
+  {
+    "id": "10",
+    "username": "valentina.torres",
+    "password": "123456",
+    "role": "student",
+    "name": "Valentina Torres",
+    "email": "valentina.torres@estudiante.ve",
+    "grade_id": 2,
+    "learning_style": "Visual",
+    "avatar": "https://i.pravatar.cc/150?img=45"
+  },
+  {
+    "id": "11",
+    "username": "andres.castillo",
+    "password": "123456",
+    "role": "student",
+    "name": "Andrés Castillo",
+    "email": "andres.castillo@estudiante.ve",
+    "grade_id": 2,
+    "learning_style": "Auditivo",
+    "avatar": "https://i.pravatar.cc/150?img=52"
+  },
+  {
+    "id": "12",
+    "username": "isabella.herrera",
+    "password": "123456",
+    "role": "student",
+    "name": "Isabella Herrera",
+    "email": "isabella.herrera@estudiante.ve",
+    "grade_id": 2,
+    "learning_style": "Kinestésico",
+    "avatar": "https://i.pravatar.cc/150?img=47"
+  },
+  {
+    "id": "13",
+    "username": "santiago.rojas",
+    "password": "123456",
+    "role": "student",
+    "name": "Santiago Rojas",
+    "email": "santiago.rojas@estudiante.ve",
+    "grade_id": 3,
+    "learning_style": "Visual",
+    "avatar": "https://i.pravatar.cc/150?img=53"
+  },
+  {
+    "id": "14",
+    "username": "camila.mendez",
+    "password": "123456",
+    "role": "student",
+    "name": "Camila Méndez",
+    "email": "camila.mendez@estudiante.ve",
+    "grade_id": 3,
+    "learning_style": "Auditivo",
+    "avatar": "https://i.pravatar.cc/150?img=48"
+  },
+  {
+    "id": "15",
+    "username": "mateo.vargas",
+    "password": "123456",
+    "role": "student",
+    "name": "Mateo Vargas",
+    "email": "mateo.vargas@estudiante.ve",
+    "grade_id": 3,
+    "learning_style": "Kinestésico",
+    "avatar": "https://i.pravatar.cc/150?img=54"
+  },
+  {
+    "id": "16",
+    "username": "lucia.ortiz",
+    "password": "123456",
+    "role": "student",
+    "name": "Lucía Ortiz",
+    "email": "lucia.ortiz@estudiante.ve",
+    "grade_id": 4,
+    "learning_style": "Visual",
+    "avatar": "https://i.pravatar.cc/150?img=49"
+  },
+  {
+    "id": "17",
+    "username": "gabriel.sanchez",
+    "password": "123456",
+    "role": "student",
+    "name": "Gabriel Sánchez",
+    "email": "gabriel.sanchez@estudiante.ve",
+    "grade_id": 4,
+    "learning_style": "Auditivo",
+    "avatar": "https://i.pravatar.cc/150?img=55"
+  },
+  {
+    "id": "18",
+    "username": "emma.reyes",
+    "password": "123456",
+    "role": "student",
+    "name": "Emma Reyes",
+    "email": "emma.reyes@estudiante.ve",
+    "grade_id": 4,
+    "learning_style": "Kinestésico",
+    "avatar": "https://i.pravatar.cc/150?img=50"
+  },
+  {
+    "id": "19",
+    "username": "nicolas.diaz",
+    "password": "123456",
+    "role": "student",
+    "name": "Nicolás Díaz",
+    "email": "nicolas.diaz@estudiante.ve",
+    "grade_id": 5,
+    "learning_style": "Visual",
+    "avatar": "https://i.pravatar.cc/150?img=56"
+  },
+  {
+    "id": "20",
+    "username": "maria.jimenez",
+    "password": "123456",
+    "role": "student",
+    "name": "María Jiménez",
+    "email": "maria.jimenez@estudiante.ve",
+    "grade_id": 5,
+    "learning_style": "Auditivo",
+    "avatar": "https://i.pravatar.cc/150?img=46"
+  },
+  {
+    "id": "21",
+    "username": "sebastian.cruz",
+    "password": "123456",
+    "role": "student",
+    "name": "Sebastián Cruz",
+    "email": "sebastian.cruz@estudiante.ve",
+    "grade_id": 5,
+    "learning_style": "Kinestésico",
+    "avatar": "https://i.pravatar.cc/150?img=57"
+  },
+  {
+    "id": "22",
+    "username": "valeria.flores",
+    "password": "123456",
+    "role": "student",
+    "name": "Valeria Flores",
+    "email": "valeria.flores@estudiante.ve",
+    "grade_id": 6,
+    "learning_style": "Visual",
+    "avatar": "https://i.pravatar.cc/150?img=43"
+  },
+  {
+    "id": "23",
+    "username": "daniel.gutierrez",
+    "password": "123456",
+    "role": "student",
+    "name": "Daniel Gutiérrez",
+    "email": "daniel.gutierrez@estudiante.ve",
+    "grade_id": 6,
+    "learning_style": "Auditivo",
+    "avatar": "https://i.pravatar.cc/150?img=58"
+  },
+  {
+    "id": "24",
+    "username": "martina.alvarez",
+    "password": "123456",
+    "role": "student",
+    "name": "Martina Álvarez",
+    "email": "martina.alvarez@estudiante.ve",
+    "grade_id": 6,
+    "learning_style": "Kinestésico",
+    "avatar": "https://i.pravatar.cc/150?img=42"
+  }
+]

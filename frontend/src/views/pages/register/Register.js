@@ -25,16 +25,30 @@ const Register = () => {
                 <CForm>
                   <h1>Register</h1>
                   <p className="text-body-secondary">Create your account</p>
+                  
                   <CInputGroup className="mb-3">
                     <CInputGroupText>
                       <CIcon icon={cilUser} />
                     </CInputGroupText>
-                    <CFormInput placeholder="Username" autoComplete="username" />
+                    <CFormInput 
+                      placeholder="Username" 
+                      autoComplete="username" 
+                      maxLength={50} /* <-- CAMBIA ESTE VALOR POR EL DE TU BD */
+                      required
+                    />
                   </CInputGroup>
+
                   <CInputGroup className="mb-3">
                     <CInputGroupText>@</CInputGroupText>
-                    <CFormInput placeholder="Email" autoComplete="email" />
+                    <CFormInput 
+                      type="email" /* Cambiado a type="email" para mejor validación */
+                      placeholder="Email" 
+                      autoComplete="email" 
+                      maxLength={100} /* <-- CAMBIA ESTE VALOR POR EL DE TU BD */
+                      required
+                    />
                   </CInputGroup>
+
                   <CInputGroup className="mb-3">
                     <CInputGroupText>
                       <CIcon icon={cilLockLocked} />
@@ -43,8 +57,11 @@ const Register = () => {
                       type="password"
                       placeholder="Password"
                       autoComplete="new-password"
+                      maxLength={255} /* <-- CAMBIA ESTE VALOR POR EL DE TU BD */
+                      required
                     />
                   </CInputGroup>
+
                   <CInputGroup className="mb-4">
                     <CInputGroupText>
                       <CIcon icon={cilLockLocked} />
@@ -53,10 +70,13 @@ const Register = () => {
                       type="password"
                       placeholder="Repeat password"
                       autoComplete="new-password"
+                      maxLength={255} /* <-- CAMBIA ESTE VALOR POR EL DE TU BD */
+                      required
                     />
                   </CInputGroup>
+
                   <div className="d-grid">
-                    <CButton color="success">Create Account</CButton>
+                    <CButton color="success" type="submit">Create Account</CButton>
                   </div>
                 </CForm>
               </CCardBody>
