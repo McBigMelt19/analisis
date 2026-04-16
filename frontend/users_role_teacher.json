@@ -1,0 +1,62 @@
+[
+  {
+    "id": "1",
+    "username": "prof.maria.rodriguez",
+    "password": "123456",
+    "role": "teacher",
+    "name": "María Rodríguez",
+    "email": "maria.rodriguez@lms.ve",
+    "grade_id": 1,
+    "avatar": "https://i.pravatar.cc/150?img=1"
+  },
+  {
+    "id": "2",
+    "username": "prof.carlos.gonzalez",
+    "password": "123456",
+    "role": "teacher",
+    "name": "Carlos González",
+    "email": "carlos.gonzalez@lms.ve",
+    "grade_id": 2,
+    "avatar": "https://i.pravatar.cc/150?img=12"
+  },
+  {
+    "id": "3",
+    "username": "prof.ana.martinez",
+    "password": "123456",
+    "role": "teacher",
+    "name": "Ana Martínez",
+    "email": "ana.martinez@lms.ve",
+    "grade_id": 3,
+    "avatar": "https://i.pravatar.cc/150?img=5"
+  },
+  {
+    "id": "4",
+    "username": "prof.jose.perez",
+    "password": "123456",
+    "role": "teacher",
+    "name": "José Pérez",
+    "email": "jose.perez@lms.ve",
+    "grade_id": 4,
+    "avatar": "https://i.pravatar.cc/150?img=13"
+  },
+  {
+    "id": "5",
+    "username": "prof.luisa.fernandez",
+    "password": "123456",
+    "role": "teacher",
+    "name": "Luisa Fernández",
+    "email": "luisa.fernandez@lms.ve",
+    "grade_id": 5,
+    "avatar": "https://i.pravatar.cc/150?img=9"
+  },
+  {
+    "id": "6",
+    "username": "prof.pedro.ramirez",
+    "password": "123456",
+    "role": "teacher",
+    "name": "Pedro Ramírez",
+    "email": "pedro.ramirez@lms.ve",
+    "grade_id": 6,
+    "avatar": "https://i.pravatar.cc/150?img=14"
+  }
+]

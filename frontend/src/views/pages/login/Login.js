@@ -32,7 +32,7 @@ const Login = () => {
     setError('');
     setLoading(true);
 
-    const result = await login(username, password);
+    const result = await login(username.trim(), password.trim());
 
     if (result.success) {
       // Redirigir según el rol
@@ -117,17 +117,22 @@ const Login = () => {
                 </CCardBody>
               </CCard>
 
-              {/* Bloque de Registro Opcional (Comentado en tu original) */}
+              {/* Bloque de Registro Opcional Modificado */}
               <CCard className="text-white bg-secondary py-5 d-none d-md-block" style={{ width: '44%' }}>
-                <CCardBody className="text-center">
+                <CCardBody className="text-center d-flex flex-column justify-content-center h-100">
                   <div>
                     <h2>¡Bienvenido!</h2>
                     <p>
                       Disfruta de tu acceso para ver el portal educativo.
                     </p>
-                    <p>
-                      Selecciona como quieres ver el contenido, si como estudiante o administrador.
+                    <p className="mb-4">
+                      ¿Aún no tienes una cuenta? Regístrate para comenzar a aprender.
                     </p>
+                    <Link to="/register">
+                      <CButton color="light" className="mt-3" active tabIndex={-1}>
+                        Crear una cuenta
+                      </CButton>
+                    </Link>
                   </div>
                 </CCardBody>
               </CCard>
