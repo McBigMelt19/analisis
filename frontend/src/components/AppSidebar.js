@@ -9,15 +9,13 @@ import {
   CSidebarHeader,
   CSidebarToggler,
 } from '@coreui/react'
-import CIcon from '@coreui/icons-react'
 
 import { AppSidebarNav } from './AppSidebarNav'
 import { useAuth } from '../context/AuthContext'
 
 import myPngLogo from '../assets/brand/logo.png'
 
-import defaultNavigation, { getStudentNav } from '../_nav_student'
-import _navTeacher from '../_nav_teacher'
+import { getNavigation } from '../_nav'
 
 const AppSidebar = ({ nav }) => {
   const dispatch = useDispatch()
@@ -26,25 +24,14 @@ const AppSidebar = ({ nav }) => {
   const { currentUser } = useAuth()
 
   // 🎯 Determinar qué navegación mostrar según el rol del usuario
-  const getNavigation = () => {
+  const resolveNavigation = () => {
     // Si se pasa nav como prop, usarlo
     if (nav && nav.length) {
       return nav
     }
 
-    // Si no hay usuario autenticado, usar navegación por defecto
-    if (!currentUser) {
-      return defaultNavigation
-    }
-
-    // Navegación según el rol
-    if (currentUser.role === 'student') {
-      return getStudentNav(currentUser) // Filtrado por grado
-    } else if (currentUser.role === 'teacher') {
-      return _navTeacher
-    }
-
-    return defaultNavigation
+    // Usar la navegación unificada basada en el usuario autenticado
+    return getNavigation(currentUser)
   }
 
   return (
@@ -77,8 +64,8 @@ const AppSidebar = ({ nav }) => {
           onClick={() => dispatch({ type: 'set', sidebarShow: false })}
         />
       </CSidebarHeader>
-      {/* Usa la navegación dinámica basada en el rol del usuario */}
-      <AppSidebarNav items={getNavigation()} />
+      {/* Navegación dinámica basada en el rol del usuario */}
+      <AppSidebarNav items={resolveNavigation()} />
       <CSidebarFooter className="border-top d-none d-lg-flex">
         <CSidebarToggler
           onClick={() => dispatch({ type: 'set', sidebarUnfoldable: !unfoldable })}

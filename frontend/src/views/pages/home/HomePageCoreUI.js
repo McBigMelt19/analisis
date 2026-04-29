@@ -44,22 +44,7 @@ const TOPICS = [
         color: '#4CAF50',
         route: '/student/grades'
     },
-    {
-        id: 5,
-        icon: cilList,
-        title: 'Actividades & Juegos 🧩',
-        description: 'Completa misiones, retos y juegos educativos sobre Venezuela.',
-        color: '#FFC72C',
-        route: '/student/activities'
-    },
-    {
-        id: 6,
-        icon: cilSettings,
-        title: 'Configuraciones ⚙️',
-        description: 'Personaliza tu experiencia de aprendizaje y ajusta tus preferencias.',
-        color: '#607D8B',
-        route: '/student/settings'
-    },
+
 ];
 
 const HomePageCoreUI = () => {

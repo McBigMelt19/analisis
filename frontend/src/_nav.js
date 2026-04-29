@@ -5,21 +5,47 @@ import {
   cilSpeedometer,
   cilPuzzle,
   cilCalculator,
-  cilList,
-  cilSettings,
   cilPencil,
   cilChart,
   cilCommentBubble,
+  cilBook,
+  cilList,
+  cilCloudUpload,
+  cilCommentSquare,
+  cilPlus,
 } from '@coreui/icons'
 
 import mapImage from './assets/images/venezuela-theme-map.png'
 
-// Función que genera el menú filtrado según el grado del estudiante
-export const getStudentNav = (currentUser) => {
-  if (!currentUser || currentUser.role !== 'student') {
-    return []
+// ─────────────────────────────────────────────
+// Navegación dinámica según el rol del usuario
+// ─────────────────────────────────────────────
+
+/**
+ * Genera el menú de navegación según el rol del usuario autenticado.
+ * - student: muestra solo su grado + módulos de estudiante
+ * - teacher: muestra módulos del profesor
+ * - fallback: navegación vacía
+ */
+export const getNavigation = (currentUser) => {
+  if (!currentUser) return []
+
+  if (currentUser.role === 'student') {
+    return getStudentNav(currentUser)
   }
 
+  if (currentUser.role === 'teacher') {
+    return getTeacherNav(currentUser)
+  }
+
+  return []
+}
+
+// ─────────────────────────────────────────────
+// Navegación del ESTUDIANTE
+// ─────────────────────────────────────────────
+
+const getStudentNav = (currentUser) => {
   // Todos los grados disponibles
   const allGrades = [
     {
@@ -72,7 +98,7 @@ export const getStudentNav = (currentUser) => {
     },
   ]
 
-  // 🎯 FILTRO: Solo mostrar el grado del estudiante
+  // Solo mostrar el grado del estudiante
   const studentGrade = allGrades.filter((item) => item.grade_id === currentUser.grade_id)
 
   return [
@@ -101,7 +127,7 @@ export const getStudentNav = (currentUser) => {
       component: CNavTitle,
       name: 'Mi Grado',
     },
-    ...studentGrade, // Solo aparece SU grado
+    ...studentGrade,
     {
       component: CNavItem,
       name: 'Contenido Interactivo 🎮',
@@ -126,117 +152,65 @@ export const getStudentNav = (currentUser) => {
       to: '/student/grades',
       icon: <CIcon icon={cilCalculator} customClassName="nav-icon" />,
     },
+  ]
+}
+
+// ─────────────────────────────────────────────
+// Navegación del PROFESOR
+// ─────────────────────────────────────────────
+
+const getTeacherNav = (currentUser) => {
+  return [
+    {
+      component: CNavTitle,
+      name: (
+        <div className="text-center">
+          <img
+            src={mapImage}
+            alt="Mapa de Venezuela"
+            style={{ maxWidth: '80%', borderRadius: '10px', marginBottom: '10px' }}
+          />
+          <div>¡Hola, {currentUser.name?.split(' ')[0]}! 🌟</div>
+        </div>
+      ),
+      className: 'home-hero nav-title',
+    },
     {
       component: CNavItem,
-      name: 'Actividades & Juegos 🧩',
-      to: '/student/activities',
+      name: 'Inicio 🏠',
+      to: '/teacher/dashboard',
+      icon: <CIcon icon={cilBook} customClassName="nav-icon" />,
+      className: 'mb-2',
+    },
+    {
+      component: CNavTitle,
+      name: 'Menú del Profesor',
+    },
+    {
+      component: CNavItem,
+      name: 'Gestión de Contenido',
+      to: '/teacher/content',
       icon: <CIcon icon={cilList} customClassName="nav-icon" />,
     },
     {
       component: CNavItem,
-      name: 'Configuraciones ⚙️',
-      to: '/student/settings',
-      icon: <CIcon icon={cilSettings} customClassName="nav-icon" />,
+      name: 'Subir Notas',
+      to: '/teacher/upload-grades',
+      icon: <CIcon icon={cilCloudUpload} customClassName="nav-icon" />,
+    },
+    {
+      component: CNavItem,
+      name: 'Retroalimentación',
+      to: '/teacher/feedback',
+      icon: <CIcon icon={cilCommentSquare} customClassName="nav-icon" />,
+    },
+    {
+      component: CNavItem,
+      name: 'Agregar Contenido',
+      to: '/teacher/add-content',
+      icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
     },
   ]
 }
 
-// Exportación por defecto para compatibilidad (muestra todos los grados)
-const _nav_student = [
-  {
-    component: CNavTitle,
-    name: (
-      <div className="text-center">
-        <img
-          src={mapImage}
-          alt="Mapa de Venezuela"
-          style={{ maxWidth: '80%', borderRadius: '10px', marginBottom: '10px' }}
-        />
-        <div>¡Bienvenidos, Exploradores! 🌎</div>
-      </div>
-    ),
-    className: 'home-hero nav-title',
-  },
-  {
-    component: CNavItem,
-    name: 'Inicio 🏠',
-    to: '/dashboard',
-    icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
-    className: 'mb-2',
-  },
-  {
-    component: CNavGroup,
-    name: 'Grados 📚',
-    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Primer Grado — Aventuras',
-        to: '/student/grade/1',
-        className: 'grade-btn',
-        icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
-      },
-      {
-        component: CNavItem,
-        name: 'Segundo Grado — Descubre',
-        to: '/student/grade/2',
-        className: 'grade-btn',
-        icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
-      },
-      {
-        component: CNavItem,
-        name: 'Tercer Grado — Explora',
-        to: '/student/grade/3',
-        className: 'grade-btn',
-        icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
-      },
-      {
-        component: CNavItem,
-        name: 'Cuarto Grado — Historias',
-        to: '/student/grade/4',
-        className: 'grade-btn',
-        icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
-      },
-      {
-        component: CNavItem,
-        name: 'Quinto Grado — Tesoros',
-        to: '/student/grade/5',
-        className: 'grade-btn',
-        icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
-      },
-      {
-        component: CNavItem,
-        name: 'Sexto Grado — Leyendas',
-        to: '/student/grade/6',
-        className: 'grade-btn',
-        icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
-      },
-    ],
-  },
-  {
-    component: CNavItem,
-    name: 'Contenido Interactivo 🎮',
-    to: '/student/content',
-    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Mis Notas 📒',
-    to: '/student/grades',
-    icon: <CIcon icon={cilCalculator} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Actividades & Juegos 🧩',
-    to: '/student/activities',
-    icon: <CIcon icon={cilList} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Configuraciones ⚙️',
-    to: '/student/settings',
-    icon: <CIcon icon={cilSettings} customClassName="nav-icon" />,
-  },
-]
-
-export default _nav_student
+export default getNavigation

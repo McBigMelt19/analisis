@@ -2,8 +2,7 @@ import React, { Suspense } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { AppContent, AppSidebar, AppFooter, AppHeader } from '../components/index';
-import navStudent, { getStudentNav } from '../_nav_student';
-import navTeacher from '../_nav_teacher';
+import { getNavigation } from '../_nav';
 
 const loading = (
   <div className="pt-3 text-center">
@@ -24,20 +23,10 @@ const DefaultLayout = () => {
     return <Navigate to="/login" replace />;
   }
 
-  // Determinar navegación según el rol
-  const getNavigation = () => {
-    if (currentUser.role === 'student') {
-      return getStudentNav(currentUser); // Navegación dinámica filtrada por grado
-    } else if (currentUser.role === 'teacher') {
-      return navTeacher;
-    }
-    return navStudent; // Fallback
-  };
-
   return (
     // aplicamos una clase global para tema y patrón pergamino
     <div className="venezuelan-layout">
-      <AppSidebar nav={getNavigation()} />
+      <AppSidebar nav={getNavigation(currentUser)} />
       <div className="wrapper d-flex flex-column min-vh-100">
         <AppHeader logout={logout} role={currentUser.role} />
         <div className="body flex-grow-1">

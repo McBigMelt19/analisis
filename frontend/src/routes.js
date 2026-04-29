@@ -11,6 +11,8 @@ const GamifiedQuiz = React.lazy(() => import('./components/GamifiedQuiz'))
 const VirtualFieldTrip = React.lazy(() => import('./components/VirtualFieldTrip'))
 const ProgressTracker = React.lazy(() => import('./components/ProgressTracker'))
 const StudentProgress = React.lazy(() => import('./views/pages/student/StudentProgress'))
+const StudentGrades = React.lazy(() => import('./views/pages/student/StudentGrades'))
+const ContenidoInteractivo = React.lazy(() => import('./views/pages/contenido interactivo/Contenido Interactivo'))
 
 // Teacher Pages
 const TeacherDashboard = React.lazy(() => import('./views/pages/teacher/TeacherDashboard'))
@@ -38,6 +40,8 @@ const routes = [
   // Student Feature Routes
   { path: '/student/progress', name: 'StudentProgress', element: StudentProgress },
   { path: '/student/chatbot', name: 'StudentChatbot', element: PersonalizedContent },
+  { path: '/student/content', name: 'ContenidoInteractivo', element: ContenidoInteractivo },
+  { path: '/student/grades', name: 'StudentGrades', element: StudentGrades },
   { path: '/dashboard', name: 'Dashboard', element: HomePageCoreUI },
 
   // Teacher Routes
