@@ -770,6 +770,28 @@
       "max_score": 20,
       "date": "2026-01-14",
       "completed": true
+    },
+    {
+      "student_id": "7",
+      "grade_id": 1,
+      "activity_type": "evaluacion",
+      "topic": "Bandera Nacional",
+      "score": 1,
+      "max_score": 20,
+      "date": "2026-04-28",
+      "completed": true,
+      "id": "47B477VdTjE"
+    },
+    {
+      "student_id": "7",
+      "grade_id": 1,
+      "activity_type": "evaluacion",
+      "topic": "Bandera Nacional",
+      "score": 1,
+      "max_score": 20,
+      "date": "2026-04-28",
+      "completed": true,
+      "id": "vAPlL-XijGA"
     }
   ],
   "topics": [
@@ -887,5 +909,6 @@
       "nivel_complejidad": "Avanzado",
       "restricciones_ia": "Permite análisis crítico básico. Usa gráficos económicos simples. Conecta pasado con presente. Evita temas políticos controversiales actuales."
     }
-  ]
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }
