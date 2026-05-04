@@ -909,6 +909,5 @@
       "nivel_complejidad": "Avanzado",
       "restricciones_ia": "Permite análisis crítico básico. Usa gráficos económicos simples. Conecta pasado con presente. Evita temas políticos controversiales actuales."
     }
-  ],
-  "$schema": "./node_modules/json-server/schema.json"
+  ]
 }

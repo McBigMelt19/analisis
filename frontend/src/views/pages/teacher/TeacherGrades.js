@@ -27,6 +27,52 @@ const TeacherGrades = () => {
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
     const [selectedStudent, setSelectedStudent] = useState(null)
     const [modalVisible, setModalVisible] = useState(false)
+    const [dateError, setDateError] = useState('')
+
+    // ── Cálculo de rango de fechas permitido ──
+    const hoy = new Date()
+    hoy.setHours(0, 0, 0, 0)
+    const minDateStr = hoy.toISOString().split('T')[0]
+
+    const maxDate = new Date(hoy)
+    maxDate.setDate(maxDate.getDate() + 14)
+    const maxDateStr = maxDate.toISOString().split('T')[0]
+
+    // Validar que una fecha esté en el rango permitido
+    const validarFecha = (dateStr) => {
+        const fecha = new Date(dateStr + 'T00:00:00')
+        if (fecha < hoy) {
+            return 'No se pueden seleccionar fechas anteriores a hoy'
+        }
+        if (fecha > maxDate) {
+            return 'No se pueden seleccionar fechas con más de 2 semanas de anticipación'
+        }
+        return ''
+    }
+
+    const handleSelectedDateChange = (e) => {
+        const newDate = e.target.value
+        const err = validarFecha(newDate)
+        if (err) {
+            setDateError(err)
+            // No actualizar la fecha si es inválida
+            return
+        }
+        setDateError('')
+        setSelectedDate(newDate)
+    }
+
+    const handleTopicDateChange = (topic, newDate) => {
+        const err = validarFecha(newDate)
+        if (err) {
+            setDateError(err)
+            // Auto-limpiar error después de 3 segundos
+            setTimeout(() => setDateError(''), 3000)
+            return
+        }
+        setDateError('')
+        setTopicDates((prev) => ({ ...prev, [topic]: newDate }))
+    }
 
     useEffect(() => {
         if (currentUser && currentUser.role === 'teacher') {
@@ -220,14 +266,26 @@ const TeacherGrades = () => {
                             <CFormInput
                                 type="date"
                                 value={selectedDate}
-                                onChange={(e) => setSelectedDate(e.target.value)}
+                                min={minDateStr}
+                                max={maxDateStr}
+                                onChange={handleSelectedDateChange}
                             />
+                            <small className="text-muted d-block mt-1">
+                                📅 Rango permitido: <strong>{minDateStr}</strong> hasta <strong>{maxDateStr}</strong> (máx. 2 semanas)
+                            </small>
                         </CCol>
                         <CCol md={8} className="text-md-end mt-3 mt-md-0">
-                            <CAlert color="info" className="mb-0 d-inline-block">
-                                <CIcon icon={cilWarning} className="me-2" />
-                                <strong>Tip:</strong> Presiona <kbd>Enter</kbd> o haz clic fuera del campo para guardar
-                            </CAlert>
+                            {dateError ? (
+                                <CAlert color="danger" className="mb-0 d-inline-block">
+                                    <CIcon icon={cilWarning} className="me-2" />
+                                    <strong>Fecha no válida:</strong> {dateError}
+                                </CAlert>
+                            ) : (
+                                <CAlert color="info" className="mb-0 d-inline-block">
+                                    <CIcon icon={cilWarning} className="me-2" />
+                                    <strong>Tip:</strong> Presiona <kbd>Enter</kbd> o haz clic fuera del campo para guardar
+                                </CAlert>
+                            )}
                         </CCol>
                     </CRow>
                 </CCardBody>
@@ -292,9 +350,11 @@ const TeacherGrades = () => {
                                             <CFormInput
                                                 type="date"
                                                 value={topicDates[topic] || selectedDate}
-                                                onChange={(e) => setTopicDates(prev => ({ ...prev, [topic]: e.target.value }))}
+                                                min={minDateStr}
+                                                max={maxDateStr}
+                                                onChange={(e) => handleTopicDateChange(topic, e.target.value)}
                                                 className="text-center"
-                                                style={{ width: '110px', margin: '0 auto', fontSize: '0.85rem' }}
+                                                style={{ width: '130px', margin: '0 auto', fontSize: '0.85rem' }}
                                             />
                                         </td>
                                         {students.map((student) => {
