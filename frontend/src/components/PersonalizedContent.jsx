@@ -3,9 +3,9 @@ import { CCard, CCardHeader, CCardBody, CForm, CFormTextarea, CButton, CInputGro
 import { useAuth } from '../context/AuthContext';
 
 const COLORS = {
-    ASSISTANT_BG: '#CC9966',
-    USER_BG: '#D5E5F0',
-    HEADER_BG: '#5D4037',
+    ASSISTANT_BG: '#795028ff',
+    USER_BG: '#4eacebff',
+    HEADER_BG: '#3f2b25ff',
     CHAT_BG: '#F9F7F3',
 };
 
@@ -18,57 +18,64 @@ const PersonalizedContent = () => {
     const chatEndRef = useRef(null);
 
     // 💡 Función para generar el System Prompt dinámicamente
+    // 💡 Función para generar el System Prompt dinámicamente
     const getSystemPrompt = () => {
+        // Validación de seguridad
         if (!currentUser || !allowedTopics) return "";
 
+
+        // 1. Definimos las instrucciones según el estilo (dentro de la función para tener acceso a currentUser)
         const getLearningStyleInstructions = () => {
             switch (currentUser.learning_style) {
                 case 'Visual':
                     return `- Usa descripciones visuales ricas (colores, formas, imágenes).
 - Sugiere dibujos, mapas mentales o diagramas.
-- Usa emojis para ilustrar conceptos.
-- Menciona cómo se veían las cosas (ej: "Imagina la bandera amarilla, azul y roja...")`;
+- Usa emojis para ilustrar conceptos (🎨, 🗺️, 👁️).`;
                 case 'Auditivo':
                     return `- Usa narraciones tipo cuento con diálogos.
-- Sugiere canciones, rimas o poemas para recordar.
-- Usa onomatopeyas y descripciones sonoras.
-- Presenta conversaciones históricas (ej: "Bolívar dijo...")`;
+- Sugiere canciones, rimas o poemas.
+- Usa onomatopeyas ("¡Pum!", "¡Zas!").`;
                 case 'Kinestésico':
                     return `- Sugiere actividades prácticas (manualidades, dramatizaciones).
-- Usa verbos de acción y movimiento.
-- Propone experimentos o juegos de rol.
-- Describe acciones físicas (ej: "Puedes hacer un escudo con cartón...")`;
+- Usa verbos de acción ("construye", "camina", "siente").`;
                 default:
                     return '- Adapta tu respuesta de forma clara y didáctica.';
             }
         };
 
-        return `Eres un profesor de Historia de Venezuela experto y muy amigable.
 
-**Perfil del Estudiante:**
-- Nombre: ${currentUser.name}
-- Grado: ${allowedTopics.grade_name}
-- Edad: ${allowedTopics.edad_objetivo}
-- Estilo de Aprendizaje: ${currentUser.learning_style}
+        // Inyección de hechos (Machete)
+        const facts = allowedTopics.datos_obligatorios
+            ? `DATOS VERDADEROS:\n${allowedTopics.datos_obligatorios}`
+            : "";
 
-**Restricciones de Contenido:**
-${allowedTopics.restricciones_ia}
+        // 🔥 TÉCNICA FEW-SHOT (EJEMPLOS): Esto enseña al modelo qué hacer
+        return `Eres un profesor de Historia de Venezuela para niños de primaria.
+TU REGLA DE ORO: Si te preguntan sobre Fútbol, Mundiales, México, Juegos o cualquier tema que NO sea Venezuela, DEBES NEGARTE A RESPONDER.
 
-**Temas Permitidos (SOLO puedes hablar de estos):**
-${allowedTopics.temas.join(', ')}
+EJEMPLOS DE CÓMO DEBES RESPONDER (IMÍTALOS):
 
-**Instrucciones de Adaptación según Estilo de Aprendizaje:**
-${getLearningStyleInstructions()}
+Usuario: ¿Quién ganó el mundial México 70?
+Asistente: 🚫 Lo siento, yo solo sé de Historia de Venezuela.
 
-**Reglas Estrictas:**
-1. Si te preguntan sobre algo fuera de los temas permitidos (ej: Segunda Guerra Mundial, dinosaurios, matemáticas), responde: "Eso es muy interesante, pero solo puedo hablar sobre la historia de Venezuela", por mas que siga insistiendo en el tema corta la conversaciony no sugieras que puedes dar mas informacion.
-2. Usa lenguaje apropiado para niños de ${allowedTopics.edad_objetivo}.
-3. Sé motivador, positivo y entusiasta.
-4. Respuestas cortas (máximo 3 párrafos de 2-3 líneas cada uno).
-5. Usa emojis relevantes para hacer las respuestas más atractivas.
-6. Si no estás seguro de un tema, admítelo honestamente y sugiere que investiguemos juntos en otra fuente`;
+Usuario: ¿Cómo se juega Minecraft?
+Asistente: 🚫 Aquí solo hablamos de nuestros próceres venezolanos.
+
+Usuario: ¿Cuánto es 5 + 5?
+Asistente: 🚫 Soy profe de historia, no de matemáticas.
+
+Usuario: Háblame de Simón Bolívar.
+Asistente: ¡Claro! 🇻🇪 Simón Bolívar es el Libertador de Venezuela. Nació en Caracas y luchó por nuestra libertad.
+
+--- FIN DE EJEMPLOS ---
+
+AHORA, ACTÚA TÚ:
+Estilo de enseñanza: ${currentUser.learning_style}
+Tema permitido: ${allowedTopics.temas.join(', ')}
+${facts}
+
+¡Responde corto y amable!`;
     };
-
     // Cargar temas permitidos según el grado del estudiante
     useEffect(() => {
         const fetchTopics = async () => {
@@ -125,55 +132,88 @@ ${allowedTopics.temas.length > 5 ? `...y ${allowedTopics.temas.length - 5} temas
         const userMessage = input.trim();
         if (!userMessage || isLoading) return;
 
+        // 1. Agregamos el mensaje del usuario y un placeholder para el bot
         const newUserMessage = { id: Date.now(), role: 'user', content: userMessage };
-        setMessages(prev => [...prev, newUserMessage]);
+        setMessages(prev => [
+            ...prev,
+            newUserMessage,
+            { id: Date.now() + 1, role: 'assistant', content: "" } // Mensaje vacío que se llenará
+        ]);
         setInput('');
         setIsLoading(true);
 
         try {
-            // 1. Preparamos el historial para Ollama
             const historyForOllama = messages.map(msg => ({
                 role: msg.role,
                 content: msg.content
             }));
 
-            // Añadimos el mensaje actual
-            historyForOllama.push({ role: 'user', content: userMessage });
-
-            // 2. Hacemos la petición a Ollama con el System Prompt
             const response = await fetch(import.meta.env.VITE_OLLAMA_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    model: "llama3.2",
+                    model: "gemma2:2b",
+                    temperature: 0.1,
+                    top_p: 0.5,
                     messages: [
-                        { role: "system", content: getSystemPrompt() }, // ✅ Ahora es accesible
-                        ...historyForOllama
+                        { role: "system", content: getSystemPrompt() },
+                        ...historyForOllama,
+                        { role: "user", content: userMessage }
                     ],
-                    stream: false
+                    stream: true // ✅ ACTIVAMOS STREAMING
                 })
             });
 
-            const data = await response.json();
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let botReply = "";
 
-            const assistantResponse = {
-                id: Date.now() + 1,
-                role: 'assistant',
-                content: data.message.content,
-            };
-            setMessages(prev => [...prev, assistantResponse]);
+            // 🔄 Bucle mágico para leer en tiempo real
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value, { stream: true });
+
+                // Ollama manda varios JSONs juntos, hay que separarlos
+                const lines = chunk.split('\n').filter(line => line.trim() !== '');
+
+                for (const line of lines) {
+                    try {
+                        const json = JSON.parse(line);
+                        if (json.message && json.message.content) {
+                            const textChunk = json.message.content;
+                            botReply += textChunk;
+
+                            // Actualizamos el ÚLTIMO mensaje (el del bot) en tiempo real
+                            setMessages(prev => {
+                                const newMessages = [...prev];
+                                const lastMsgIndex = newMessages.length - 1;
+                                newMessages[lastMsgIndex] = {
+                                    ...newMessages[lastMsgIndex],
+                                    content: botReply
+                                };
+                                return newMessages;
+                            });
+                        }
+                        if (json.done) {
+                            setIsLoading(false);
+                        }
+                    } catch (e) {
+                        console.error("Error parseando chunk", e);
+                    }
+                }
+            }
 
         } catch (error) {
             console.error("Error con Ollama:", error);
             setMessages(prev => [...prev, {
-                id: Date.now() + 1,
+                id: Date.now() + 2,
                 role: 'assistant',
-                content: "⚠️ No pude conectar con Ollama. Asegúrate de que el servidor esté corriendo con 'ollama serve'."
+                content: "⚠️ Error de conexión."
             }]);
-        } finally {
             setIsLoading(false);
         }
-
     };
 
     if (!currentUser) {
