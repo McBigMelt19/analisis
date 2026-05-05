@@ -33,36 +33,47 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (username, password) => {
         try {
-            const normalizedUsername = username.trim()
+            const normalizedLogin = username.trim().toLowerCase()
             const normalizedPassword = password.trim()
-            const normalizedLogin = normalizedUsername.toLowerCase()
-            const encodedLogin = encodeURIComponent(normalizedLogin)
 
-            // Llamada a json-server buscando el usuario por username o por email
-            let response = await fetch(`http://localhost:3001/users?username=${encodedLogin}`)
+            // Llamada al backend real
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: normalizedLogin, contrasena: normalizedPassword })
+            })
+
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`)
+                const errorData = await response.json().catch(() => ({}))
+                return { success: false, message: errorData.error || 'Credenciales incorrectas' }
             }
 
-            let users = await response.json()
-            if (users.length === 0) {
-                response = await fetch(`http://localhost:3001/users?email=${encodedLogin}`)
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`)
-                }
-                users = await response.json()
+            const data = await response.json()
+            
+            // Adaptar el usuario del backend al formato que espera el frontend
+            const roleMap = {
+                'profesor': 'teacher',
+                'estudiante': 'student',
+                'representante': 'parent',
+                'admin': 'admin'
+            }
+            
+            const user = {
+                ...data.usuario,
+                id: data.usuario.id_usuario,
+                name: data.persona ? `${data.persona.nombre} ${data.persona.apellido}` : data.usuario.email,
+                role: roleMap[data.usuario.rol] || data.usuario.rol,
+                grade_id: data.entidad?.id_grado || 1, // Fallback grade_id
+                token: data.token,
+                original_role: data.usuario.rol
             }
 
-            const user = users.find((u) => u.password === normalizedPassword)
-
-            if (user) {
-                setCurrentUser(user)
-                setIsAuthenticated(true)
-                localStorage.setItem('currentUser', JSON.stringify(user))
-                return { success: true, user }
-            } else {
-                return { success: false, message: 'Credenciales incorrectas' }
-            }
+            setCurrentUser(user)
+            setIsAuthenticated(true)
+            localStorage.setItem('currentUser', JSON.stringify(user))
+            localStorage.setItem('token', data.token)
+            
+            return { success: true, user }
         } catch (error) {
             console.error('Error en login:', error)
 
@@ -70,12 +81,7 @@ export const AuthProvider = ({ children }) => {
             if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
                 return {
                     success: false,
-                    message: '❌ No se puede conectar al servidor. Asegúrate de ejecutar: npm run server'
-                }
-            } else if (error.message.includes('JSON')) {
-                return {
-                    success: false,
-                    message: '❌ El servidor no está devolviendo datos correctos. Ejecuta: npm run server'
+                    message: '❌ No se puede conectar al servidor backend. Asegúrate de que esté corriendo en el puerto 5000.'
                 }
             } else {
                 return {
@@ -90,6 +96,7 @@ export const AuthProvider = ({ children }) => {
         setCurrentUser(null)
         setIsAuthenticated(false)
         localStorage.removeItem('currentUser')
+        localStorage.removeItem('token')
     }
 
     const value = {

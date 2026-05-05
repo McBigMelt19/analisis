@@ -81,8 +81,14 @@ const TeacherDashboard = () => {
 
   const fetchStudents = async () => {
     try {
+      const headers = { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${currentUser.token}` 
+      }
+      
       const response = await fetch(
-        `http://localhost:3001/users?role=student&grade_id=${currentUser.grade_id}`,
+        `${import.meta.env.VITE_API_URL}/api/auth/usuarios?rol=estudiante`,
+        { headers }
       )
 
       if (!response.ok) {
@@ -90,10 +96,22 @@ const TeacherDashboard = () => {
       }
 
       const data = await response.json()
-      setStudents(data)
+      if (data.usuarios) {
+        const mappedStudents = data.usuarios.map(u => ({
+          id: u.id_usuario,
+          name: u.persona ? `${u.persona.nombre} ${u.persona.apellido}` : u.email,
+          email: u.email,
+          learning_style: u.persona?.estudiante?.estiloAprendizaje?.nombre_estilo || 'Visual',
+          grade_id: u.persona?.estudiante?.id_grado,
+          role: 'student'
+        })).filter(u => u.grade_id == currentUser.grade_id || !u.grade_id)
+        setStudents(mappedStudents)
+      } else {
+        setStudents([])
+      }
     } catch (error) {
       console.error('Error cargando estudiantes:', error)
-      setError('No se pudieron cargar los estudiantes. Verifica que json-server esté corriendo.')
+      setError('No se pudieron cargar los estudiantes desde el servidor backend.')
     } finally {
       setLoading(false)
     }
@@ -360,10 +378,6 @@ const TeacherDashboard = () => {
     return (
       <div className="alert alert-danger m-4">
         {error}
-        <br />
-        <small>
-          Ejecuta: <code>npm run server</code>
-        </small>
       </div>
     )
   }

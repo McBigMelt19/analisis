@@ -119,7 +119,7 @@ const Register = () => {
     setFieldErrors((prev) => ({ ...prev, [field]: err }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setFormError('')
     setFormSuccess('')
@@ -139,10 +139,34 @@ const Register = () => {
       return
     }
 
-    // Todo válido
-    console.log('Registro:', formData)
-    setFormSuccess('¡Cuenta creada exitosamente! Redirigiendo al login...')
-    setTimeout(() => navigate('/login'), 2000)
+    try {
+      const nameParts = formData.username.split(/[._-]/)
+      const nombre = nameParts[0] || formData.username
+      const apellido = nameParts.length > 1 ? nameParts.slice(1).join(' ') : formData.username
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData.email,
+          contrasena: formData.password,
+          rol: 'estudiante', // Por defecto para nuevos registros web
+          nombre: nombre,
+          apellido: apellido
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        setFormError(errorData.error || 'Error al crear la cuenta. Verifica los datos o intenta con otro correo.')
+        return
+      }
+
+      setFormSuccess('¡Cuenta creada exitosamente! Redirigiendo al login...')
+      setTimeout(() => navigate('/login'), 2000)
+    } catch (err) {
+      setFormError('Error de red: No se pudo conectar al servidor backend en el puerto 5000.')
+    }
   }
 
   return (

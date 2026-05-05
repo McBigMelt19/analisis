@@ -48,31 +48,43 @@ const TeacherFeedback = () => {
     const fetchData = async () => {
         setLoading(true)
         try {
+            const headers = { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${currentUser.token}` 
+            }
+
             // Fetch students del grado
             const studentsRes = await fetch(
-                `http://localhost:3001/users?role=student&grade_id=${currentUser.grade_id}`,
+                `${import.meta.env.VITE_API_URL}/api/auth/usuarios?rol=estudiante`,
+                { headers }
             )
             const studentsData = await studentsRes.json()
-            setStudents(studentsData)
+            if (studentsData.usuarios) {
+                const mappedStudents = studentsData.usuarios.map(u => ({
+                    id: u.id_usuario,
+                    name: u.persona ? `${u.persona.nombre} ${u.persona.apellido}` : u.email,
+                    learning_style: u.persona?.estudiante?.estiloAprendizaje?.nombre_estilo || 'Visual',
+                    grade_id: u.persona?.estudiante?.id_grado,
+                    role: 'student'
+                })).filter(u => u.grade_id == currentUser.grade_id || !u.grade_id)
+                setStudents(mappedStudents)
+            }
 
             // Fetch topics del grado
             const topicsRes = await fetch(
-                `http://localhost:3001/topics?grade_id=${currentUser.grade_id}`,
+                `${import.meta.env.VITE_API_URL}/api/temas?id_grado=${currentUser.grade_id}`,
+                { headers }
             )
             const topicsData = await topicsRes.json()
-            if (topicsData.length > 0) {
-                setTopics(topicsData[0].temas)
+            if (topicsData.temas && topicsData.temas.length > 0) {
+                setTopics(topicsData.temas.map(t => t.nombre_tema))
             }
 
-            // Fetch feedbacks del profesor
-            const feedbacksRes = await fetch(
-                `http://localhost:3001/feedbacks?teacher_id=${currentUser.id}`,
-            )
-            const feedbacksData = await feedbacksRes.json()
-            setFeedbacks(feedbacksData)
+            // Simular feedbacks del profesor (el backend no tiene /api/feedbacks explícito en api.routes.js para profesores hacia estudiantes fuera de progreso)
+            setFeedbacks([])
         } catch (error) {
             console.error('Error cargando datos:', error)
-            setError('Error al cargar datos. Verifica que json-server esté corriendo.')
+            setError('Error al cargar datos desde el servidor backend.')
         } finally {
             setLoading(false)
         }
@@ -92,6 +104,7 @@ const TeacherFeedback = () => {
 
         try {
             const payload = {
+                id: Math.floor(Math.random() * 10000), // falso ID
                 student_id: parseInt(selectedStudent),
                 teacher_id: currentUser.id,
                 topic: selectedTopic,
@@ -99,16 +112,10 @@ const TeacherFeedback = () => {
                 date: new Date().toISOString().split('T')[0],
             }
 
-            const response = await fetch('http://localhost:3001/feedbacks', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            })
-
-            if (response.ok) {
-                const newFeedback = await response.json()
-                setFeedbacks([newFeedback, ...feedbacks])
-                setSuccess('✅ Retroalimentación enviada exitosamente')
+            // Simular guardado ya que /api/feedbacks no existe
+            setTimeout(() => {
+                setFeedbacks([payload, ...feedbacks])
+                setSuccess('✅ Retroalimentación enviada exitosamente (Simulación)')
 
                 // Reset form
                 setSelectedStudent('')
@@ -117,9 +124,7 @@ const TeacherFeedback = () => {
 
                 // Clear success message after 3 seconds
                 setTimeout(() => setSuccess(''), 3000)
-            } else {
-                setError('Error al guardar la retroalimentación')
-            }
+            }, 500)
         } catch (error) {
             console.error('Error enviando feedback:', error)
             setError('Error al enviar la retroalimentación')

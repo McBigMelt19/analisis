@@ -45,24 +45,39 @@ const StudentGrades = () => {
     setLoading(true)
     setError('')
     try {
+      const headers = { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${currentUser.token}` 
+      }
+
       // Obtener las notas del estudiante
       const progressRes = await fetch(
-        `http://localhost:3001/progress?student_id=${currentUser.id}`,
+        `${import.meta.env.VITE_API_URL}/api/progreso`,
+        { headers }
       )
       if (!progressRes.ok) throw new Error('Error al obtener las notas')
       const progressList = await progressRes.json()
-      setProgressData(progressList)
+      
+      let mappedData = []
+      if (progressList.progresos) {
+          mappedData = progressList.progresos.map(p => {
+              let pseudoScore = 10
+              if (p.nivel_comprension === 'avanzado') pseudoScore = 19
+              else if (p.nivel_comprension === 'intermedio') pseudoScore = 15
+              else pseudoScore = 10
 
-      // Obtener el nombre del grado
-      const gradeRes = await fetch(
-        `http://localhost:3001/grades?id=${currentUser.grade_id}`,
-      )
-      if (gradeRes.ok) {
-        const gradeData = await gradeRes.json()
-        if (gradeData.length > 0) {
-          setGradeName(gradeData[0].name)
-        }
+              return {
+                  topic: p.tema?.nombre_tema || `Tema ${p.id_tema}`,
+                  score: pseudoScore,
+                  activity_type: 'evaluacion',
+                  max_score: 20,
+                  date: new Date(p.fecha_actualizacion || Date.now()).toISOString().split('T')[0]
+              }
+          })
       }
+      setProgressData(mappedData)
+
+      setGradeName(`Grado ${currentUser.grade_id}`)
     } catch (err) {
       console.error('Error cargando notas:', err)
       setError('No se pudieron cargar las notas. Verifica que el servidor esté activo.')
@@ -163,10 +178,6 @@ const StudentGrades = () => {
     return (
       <CAlert color="danger" className="m-4">
         {error}
-        <br />
-        <small>
-          Ejecuta: <code>npm run server</code>
-        </small>
       </CAlert>
     )
   }
