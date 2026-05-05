@@ -32,21 +32,31 @@ const StudentProgressModal = ({ visible, onClose, studentId }) => {
     const fetchStudentData = async () => {
         setLoading(true)
         try {
+            const token = localStorage.getItem('token') || ''
+            const headers = { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` 
+            }
+
             // Fetch student info
-            const studentRes = await fetch(`http://localhost:3001/users/${studentId}`)
-            const studentData = await studentRes.json()
-            setStudent(studentData)
+            const usersRes = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/usuarios?rol=estudiante`, { headers })
+            const usersData = await usersRes.json()
+            if (usersData.usuarios) {
+                const foundUser = usersData.usuarios.find(u => u.id_usuario === parseInt(studentId))
+                if (foundUser) {
+                    setStudent({
+                        id: foundUser.id_usuario,
+                        name: foundUser.persona ? `${foundUser.persona.nombre} ${foundUser.persona.apellido}` : foundUser.email,
+                        email: foundUser.email,
+                        learning_style: foundUser.persona?.estudiante?.estiloAprendizaje?.nombre_estilo || 'Visual',
+                        grade_id: foundUser.persona?.estudiante?.id_grado,
+                        role: 'student'
+                    })
+                }
+            }
 
-            // Fetch progress
-            const progressRes = await fetch(
-                `http://localhost:3001/progress?student_id=${studentId}`,
-            )
-            const progressList = await progressRes.json()
-
-            // Filtrar solo las evaluaciones del nuevo sistema (max_score = 20)
-            const filteredProgress = progressList.filter(
-                (p) => p.activity_type === 'evaluacion' && p.max_score === 20
-            )
+            // Simulamos el progreso porque la API no expone el progreso de los estudiantes para profesores aún.
+            const filteredProgress = []
             setProgressData(filteredProgress)
 
             // Calculate stats

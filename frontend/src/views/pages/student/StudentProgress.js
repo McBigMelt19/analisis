@@ -28,9 +28,15 @@ const StudentProgress = () => {
             }
 
             try {
-                // 🎯 FILTRO: Solo el progreso del estudiante actual
+                const headers = { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${currentUser.token}` 
+                }
+
+                // Llamada al backend real
                 const response = await fetch(
-                    `http://localhost:3001/progress?student_id=${currentUser.id}`,
+                    `${import.meta.env.VITE_API_URL}/api/progreso`,
+                    { headers }
                 )
 
                 if (!response.ok) {
@@ -38,25 +44,44 @@ const StudentProgress = () => {
                 }
 
                 const data = await response.json()
-                setProgressData(data)
+                let mappedData = []
+                if (data.progresos) {
+                    mappedData = data.progresos.map(p => {
+                        // Mapeo simple para la gráfica basado en nivel de comprensión
+                        let pseudoScore = 50
+                        if (p.nivel_comprension === 'avanzado') pseudoScore = 95
+                        else if (p.nivel_comprension === 'intermedio') pseudoScore = 75
+                        else pseudoScore = 50
+
+                        return {
+                            topic: p.tema?.nombre_tema || `Tema ${p.id_tema}`,
+                            score: pseudoScore, // Convertir a escala 0-100 para la gráfica
+                            activity_type: 'evaluacion',
+                            max_score: 100,
+                            date: new Date(p.fecha_actualizacion || Date.now()).toLocaleDateString(),
+                            real_completed: p.actividades_completadas || 0
+                        }
+                    })
+                }
+                setProgressData(mappedData)
 
                 // Calcular estadísticas
-                if (data.length > 0) {
-                    const scores = data.map((p) => p.score)
+                if (mappedData.length > 0) {
+                    const scores = mappedData.map((p) => p.score)
                     const average = scores.reduce((a, b) => a + b, 0) / scores.length
                     const excellent = scores.filter((s) => s >= 90).length
                     const low = scores.filter((s) => s < 70).length
 
                     setStats({
                         average: average.toFixed(1),
-                        total: data.length,
+                        total: mappedData.length,
                         excellent,
                         low,
                     })
                 }
             } catch (error) {
                 console.error('Error cargando progreso:', error)
-                setError('No se pudo cargar el progreso. Verifica que json-server esté corriendo.')
+                setError('No se pudo cargar el progreso desde el servidor backend.')
             } finally {
                 setLoading(false)
             }
@@ -133,10 +158,6 @@ const StudentProgress = () => {
         return (
             <div className="alert alert-warning m-4">
                 {error}
-                <br />
-                <small>
-                    Ejecuta: <code>npm run server</code> en otra terminal
-                </small>
             </div>
         )
     }

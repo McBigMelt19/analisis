@@ -32,32 +32,58 @@ const TeacherContent = () => {
     const fetchData = async () => {
         setLoading(true)
         try {
+            const headers = { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${currentUser.token}` 
+            }
+
             // Fetch topics del grado
             const topicsRes = await fetch(
-                `http://localhost:3001/topics?grade_id=${currentUser.grade_id}`,
+                `${import.meta.env.VITE_API_URL}/api/temas?id_grado=${currentUser.grade_id}`,
+                { headers }
             )
             const topicsData = await topicsRes.json()
-            if (topicsData.length > 0) {
-                setTopics(topicsData[0])
+            let themeNames = []
+            if (topicsData.temas && topicsData.temas.length > 0) {
+                themeNames = topicsData.temas.map(t => t.nombre_tema)
+                setTopics({
+                    grade_name: `Grado ${currentUser.grade_id}`,
+                    edad_objetivo: 'N/A',
+                    nivel_complejidad: 'N/A',
+                    temas: themeNames
+                })
+            } else {
+                setTopics({ grade_name: `Grado ${currentUser.grade_id}`, temas: [] })
             }
 
             // Fetch students del grado
             const studentsRes = await fetch(
-                `http://localhost:3001/users?role=student&grade_id=${currentUser.grade_id}`,
+                `${import.meta.env.VITE_API_URL}/api/auth/usuarios?rol=estudiante`,
+                { headers }
             )
             const studentsData = await studentsRes.json()
-            setStudents(studentsData)
+            if (studentsData.usuarios) {
+                // Adaptar formato y filtrar localmente (si hace falta)
+                const mappedStudents = studentsData.usuarios.map(u => ({
+                    id: u.id_usuario,
+                    name: u.persona ? `${u.persona.nombre} ${u.persona.apellido}` : u.email,
+                    grade_id: u.persona?.estudiante?.id_grado,
+                    role: 'student'
+                })).filter(u => u.grade_id == currentUser.grade_id || !u.grade_id)
+                setStudents(mappedStudents)
+            } else {
+                setStudents([])
+            }
 
-            // Fetch progress del grado
-            const progressRes = await fetch(
-                `http://localhost:3001/progress?grade_id=${currentUser.grade_id}&activity_type=evaluacion`,
-            )
-            const progressData = await progressRes.json()
-            setProgress(progressData)
+            // Fetch progress 
+            // Para el admin/profesor, quizás hay que traer todos los progresos, pero la API /api/progreso es para el estudiante actual.
+            // Wait, el backend no tiene un GET /api/progreso/grado o similar para profesores.
+            // Para la demostración y mantener la UI, si la API real no lo soporta directamente o si falla, dejamos un arreglo vacío temporalmente
+            // o extraemos de las entregas de actividades si está implementado.
+            setLoading(false)
         } catch (error) {
             console.error('Error cargando datos:', error)
-            setError('Error al cargar contenido. Verifica que json-server esté corriendo.')
-        } finally {
+            setError('Error al cargar contenido desde el servidor backend.')
             setLoading(false)
         }
     }
@@ -87,10 +113,6 @@ const TeacherContent = () => {
         return (
             <div className="alert alert-danger m-4">
                 {error}
-                <br />
-                <small>
-                    Ejecuta: <code>npm run server</code>
-                </small>
             </div>
         )
     }
