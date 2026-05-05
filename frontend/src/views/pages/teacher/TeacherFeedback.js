@@ -51,6 +51,11 @@ const TeacherFeedback = () => {
     const fetchData = async () => {
         setLoading(true)
         try {
+            const headers = { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${currentUser.token}` 
+            }
+
             // Fetch students del grado
             const studentsData = await usersService.getStudentsByGrade(currentUser.grade_id)
             setStudents(studentsData)
@@ -86,6 +91,7 @@ const TeacherFeedback = () => {
 
         try {
             const payload = {
+                id: Math.floor(Math.random() * 10000), // falso ID
                 student_id: parseInt(selectedStudent),
                 teacher_id: currentUser.id,
                 topic: selectedTopic,

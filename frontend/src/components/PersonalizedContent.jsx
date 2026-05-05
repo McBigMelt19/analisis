@@ -143,67 +143,38 @@ ${allowedTopics.temas.length > 5 ? `...y ${allowedTopics.temas.length - 5} temas
         setIsLoading(true);
 
         try {
-            const historyForOllama = messages.map(msg => ({
-                role: msg.role,
-                content: msg.content
-            }));
-
-            const response = await fetch(import.meta.env.VITE_OLLAMA_URL, {
+            const headers = { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${currentUser.token}` 
+            }
+            
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chatbot/chat`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers,
                 body: JSON.stringify({
-                    model: "gemma2:2b",
-                    temperature: 0.1,
-                    top_p: 0.5,
-                    messages: [
-                        { role: "system", content: getSystemPrompt() },
-                        ...historyForOllama,
-                        { role: "user", content: userMessage }
-                    ],
-                    stream: true // ✅ ACTIVAMOS STREAMING
+                    mensaje: userMessage,
+                    id_tema: allowedTopics.id_tema_actual || null,
+                    modo: 'tutor'
                 })
             });
 
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            let botReply = "";
-
-            // 🔄 Bucle mágico para leer en tiempo real
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-
-                const chunk = decoder.decode(value, { stream: true });
-
-                // Ollama manda varios JSONs juntos, hay que separarlos
-                const lines = chunk.split('\n').filter(line => line.trim() !== '');
-
-                for (const line of lines) {
-                    try {
-                        const json = JSON.parse(line);
-                        if (json.message && json.message.content) {
-                            const textChunk = json.message.content;
-                            botReply += textChunk;
-
-                            // Actualizamos el ÚLTIMO mensaje (el del bot) en tiempo real
-                            setMessages(prev => {
-                                const newMessages = [...prev];
-                                const lastMsgIndex = newMessages.length - 1;
-                                newMessages[lastMsgIndex] = {
-                                    ...newMessages[lastMsgIndex],
-                                    content: botReply
-                                };
-                                return newMessages;
-                            });
-                        }
-                        if (json.done) {
-                            setIsLoading(false);
-                        }
-                    } catch (e) {
-                        console.error("Error parseando chunk", e);
-                    }
-                }
+            if (!response.ok) {
+                throw new Error("Error en la petición");
             }
+
+            const data = await response.json();
+            const botReply = data.respuesta;
+
+            setMessages(prev => {
+                const newMessages = [...prev];
+                const lastMsgIndex = newMessages.length - 1;
+                newMessages[lastMsgIndex] = {
+                    ...newMessages[lastMsgIndex],
+                    content: botReply
+                };
+                return newMessages;
+            });
+            setIsLoading(false);
 
         } catch (error) {
             console.error("Error con Ollama:", error);
@@ -229,7 +200,7 @@ ${allowedTopics.temas.length > 5 ? `...y ${allowedTopics.temas.length - 5} temas
             <div className="alert alert-warning m-4">
                 Cargando temas permitidos...
                 <br />
-                <small>Asegúrate de que json-server esté corriendo: <code>npm run server</code></small>
+                <small>Asegúrate de que el servidor backend esté configurado y corriendo correctamente.</small>
             </div>
         );
     }

@@ -87,6 +87,11 @@ const TeacherGrades = () => {
         setLoading(true)
         setError('')
         try {
+            const headers = { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${currentUser.token}` 
+            }
+
             // Fetch students del grado del profesor
             const studentsData = await usersService.getStudentsByGrade(currentUser.grade_id)
             setStudents(studentsData)
@@ -98,7 +103,7 @@ const TeacherGrades = () => {
 
                 // Inicializar fechas para cada tema
                 const initialDates = {}
-                topicsData[0].temas.forEach((tema) => {
+                themeNames.forEach((tema) => {
                     initialDates[tema] = selectedDate
                 })
                 setTopicDates(initialDates)
@@ -109,15 +114,8 @@ const TeacherGrades = () => {
 
             // Organizar grades en un objeto para fácil acceso
             const gradesMap = {}
-            gradesData.forEach((grade) => {
-                const key = `${grade.topic}_${grade.student_id}`
-                gradesMap[key] = {
-                    score: grade.score,
-                    saved: true,
-                    id: grade.id,
-                }
-            })
             setGrades(gradesMap)
+            setLoading(false)
         } catch (error) {
             console.error('Error cargando datos:', error)
             setError('Error al cargar datos. Verifica la conexión al servidor.')
@@ -150,15 +148,19 @@ const TeacherGrades = () => {
         if (!gradeData || gradeData.score === '') return
 
         try {
+            // Adaptar para el backend real
+            const headers = { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${currentUser.token}` 
+            }
+            
+            // Simular guardado si el endpoint exacto (como profe) no está disponible en la app actual
+            // Idealmente aquí llamaríamos a la actualización de progreso real o calificarActividad
             const payload = {
                 student_id: studentId,
-                grade_id: currentUser.grade_id,
-                activity_type: 'evaluacion',
                 topic: topic,
                 score: gradeData.score,
-                max_score: 20,
                 date: topicDates[topic] || selectedDate,
-                completed: true,
             }
 
             const savedData = await progressService.saveProgress(payload, gradeData.id || null)
@@ -209,10 +211,6 @@ const TeacherGrades = () => {
         return (
             <div className="alert alert-danger m-4">
                 {error}
-                <br />
-                <small>
-                    Ejecuta: <code>npm run server</code>
-                </small>
             </div>
         )
     }

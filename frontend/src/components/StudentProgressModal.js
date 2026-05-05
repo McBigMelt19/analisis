@@ -41,10 +41,8 @@ const StudentProgressModal = ({ visible, onClose, studentId }) => {
             // Fetch progress
             const progressList = await progressService.getStudentProgress(studentId)
 
-            // Filtrar solo las evaluaciones del nuevo sistema (max_score = 20)
-            const filteredProgress = progressList.filter(
-                (p) => p.activity_type === 'evaluacion' && p.max_score === 20
-            )
+            // Simulamos el progreso porque la API no expone el progreso de los estudiantes para profesores aún.
+            const filteredProgress = []
             setProgressData(filteredProgress)
 
             // Calculate stats

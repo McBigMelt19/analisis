@@ -35,6 +35,11 @@ const TeacherContent = () => {
     const fetchData = async () => {
         setLoading(true)
         try {
+            const headers = { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${currentUser.token}` 
+            }
+
             // Fetch topics del grado
             const topicsData = await topicsService.getTopicsByGrade(currentUser.grade_id)
             if (topicsData.length > 0) {

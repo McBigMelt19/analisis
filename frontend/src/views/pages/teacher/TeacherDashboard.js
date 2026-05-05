@@ -353,10 +353,6 @@ const TeacherDashboard = () => {
     return (
       <div className="alert alert-danger m-4">
         {error}
-        <br />
-        <small>
-          Ejecuta: <code>npm run server</code>
-        </small>
       </div>
     )
   }

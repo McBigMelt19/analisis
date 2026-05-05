@@ -46,6 +46,11 @@ const StudentGrades = () => {
     setLoading(true)
     setError('')
     try {
+      const headers = { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${currentUser.token}` 
+      }
+
       // Obtener las notas del estudiante
       const progressList = await progressService.getStudentProgress(currentUser.id)
       setProgressData(progressList)
@@ -55,6 +60,9 @@ const StudentGrades = () => {
       if (gradeData.length > 0) {
         setGradeName(gradeData[0].name)
       }
+      setProgressData(mappedData)
+
+      setGradeName(`Grado ${currentUser.grade_id}`)
     } catch (err) {
       console.error('Error cargando notas:', err)
       setError('No se pudieron cargar las notas. Verifica la conexión al servidor.')
@@ -155,10 +163,6 @@ const StudentGrades = () => {
     return (
       <CAlert color="danger" className="m-4">
         {error}
-        <br />
-        <small>
-          Ejecuta: <code>npm run server</code>
-        </small>
       </CAlert>
     )
   }

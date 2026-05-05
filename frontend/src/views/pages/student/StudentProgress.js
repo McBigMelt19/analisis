@@ -35,15 +35,15 @@ const StudentProgress = () => {
                 setProgressData(data)
 
                 // Calcular estadísticas
-                if (data.length > 0) {
-                    const scores = data.map((p) => p.score)
+                if (mappedData.length > 0) {
+                    const scores = mappedData.map((p) => p.score)
                     const average = scores.reduce((a, b) => a + b, 0) / scores.length
                     const excellent = scores.filter((s) => s >= 90).length
                     const low = scores.filter((s) => s < 70).length
 
                     setStats({
                         average: average.toFixed(1),
-                        total: data.length,
+                        total: mappedData.length,
                         excellent,
                         low,
                     })

@@ -45,6 +45,13 @@ export const AuthProvider = ({ children }) => {
             } else {
                 return { success: false, message: result.message }
             }
+
+            setCurrentUser(user)
+            setIsAuthenticated(true)
+            localStorage.setItem('currentUser', JSON.stringify(user))
+            localStorage.setItem('token', data.token)
+            
+            return { success: true, user }
         } catch (error) {
             console.error('Error en login:', error)
 
@@ -76,6 +83,7 @@ export const AuthProvider = ({ children }) => {
         setCurrentUser(null)
         setIsAuthenticated(false)
         localStorage.removeItem('currentUser')
+        localStorage.removeItem('token')
     }
 
     const value = {
