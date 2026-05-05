@@ -12,6 +12,7 @@ import { CChartBar, CChartLine } from '@coreui/react-chartjs'
 import { useAuth } from '../../../context/AuthContext'
 import CIcon from '@coreui/icons-react'
 import { cilChart } from '@coreui/icons'
+import * as progressService from '../../../services/progress.service'
 
 const StudentProgress = () => {
     const { currentUser } = useAuth()
@@ -28,42 +29,10 @@ const StudentProgress = () => {
             }
 
             try {
-                const headers = { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${currentUser.token}` 
-                }
+                // 🎯 FILTRO: Solo el progreso del estudiante actual
+                const data = await progressService.getStudentProgress(currentUser.id)
 
-                // Llamada al backend real
-                const response = await fetch(
-                    `${import.meta.env.VITE_API_URL}/api/progreso`,
-                    { headers }
-                )
-
-                if (!response.ok) {
-                    throw new Error('Error al cargar progreso')
-                }
-
-                const data = await response.json()
-                let mappedData = []
-                if (data.progresos) {
-                    mappedData = data.progresos.map(p => {
-                        // Mapeo simple para la gráfica basado en nivel de comprensión
-                        let pseudoScore = 50
-                        if (p.nivel_comprension === 'avanzado') pseudoScore = 95
-                        else if (p.nivel_comprension === 'intermedio') pseudoScore = 75
-                        else pseudoScore = 50
-
-                        return {
-                            topic: p.tema?.nombre_tema || `Tema ${p.id_tema}`,
-                            score: pseudoScore, // Convertir a escala 0-100 para la gráfica
-                            activity_type: 'evaluacion',
-                            max_score: 100,
-                            date: new Date(p.fecha_actualizacion || Date.now()).toLocaleDateString(),
-                            real_completed: p.actividades_completadas || 0
-                        }
-                    })
-                }
-                setProgressData(mappedData)
+                setProgressData(data)
 
                 // Calcular estadísticas
                 if (mappedData.length > 0) {
@@ -81,7 +50,7 @@ const StudentProgress = () => {
                 }
             } catch (error) {
                 console.error('Error cargando progreso:', error)
-                setError('No se pudo cargar el progreso desde el servidor backend.')
+                setError('No se pudo cargar el progreso. Verifica la conexión al servidor.')
             } finally {
                 setLoading(false)
             }

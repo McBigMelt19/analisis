@@ -16,6 +16,8 @@ import {
 import { CChartBar, CChartLine } from '@coreui/react-chartjs'
 import CIcon from '@coreui/icons-react'
 import { cilUser, cilChart } from '@coreui/icons'
+import * as usersService from '../services/users.service'
+import * as progressService from '../services/progress.service'
 
 const StudentProgressModal = ({ visible, onClose, studentId }) => {
     const [student, setStudent] = useState(null)
@@ -32,28 +34,12 @@ const StudentProgressModal = ({ visible, onClose, studentId }) => {
     const fetchStudentData = async () => {
         setLoading(true)
         try {
-            const token = localStorage.getItem('token') || ''
-            const headers = { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` 
-            }
-
             // Fetch student info
-            const usersRes = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/usuarios?rol=estudiante`, { headers })
-            const usersData = await usersRes.json()
-            if (usersData.usuarios) {
-                const foundUser = usersData.usuarios.find(u => u.id_usuario === parseInt(studentId))
-                if (foundUser) {
-                    setStudent({
-                        id: foundUser.id_usuario,
-                        name: foundUser.persona ? `${foundUser.persona.nombre} ${foundUser.persona.apellido}` : foundUser.email,
-                        email: foundUser.email,
-                        learning_style: foundUser.persona?.estudiante?.estiloAprendizaje?.nombre_estilo || 'Visual',
-                        grade_id: foundUser.persona?.estudiante?.id_grado,
-                        role: 'student'
-                    })
-                }
-            }
+            const studentData = await usersService.getUserById(studentId)
+            setStudent(studentData)
+
+            // Fetch progress
+            const progressList = await progressService.getStudentProgress(studentId)
 
             // Simulamos el progreso porque la API no expone el progreso de los estudiantes para profesores aún.
             const filteredProgress = []

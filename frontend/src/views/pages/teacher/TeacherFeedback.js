@@ -23,6 +23,9 @@ import {
 import { useAuth } from '../../../context/AuthContext'
 import CIcon from '@coreui/icons-react'
 import { cilCheckCircle } from '@coreui/icons'
+import * as usersService from '../../../services/users.service'
+import * as topicsService from '../../../services/topics.service'
+import * as feedbackService from '../../../services/feedback.service'
 
 const TeacherFeedback = () => {
     const { currentUser } = useAuth()
@@ -54,37 +57,21 @@ const TeacherFeedback = () => {
             }
 
             // Fetch students del grado
-            const studentsRes = await fetch(
-                `${import.meta.env.VITE_API_URL}/api/auth/usuarios?rol=estudiante`,
-                { headers }
-            )
-            const studentsData = await studentsRes.json()
-            if (studentsData.usuarios) {
-                const mappedStudents = studentsData.usuarios.map(u => ({
-                    id: u.id_usuario,
-                    name: u.persona ? `${u.persona.nombre} ${u.persona.apellido}` : u.email,
-                    learning_style: u.persona?.estudiante?.estiloAprendizaje?.nombre_estilo || 'Visual',
-                    grade_id: u.persona?.estudiante?.id_grado,
-                    role: 'student'
-                })).filter(u => u.grade_id == currentUser.grade_id || !u.grade_id)
-                setStudents(mappedStudents)
-            }
+            const studentsData = await usersService.getStudentsByGrade(currentUser.grade_id)
+            setStudents(studentsData)
 
             // Fetch topics del grado
-            const topicsRes = await fetch(
-                `${import.meta.env.VITE_API_URL}/api/temas?id_grado=${currentUser.grade_id}`,
-                { headers }
-            )
-            const topicsData = await topicsRes.json()
-            if (topicsData.temas && topicsData.temas.length > 0) {
-                setTopics(topicsData.temas.map(t => t.nombre_tema))
+            const topicsData = await topicsService.getTopicsByGrade(currentUser.grade_id)
+            if (topicsData.length > 0) {
+                setTopics(topicsData[0].temas)
             }
 
-            // Simular feedbacks del profesor (el backend no tiene /api/feedbacks explícito en api.routes.js para profesores hacia estudiantes fuera de progreso)
-            setFeedbacks([])
+            // Fetch feedbacks del profesor
+            const feedbacksData = await feedbackService.getFeedbacksByTeacher(currentUser.id)
+            setFeedbacks(feedbacksData)
         } catch (error) {
             console.error('Error cargando datos:', error)
-            setError('Error al cargar datos desde el servidor backend.')
+            setError('Error al cargar datos. Verifica la conexión al servidor.')
         } finally {
             setLoading(false)
         }
@@ -112,19 +99,17 @@ const TeacherFeedback = () => {
                 date: new Date().toISOString().split('T')[0],
             }
 
-            // Simular guardado ya que /api/feedbacks no existe
-            setTimeout(() => {
-                setFeedbacks([payload, ...feedbacks])
-                setSuccess('✅ Retroalimentación enviada exitosamente (Simulación)')
+            const newFeedback = await feedbackService.createFeedback(payload)
+            setFeedbacks([newFeedback, ...feedbacks])
+            setSuccess('✅ Retroalimentación enviada exitosamente')
 
-                // Reset form
-                setSelectedStudent('')
-                setSelectedTopic('')
-                setFeedbackText('')
+            // Reset form
+            setSelectedStudent('')
+            setSelectedTopic('')
+            setFeedbackText('')
 
-                // Clear success message after 3 seconds
-                setTimeout(() => setSuccess(''), 3000)
-            }, 500)
+            // Clear success message after 3 seconds
+            setTimeout(() => setSuccess(''), 3000)
         } catch (error) {
             console.error('Error enviando feedback:', error)
             setError('Error al enviar la retroalimentación')

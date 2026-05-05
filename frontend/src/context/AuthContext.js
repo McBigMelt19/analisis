@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
+import * as authService from '../services/auth.service'
+import { isRenderMode } from '../services/api.config'
 
 const AuthContext = createContext()
 
@@ -33,39 +35,15 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (username, password) => {
         try {
-            const normalizedLogin = username.trim().toLowerCase()
-            const normalizedPassword = password.trim()
+            const result = await authService.login(username, password)
 
-            // Llamada al backend real
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: normalizedLogin, contrasena: normalizedPassword })
-            })
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}))
-                return { success: false, message: errorData.error || 'Credenciales incorrectas' }
-            }
-
-            const data = await response.json()
-            
-            // Adaptar el usuario del backend al formato que espera el frontend
-            const roleMap = {
-                'profesor': 'teacher',
-                'estudiante': 'student',
-                'representante': 'parent',
-                'admin': 'admin'
-            }
-            
-            const user = {
-                ...data.usuario,
-                id: data.usuario.id_usuario,
-                name: data.persona ? `${data.persona.nombre} ${data.persona.apellido}` : data.usuario.email,
-                role: roleMap[data.usuario.rol] || data.usuario.rol,
-                grade_id: data.entidad?.id_grado || 1, // Fallback grade_id
-                token: data.token,
-                original_role: data.usuario.rol
+            if (result.success) {
+                setCurrentUser(result.user)
+                setIsAuthenticated(true)
+                localStorage.setItem('currentUser', JSON.stringify(result.user))
+                return { success: true, user: result.user }
+            } else {
+                return { success: false, message: result.message }
             }
 
             setCurrentUser(user)
@@ -79,9 +57,17 @@ export const AuthProvider = ({ children }) => {
 
             // Mensajes de error más específicos
             if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                const modeMsg = isRenderMode()
+                    ? '❌ No se puede conectar al servidor en Render. Verifica que el backend esté activo.'
+                    : '❌ No se puede conectar al servidor. Asegúrate de ejecutar: npm run server'
                 return {
                     success: false,
-                    message: '❌ No se puede conectar al servidor backend. Asegúrate de que esté corriendo en el puerto 5000.'
+                    message: modeMsg
+                }
+            } else if (error.message.includes('JSON')) {
+                return {
+                    success: false,
+                    message: '❌ El servidor no está devolviendo datos correctos.'
                 }
             } else {
                 return {
@@ -93,6 +79,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     const logout = () => {
+        authService.logout()
         setCurrentUser(null)
         setIsAuthenticated(false)
         localStorage.removeItem('currentUser')

@@ -767,9 +767,9 @@
       "topic": "Símbolos Patrios de Venezuela",
       "score": 1,
       "max_score": 20,
-<<<<<<< HEAD
       "date": "2026-01-14",
-      "completed": true
+      "completed": true,
+      "id": "20d0"
     },
     {
       "student_id": "7",
@@ -792,11 +792,6 @@
       "date": "2026-04-28",
       "completed": true,
       "id": "vAPlL-XijGA"
-=======
-      "date": "2026-02-11",
-      "completed": true,
-      "id": "20d0"
->>>>>>> 41c27e7dfe7a5e0bbc44e2e4b5e20950d6409afe
     }
   ],
   "topics": [

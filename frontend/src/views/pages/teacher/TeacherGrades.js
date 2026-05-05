@@ -13,6 +13,9 @@ import {
 } from '@coreui/react'
 import { useAuth } from '../../../context/AuthContext'
 import StudentProgressModal from '../../../components/StudentProgressModal'
+import * as usersService from '../../../services/users.service'
+import * as topicsService from '../../../services/topics.service'
+import * as progressService from '../../../services/progress.service'
 import CIcon from '@coreui/icons-react'
 import { cilCheckCircle, cilWarning, cilChart } from '@coreui/icons'
 
@@ -90,36 +93,13 @@ const TeacherGrades = () => {
             }
 
             // Fetch students del grado del profesor
-            const studentsRes = await fetch(
-                `${import.meta.env.VITE_API_URL}/api/auth/usuarios?rol=estudiante`,
-                { headers }
-            )
-            const studentsData = await studentsRes.json()
-            if (studentsData.usuarios) {
-                const mappedStudents = studentsData.usuarios.map(u => ({
-                    id: u.id_usuario,
-                    name: u.persona ? `${u.persona.nombre} ${u.persona.apellido}` : u.email,
-                    learning_style: u.persona?.estudiante?.estiloAprendizaje?.nombre_estilo || 'Visual',
-                    grade_id: u.persona?.estudiante?.id_grado,
-                    role: 'student'
-                })).filter(u => u.grade_id == currentUser.grade_id || !u.grade_id)
-                setStudents(mappedStudents)
-            } else {
-                setStudents([])
-            }
+            const studentsData = await usersService.getStudentsByGrade(currentUser.grade_id)
+            setStudents(studentsData)
 
             // Fetch topics del grado
-            const topicsRes = await fetch(
-                `${import.meta.env.VITE_API_URL}/api/temas?id_grado=${currentUser.grade_id}`,
-                { headers }
-            )
-            const topicsData = await topicsRes.json()
-            let themeNames = []
-            let realTopics = []
-            if (topicsData.temas && topicsData.temas.length > 0) {
-                realTopics = topicsData.temas
-                themeNames = topicsData.temas.map(t => t.nombre_tema)
-                setTopics(themeNames)
+            const topicsData = await topicsService.getTopicsByGrade(currentUser.grade_id)
+            if (topicsData.length > 0) {
+                setTopics(topicsData[0].temas)
 
                 // Inicializar fechas para cada tema
                 const initialDates = {}
@@ -129,14 +109,17 @@ const TeacherGrades = () => {
                 setTopicDates(initialDates)
             }
 
-            // Fetch existing grades. Nota: si no hay un endpoint de progreso global para profesor, se deja vacío o se usaría las entregas
-            // En una implementación real se buscaría con un /api/progreso/grado
+            // Fetch existing grades
+            const gradesData = await progressService.getProgressByGrade(currentUser.grade_id)
+
+            // Organizar grades en un objeto para fácil acceso
             const gradesMap = {}
             setGrades(gradesMap)
             setLoading(false)
         } catch (error) {
             console.error('Error cargando datos:', error)
-            setError('Error al cargar datos desde el servidor backend.')
+            setError('Error al cargar datos. Verifica la conexión al servidor.')
+        } finally {
             setLoading(false)
         }
     }
@@ -180,18 +163,15 @@ const TeacherGrades = () => {
                 date: topicDates[topic] || selectedDate,
             }
 
-            // Simulación visual del guardado:
-            setTimeout(() => {
-                setGrades((prev) => ({
-                    ...prev,
-                    [key]: {
-                        score: gradeData.score,
-                        saved: true,
-                        id: Math.floor(Math.random() * 10000), // id falso
-                    },
-                }))
-            }, 500)
-            
+            const savedData = await progressService.saveProgress(payload, gradeData.id || null)
+            setGrades((prev) => ({
+                ...prev,
+                [key]: {
+                    score: gradeData.score,
+                    saved: true,
+                    id: savedData.id,
+                },
+            }))
         } catch (error) {
             console.error('Error guardando nota:', error)
             alert('Error al guardar la nota')

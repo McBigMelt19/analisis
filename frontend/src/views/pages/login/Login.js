@@ -17,6 +17,7 @@ import {
 import CIcon from '@coreui/icons-react';
 import { cilLockLocked, cilUser } from '@coreui/icons';
 import { useAuth } from '../../../context/AuthContext';
+import { isRenderMode } from '../../../services/api.config';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -29,13 +30,20 @@ const Login = () => {
   const [fieldErrors, setFieldErrors] = useState({});
 
   // ── Validaciones ──
-  // Usuario: solo letras, números, puntos, guiones y guiones bajos. Sin espacios, comas ni caracteres especiales.
+  // Acepta username (modo local) o email (modo render)
   const validarUsername = (val) => {
-    if (!val.trim()) return 'El usuario es obligatorio';
-    if (/\s/.test(val)) return 'El usuario no puede contener espacios';
-    if (/[,;:'"!@#$%^&*()+=\[\]{}|\\/<>?`~]/.test(val))
-      return 'El usuario no puede contener caracteres especiales (,;:\'"!@#$%^&*+=)';
-    if (!/^[a-zA-Z0-9._-]+$/.test(val))
+    if (!val.trim()) return 'El campo es obligatorio';
+    if (/\s/.test(val)) return 'No puede contener espacios';
+    // En modo render, permitir formato de email
+    if (isRenderMode()) {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val))
+        return 'Ingresa un email válido (ej: usuario@correo.com)';
+      return '';
+    }
+    // En modo local, validar como username
+    if (/[,;:'"!#$%^&*()+=\[\]{}|\\/\<\>?`~]/.test(val))
+      return 'El usuario no puede contener caracteres especiales';
+    if (!/^[a-zA-Z0-9._@-]+$/.test(val))
       return 'Solo se permiten letras, números, puntos (.), guiones (-) y guiones bajos (_)';
     return '';
   };
@@ -158,8 +166,8 @@ const Login = () => {
                         <CIcon icon={cilUser} />
                       </CInputGroupText>
                       <CFormInput
-                        placeholder="Usuario"
-                        autoComplete="username"
+                        placeholder={isRenderMode() ? "Email" : "Usuario"}
+                        autoComplete={isRenderMode() ? "email" : "username"}
                         value={username}
                         onChange={handleUsernameChange}
                         required

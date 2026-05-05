@@ -27,6 +27,7 @@ import {
   cilCalendar,
 } from '@coreui/icons'
 import { useAuth } from '../../../context/AuthContext'
+import * as progressService from '../../../services/progress.service'
 
 const StudentGrades = () => {
   const { currentUser } = useAuth()
@@ -51,36 +52,20 @@ const StudentGrades = () => {
       }
 
       // Obtener las notas del estudiante
-      const progressRes = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/progreso`,
-        { headers }
-      )
-      if (!progressRes.ok) throw new Error('Error al obtener las notas')
-      const progressList = await progressRes.json()
-      
-      let mappedData = []
-      if (progressList.progresos) {
-          mappedData = progressList.progresos.map(p => {
-              let pseudoScore = 10
-              if (p.nivel_comprension === 'avanzado') pseudoScore = 19
-              else if (p.nivel_comprension === 'intermedio') pseudoScore = 15
-              else pseudoScore = 10
+      const progressList = await progressService.getStudentProgress(currentUser.id)
+      setProgressData(progressList)
 
-              return {
-                  topic: p.tema?.nombre_tema || `Tema ${p.id_tema}`,
-                  score: pseudoScore,
-                  activity_type: 'evaluacion',
-                  max_score: 20,
-                  date: new Date(p.fecha_actualizacion || Date.now()).toISOString().split('T')[0]
-              }
-          })
+      // Obtener el nombre del grado
+      const gradeData = await progressService.getGradeById(currentUser.grade_id)
+      if (gradeData.length > 0) {
+        setGradeName(gradeData[0].name)
       }
       setProgressData(mappedData)
 
       setGradeName(`Grado ${currentUser.grade_id}`)
     } catch (err) {
       console.error('Error cargando notas:', err)
-      setError('No se pudieron cargar las notas. Verifica que el servidor esté activo.')
+      setError('No se pudieron cargar las notas. Verifica la conexión al servidor.')
     } finally {
       setLoading(false)
     }

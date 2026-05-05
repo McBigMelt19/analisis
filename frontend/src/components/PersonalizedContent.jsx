@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CCard, CCardHeader, CCardBody, CForm, CFormTextarea, CButton, CInputGroup, CBadge } from '@coreui/react';
 import { useAuth } from '../context/AuthContext';
+import * as topicsService from '../services/topics.service';
 
 const COLORS = {
     ASSISTANT_BG: '#795028ff',
@@ -84,18 +85,9 @@ ${facts}
             }
 
             try {
-                const headers = { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${currentUser.token}` 
-                }
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/temas?id_grado=${currentUser.grade_id}`, { headers });
-                const data = await response.json();
-                if (data.temas && data.temas.length > 0) {
-                    setAllowedTopics({
-                        grade_name: `Grado ${currentUser.grade_id}`,
-                        temas: data.temas.map(t => t.nombre_tema),
-                        id_tema_actual: data.temas[0].id_tema
-                    });
+                const data = await topicsService.getTopicsByGrade(currentUser.grade_id);
+                if (data.length > 0) {
+                    setAllowedTopics(data[0]);
                 }
             } catch (error) {
                 console.error('Error cargando temas:', error);

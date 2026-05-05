@@ -40,6 +40,7 @@ import {
 } from '@coreui/icons'
 import { useAuth } from '../../../context/AuthContext'
 import StudentProgressModal from '../../../components/StudentProgressModal'
+import * as usersService from '../../../services/users.service'
 
 const TeacherDashboard = () => {
   const { currentUser } = useAuth()
@@ -81,37 +82,11 @@ const TeacherDashboard = () => {
 
   const fetchStudents = async () => {
     try {
-      const headers = { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${currentUser.token}` 
-      }
-      
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/auth/usuarios?rol=estudiante`,
-        { headers }
-      )
-
-      if (!response.ok) {
-        throw new Error('Error al cargar estudiantes')
-      }
-
-      const data = await response.json()
-      if (data.usuarios) {
-        const mappedStudents = data.usuarios.map(u => ({
-          id: u.id_usuario,
-          name: u.persona ? `${u.persona.nombre} ${u.persona.apellido}` : u.email,
-          email: u.email,
-          learning_style: u.persona?.estudiante?.estiloAprendizaje?.nombre_estilo || 'Visual',
-          grade_id: u.persona?.estudiante?.id_grado,
-          role: 'student'
-        })).filter(u => u.grade_id == currentUser.grade_id || !u.grade_id)
-        setStudents(mappedStudents)
-      } else {
-        setStudents([])
-      }
+      const data = await usersService.getStudentsByGrade(currentUser.grade_id)
+      setStudents(data)
     } catch (error) {
       console.error('Error cargando estudiantes:', error)
-      setError('No se pudieron cargar los estudiantes desde el servidor backend.')
+      setError('No se pudieron cargar los estudiantes. Verifica la conexión al servidor.')
     } finally {
       setLoading(false)
     }
