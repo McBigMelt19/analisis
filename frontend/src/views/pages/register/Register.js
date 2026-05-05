@@ -15,6 +15,7 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser, cilArrowLeft, cilCheckCircle } from '@coreui/icons'
+import { getBaseURL, apiFetch } from '../../../services/api.config'
 
 const Register = () => {
   const navigate = useNavigate()
@@ -28,6 +29,7 @@ const Register = () => {
   const [fieldErrors, setFieldErrors] = useState({})
   const [formError, setFormError] = useState('')
   const [formSuccess, setFormSuccess] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const handleSalir = () => {
     navigate('/login')
@@ -41,7 +43,7 @@ const Register = () => {
     if (!val.trim()) return 'El nombre de usuario es obligatorio'
     if (val.length < 3) return 'Mínimo 3 caracteres'
     if (/\s/.test(val)) return 'No puede contener espacios'
-    if (/[,;:'"!@#$%^&*()+=\[\]{}|\\/<>?`~]/.test(val))
+    if (/[,;:'"!@#$%^&*()+=\[\]{}|\\/\<\>?`~]/.test(val))
       return 'No puede contener caracteres especiales (,;:\'"!@#$%^&*|)'
     if (!/^[a-zA-Z0-9._-]+$/.test(val))
       return 'Solo letras, números, puntos (.), guiones (-) y guiones bajos (_)'
@@ -52,7 +54,7 @@ const Register = () => {
   const validarEmail = (val) => {
     if (!val.trim()) return 'El correo es obligatorio'
     if (/\s/.test(val)) return 'No puede contener espacios'
-    if (/[,;:'"!#$%^&*()+=\[\]{}|\\/<>?`~]/.test(val))
+    if (/[,;:'"!#$%^&*()+=\[\]{}|\\/\<\>?`~]/.test(val))
       return 'Contiene caracteres no válidos para un correo'
     if (!val.includes('@')) return 'Debe contener el símbolo @'
     const parts = val.split('@')
@@ -72,13 +74,16 @@ const Register = () => {
     return ''
   }
 
-  // Contraseña: mínimo 6 caracteres, sin espacios, al menos una letra y un número.
+  // Contraseña: alineada con el backend Zod schema.
+  // Mínimo 8 caracteres, al menos una mayúscula, una minúscula, un número y un carácter especial.
   const validarPassword = (val) => {
     if (!val) return 'La contraseña es obligatoria'
     if (/\s/.test(val)) return 'No puede contener espacios'
-    if (val.length < 6) return 'Mínimo 6 caracteres'
-    if (!/[a-zA-Z]/.test(val)) return 'Debe contener al menos una letra'
+    if (val.length < 8) return 'Mínimo 8 caracteres'
+    if (!/[A-Z]/.test(val)) return 'Debe contener al menos una letra mayúscula'
+    if (!/[a-z]/.test(val)) return 'Debe contener al menos una letra minúscula'
     if (!/[0-9]/.test(val)) return 'Debe contener al menos un número'
+    if (!/[^A-Za-z0-9]/.test(val)) return 'Debe contener al menos un carácter especial (@, #, $, etc.)'
     return ''
   }
 
@@ -139,34 +144,48 @@ const Register = () => {
       return
     }
 
+    setLoading(true)
+
     try {
       const nameParts = formData.username.split(/[._-]/)
       const nombre = nameParts[0] || formData.username
       const apellido = nameParts.length > 1 ? nameParts.slice(1).join(' ') : formData.username
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
+      const base = getBaseURL()
+
+      const response = await apiFetch(`${base}/auth/register`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: formData.email,
+          email: formData.email.trim().toLowerCase(),
           contrasena: formData.password,
-          rol: 'estudiante', // Por defecto para nuevos registros web
+          rol: 'estudiante',
           nombre: nombre,
           apellido: apellido
         })
       })
 
+      const data = await response.json().catch(() => ({}))
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        setFormError(errorData.error || 'Error al crear la cuenta. Verifica los datos o intenta con otro correo.')
+        // Mostrar detalles de validación del backend si existen
+        if (data.details && Array.isArray(data.details)) {
+          const messages = data.details.map(d => d.message).join('. ')
+          setFormError(messages || data.error || 'Error al crear la cuenta.')
+        } else {
+          setFormError(data.error || 'Error al crear la cuenta. Verifica los datos o intenta con otro correo.')
+        }
+        setLoading(false)
         return
       }
 
       setFormSuccess('¡Cuenta creada exitosamente! Redirigiendo al login...')
       setTimeout(() => navigate('/login'), 2000)
     } catch (err) {
-      setFormError('Error de red: No se pudo conectar al servidor backend en el puerto 5000.')
+      console.error('Error en registro:', err)
+      setFormError('Error de red: No se pudo conectar al servidor. Verifica que el backend esté activo.')
     }
+
+    setLoading(false)
   }
 
   return (
@@ -306,7 +325,7 @@ const Register = () => {
                       type="password"
                       placeholder="Contraseña"
                       autoComplete="new-password"
-                      maxLength={16}
+                      maxLength={128}
                       value={formData.password}
                       onChange={(e) => handleChange('password', e.target.value)}
                       required
@@ -320,6 +339,11 @@ const Register = () => {
                     </small>
                   )}
                   {!fieldErrors.password && <div style={{ marginBottom: '10px' }} />}
+
+                  {/* Hint de contraseña */}
+                  <small style={{ color: '#666', fontSize: '0.75rem', display: 'block', marginBottom: '10px', marginTop: '-6px' }}>
+                    💡 Min. 8 caracteres, mayúscula, minúscula, número y carácter especial
+                  </small>
 
                   {/* Repetir Contraseña */}
                   <CInputGroup className="mb-1">
@@ -336,7 +360,7 @@ const Register = () => {
                       type="password"
                       placeholder="Repetir contraseña"
                       autoComplete="new-password"
-                      maxLength={16}
+                      maxLength={128}
                       value={formData.confirmPassword}
                       onChange={(e) => handleChange('confirmPassword', e.target.value)}
                       required
@@ -359,6 +383,7 @@ const Register = () => {
                     <CButton
                       type="submit"
                       className="flex-grow-1"
+                      disabled={loading}
                       style={{
                         background: 'linear-gradient(135deg, #003893 0%, #002766 100%)',
                         border: 'none',
@@ -370,10 +395,13 @@ const Register = () => {
                         letterSpacing: '0.5px',
                         boxShadow: '0 4px 15px rgba(0, 56, 147, 0.4)',
                         transition: 'all 0.3s ease',
+                        opacity: loading ? 0.7 : 1,
                       }}
                       onMouseEnter={(e) => {
-                        e.target.style.transform = 'translateY(-2px)'
-                        e.target.style.boxShadow = '0 6px 20px rgba(0, 56, 147, 0.6)'
+                        if (!loading) {
+                          e.target.style.transform = 'translateY(-2px)'
+                          e.target.style.boxShadow = '0 6px 20px rgba(0, 56, 147, 0.6)'
+                        }
                       }}
                       onMouseLeave={(e) => {
                         e.target.style.transform = 'translateY(0)'
@@ -381,7 +409,7 @@ const Register = () => {
                       }}
                     >
                       <CIcon icon={cilCheckCircle} className="me-2" />
-                      Crear Cuenta
+                      {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
                     </CButton>
 
                     <CButton
