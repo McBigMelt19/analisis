@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CCard, CCardHeader, CCardBody, CForm, CFormTextarea, CButton, CInputGroup, CBadge } from '@coreui/react';
 import { useAuth } from '../context/AuthContext';
+import { getBaseURL, apiFetch } from '../services/api.config';
 import * as topicsService from '../services/topics.service';
 
 const COLORS = {
@@ -143,14 +144,10 @@ ${allowedTopics.temas.length > 5 ? `...y ${allowedTopics.temas.length - 5} temas
         setIsLoading(true);
 
         try {
-            const headers = { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${currentUser.token}` 
-            }
+            const base = getBaseURL()
             
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chatbot/chat`, {
+            const response = await apiFetch(`${base}/chatbot/chat`, {
                 method: 'POST',
-                headers,
                 body: JSON.stringify({
                     mensaje: userMessage,
                     id_tema: allowedTopics.id_tema_actual || null,

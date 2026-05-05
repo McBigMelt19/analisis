@@ -45,13 +45,6 @@ export const AuthProvider = ({ children }) => {
             } else {
                 return { success: false, message: result.message }
             }
-
-            setCurrentUser(user)
-            setIsAuthenticated(true)
-            localStorage.setItem('currentUser', JSON.stringify(user))
-            localStorage.setItem('token', data.token)
-            
-            return { success: true, user }
         } catch (error) {
             console.error('Error en login:', error)
 
