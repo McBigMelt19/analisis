@@ -16,6 +16,8 @@ import {
 import { CChartBar, CChartLine } from '@coreui/react-chartjs'
 import CIcon from '@coreui/icons-react'
 import { cilUser, cilChart } from '@coreui/icons'
+import * as usersService from '../services/users.service'
+import * as progressService from '../services/progress.service'
 
 const StudentProgressModal = ({ visible, onClose, studentId }) => {
     const [student, setStudent] = useState(null)
@@ -33,15 +35,11 @@ const StudentProgressModal = ({ visible, onClose, studentId }) => {
         setLoading(true)
         try {
             // Fetch student info
-            const studentRes = await fetch(`http://localhost:3001/users/${studentId}`)
-            const studentData = await studentRes.json()
+            const studentData = await usersService.getUserById(studentId)
             setStudent(studentData)
 
             // Fetch progress
-            const progressRes = await fetch(
-                `http://localhost:3001/progress?student_id=${studentId}`,
-            )
-            const progressList = await progressRes.json()
+            const progressList = await progressService.getStudentProgress(studentId)
 
             // Filtrar solo las evaluaciones del nuevo sistema (max_score = 20)
             const filteredProgress = progressList.filter(

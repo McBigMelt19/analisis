@@ -12,6 +12,7 @@ import { CChartBar, CChartLine } from '@coreui/react-chartjs'
 import { useAuth } from '../../../context/AuthContext'
 import CIcon from '@coreui/icons-react'
 import { cilChart } from '@coreui/icons'
+import * as progressService from '../../../services/progress.service'
 
 const StudentProgress = () => {
     const { currentUser } = useAuth()
@@ -29,15 +30,8 @@ const StudentProgress = () => {
 
             try {
                 // 🎯 FILTRO: Solo el progreso del estudiante actual
-                const response = await fetch(
-                    `http://localhost:3001/progress?student_id=${currentUser.id}`,
-                )
+                const data = await progressService.getStudentProgress(currentUser.id)
 
-                if (!response.ok) {
-                    throw new Error('Error al cargar progreso')
-                }
-
-                const data = await response.json()
                 setProgressData(data)
 
                 // Calcular estadísticas
@@ -56,7 +50,7 @@ const StudentProgress = () => {
                 }
             } catch (error) {
                 console.error('Error cargando progreso:', error)
-                setError('No se pudo cargar el progreso. Verifica que json-server esté corriendo.')
+                setError('No se pudo cargar el progreso. Verifica la conexión al servidor.')
             } finally {
                 setLoading(false)
             }
@@ -133,10 +127,6 @@ const StudentProgress = () => {
         return (
             <div className="alert alert-warning m-4">
                 {error}
-                <br />
-                <small>
-                    Ejecuta: <code>npm run server</code> en otra terminal
-                </small>
             </div>
         )
     }

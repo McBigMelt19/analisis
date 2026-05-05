@@ -13,6 +13,9 @@ import {
 } from '@coreui/react'
 import { useAuth } from '../../../context/AuthContext'
 import StudentProgressModal from '../../../components/StudentProgressModal'
+import * as usersService from '../../../services/users.service'
+import * as topicsService from '../../../services/topics.service'
+import * as progressService from '../../../services/progress.service'
 import CIcon from '@coreui/icons-react'
 import { cilCheckCircle, cilWarning, cilChart } from '@coreui/icons'
 
@@ -85,17 +88,11 @@ const TeacherGrades = () => {
         setError('')
         try {
             // Fetch students del grado del profesor
-            const studentsRes = await fetch(
-                `http://localhost:3001/users?role=student&grade_id=${currentUser.grade_id}`,
-            )
-            const studentsData = await studentsRes.json()
+            const studentsData = await usersService.getStudentsByGrade(currentUser.grade_id)
             setStudents(studentsData)
 
             // Fetch topics del grado
-            const topicsRes = await fetch(
-                `http://localhost:3001/topics?grade_id=${currentUser.grade_id}`,
-            )
-            const topicsData = await topicsRes.json()
+            const topicsData = await topicsService.getTopicsByGrade(currentUser.grade_id)
             if (topicsData.length > 0) {
                 setTopics(topicsData[0].temas)
 
@@ -108,10 +105,7 @@ const TeacherGrades = () => {
             }
 
             // Fetch existing grades
-            const gradesRes = await fetch(
-                `http://localhost:3001/progress?grade_id=${currentUser.grade_id}`,
-            )
-            const gradesData = await gradesRes.json()
+            const gradesData = await progressService.getProgressByGrade(currentUser.grade_id)
 
             // Organizar grades en un objeto para fácil acceso
             const gradesMap = {}
@@ -126,7 +120,7 @@ const TeacherGrades = () => {
             setGrades(gradesMap)
         } catch (error) {
             console.error('Error cargando datos:', error)
-            setError('Error al cargar datos. Verifica que json-server esté corriendo.')
+            setError('Error al cargar datos. Verifica la conexión al servidor.')
         } finally {
             setLoading(false)
         }
@@ -167,34 +161,15 @@ const TeacherGrades = () => {
                 completed: true,
             }
 
-            let response
-            if (gradeData.id) {
-                // Update existing grade
-                response = await fetch(`http://localhost:3001/progress/${gradeData.id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ...payload, id: gradeData.id }),
-                })
-            } else {
-                // Create new grade
-                response = await fetch('http://localhost:3001/progress', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                })
-            }
-
-            if (response.ok) {
-                const savedData = await response.json()
-                setGrades((prev) => ({
-                    ...prev,
-                    [key]: {
-                        score: gradeData.score,
-                        saved: true,
-                        id: savedData.id,
-                    },
-                }))
-            }
+            const savedData = await progressService.saveProgress(payload, gradeData.id || null)
+            setGrades((prev) => ({
+                ...prev,
+                [key]: {
+                    score: gradeData.score,
+                    saved: true,
+                    id: savedData.id,
+                },
+            }))
         } catch (error) {
             console.error('Error guardando nota:', error)
             alert('Error al guardar la nota')

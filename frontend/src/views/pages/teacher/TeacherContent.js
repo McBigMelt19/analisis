@@ -14,6 +14,9 @@ import {
 import { useAuth } from '../../../context/AuthContext'
 import CIcon from '@coreui/icons-react'
 import { cilCheckCircle, cilX } from '@coreui/icons'
+import * as usersService from '../../../services/users.service'
+import * as topicsService from '../../../services/topics.service'
+import * as progressService from '../../../services/progress.service'
 
 const TeacherContent = () => {
     const { currentUser } = useAuth()
@@ -33,30 +36,21 @@ const TeacherContent = () => {
         setLoading(true)
         try {
             // Fetch topics del grado
-            const topicsRes = await fetch(
-                `http://localhost:3001/topics?grade_id=${currentUser.grade_id}`,
-            )
-            const topicsData = await topicsRes.json()
+            const topicsData = await topicsService.getTopicsByGrade(currentUser.grade_id)
             if (topicsData.length > 0) {
                 setTopics(topicsData[0])
             }
 
             // Fetch students del grado
-            const studentsRes = await fetch(
-                `http://localhost:3001/users?role=student&grade_id=${currentUser.grade_id}`,
-            )
-            const studentsData = await studentsRes.json()
+            const studentsData = await usersService.getStudentsByGrade(currentUser.grade_id)
             setStudents(studentsData)
 
             // Fetch progress del grado
-            const progressRes = await fetch(
-                `http://localhost:3001/progress?grade_id=${currentUser.grade_id}&activity_type=evaluacion`,
-            )
-            const progressData = await progressRes.json()
+            const progressData = await progressService.getProgressByGrade(currentUser.grade_id, 'evaluacion')
             setProgress(progressData)
         } catch (error) {
             console.error('Error cargando datos:', error)
-            setError('Error al cargar contenido. Verifica que json-server esté corriendo.')
+            setError('Error al cargar contenido. Verifica la conexión al servidor.')
         } finally {
             setLoading(false)
         }
@@ -87,10 +81,6 @@ const TeacherContent = () => {
         return (
             <div className="alert alert-danger m-4">
                 {error}
-                <br />
-                <small>
-                    Ejecuta: <code>npm run server</code>
-                </small>
             </div>
         )
     }

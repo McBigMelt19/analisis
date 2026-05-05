@@ -27,6 +27,7 @@ import {
   cilCalendar,
 } from '@coreui/icons'
 import { useAuth } from '../../../context/AuthContext'
+import * as progressService from '../../../services/progress.service'
 
 const StudentGrades = () => {
   const { currentUser } = useAuth()
@@ -46,26 +47,17 @@ const StudentGrades = () => {
     setError('')
     try {
       // Obtener las notas del estudiante
-      const progressRes = await fetch(
-        `http://localhost:3001/progress?student_id=${currentUser.id}`,
-      )
-      if (!progressRes.ok) throw new Error('Error al obtener las notas')
-      const progressList = await progressRes.json()
+      const progressList = await progressService.getStudentProgress(currentUser.id)
       setProgressData(progressList)
 
       // Obtener el nombre del grado
-      const gradeRes = await fetch(
-        `http://localhost:3001/grades?id=${currentUser.grade_id}`,
-      )
-      if (gradeRes.ok) {
-        const gradeData = await gradeRes.json()
-        if (gradeData.length > 0) {
-          setGradeName(gradeData[0].name)
-        }
+      const gradeData = await progressService.getGradeById(currentUser.grade_id)
+      if (gradeData.length > 0) {
+        setGradeName(gradeData[0].name)
       }
     } catch (err) {
       console.error('Error cargando notas:', err)
-      setError('No se pudieron cargar las notas. Verifica que el servidor esté activo.')
+      setError('No se pudieron cargar las notas. Verifica la conexión al servidor.')
     } finally {
       setLoading(false)
     }

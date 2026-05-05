@@ -40,6 +40,7 @@ import {
 } from '@coreui/icons'
 import { useAuth } from '../../../context/AuthContext'
 import StudentProgressModal from '../../../components/StudentProgressModal'
+import * as usersService from '../../../services/users.service'
 
 const TeacherDashboard = () => {
   const { currentUser } = useAuth()
@@ -81,19 +82,11 @@ const TeacherDashboard = () => {
 
   const fetchStudents = async () => {
     try {
-      const response = await fetch(
-        `http://localhost:3001/users?role=student&grade_id=${currentUser.grade_id}`,
-      )
-
-      if (!response.ok) {
-        throw new Error('Error al cargar estudiantes')
-      }
-
-      const data = await response.json()
+      const data = await usersService.getStudentsByGrade(currentUser.grade_id)
       setStudents(data)
     } catch (error) {
       console.error('Error cargando estudiantes:', error)
-      setError('No se pudieron cargar los estudiantes. Verifica que json-server esté corriendo.')
+      setError('No se pudieron cargar los estudiantes. Verifica la conexión al servidor.')
     } finally {
       setLoading(false)
     }

@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
+import * as authService from '../services/auth.service'
+import { isRenderMode } from '../services/api.config'
 
 const AuthContext = createContext()
 
@@ -33,49 +35,32 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (username, password) => {
         try {
-            const normalizedUsername = username.trim()
-            const normalizedPassword = password.trim()
-            const normalizedLogin = normalizedUsername.toLowerCase()
-            const encodedLogin = encodeURIComponent(normalizedLogin)
+            const result = await authService.login(username, password)
 
-            // Llamada a json-server buscando el usuario por username o por email
-            let response = await fetch(`http://localhost:3001/users?username=${encodedLogin}`)
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`)
-            }
-
-            let users = await response.json()
-            if (users.length === 0) {
-                response = await fetch(`http://localhost:3001/users?email=${encodedLogin}`)
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`)
-                }
-                users = await response.json()
-            }
-
-            const user = users.find((u) => u.password === normalizedPassword)
-
-            if (user) {
-                setCurrentUser(user)
+            if (result.success) {
+                setCurrentUser(result.user)
                 setIsAuthenticated(true)
-                localStorage.setItem('currentUser', JSON.stringify(user))
-                return { success: true, user }
+                localStorage.setItem('currentUser', JSON.stringify(result.user))
+                return { success: true, user: result.user }
             } else {
-                return { success: false, message: 'Credenciales incorrectas' }
+                return { success: false, message: result.message }
             }
         } catch (error) {
             console.error('Error en login:', error)
 
             // Mensajes de error más específicos
             if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                const modeMsg = isRenderMode()
+                    ? '❌ No se puede conectar al servidor en Render. Verifica que el backend esté activo.'
+                    : '❌ No se puede conectar al servidor. Asegúrate de ejecutar: npm run server'
                 return {
                     success: false,
-                    message: '❌ No se puede conectar al servidor. Asegúrate de ejecutar: npm run server'
+                    message: modeMsg
                 }
             } else if (error.message.includes('JSON')) {
                 return {
                     success: false,
-                    message: '❌ El servidor no está devolviendo datos correctos. Ejecuta: npm run server'
+                    message: '❌ El servidor no está devolviendo datos correctos.'
                 }
             } else {
                 return {
@@ -87,6 +72,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     const logout = () => {
+        authService.logout()
         setCurrentUser(null)
         setIsAuthenticated(false)
         localStorage.removeItem('currentUser')

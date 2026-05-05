@@ -23,6 +23,9 @@ import {
 import { useAuth } from '../../../context/AuthContext'
 import CIcon from '@coreui/icons-react'
 import { cilCheckCircle } from '@coreui/icons'
+import * as usersService from '../../../services/users.service'
+import * as topicsService from '../../../services/topics.service'
+import * as feedbackService from '../../../services/feedback.service'
 
 const TeacherFeedback = () => {
     const { currentUser } = useAuth()
@@ -49,30 +52,21 @@ const TeacherFeedback = () => {
         setLoading(true)
         try {
             // Fetch students del grado
-            const studentsRes = await fetch(
-                `http://localhost:3001/users?role=student&grade_id=${currentUser.grade_id}`,
-            )
-            const studentsData = await studentsRes.json()
+            const studentsData = await usersService.getStudentsByGrade(currentUser.grade_id)
             setStudents(studentsData)
 
             // Fetch topics del grado
-            const topicsRes = await fetch(
-                `http://localhost:3001/topics?grade_id=${currentUser.grade_id}`,
-            )
-            const topicsData = await topicsRes.json()
+            const topicsData = await topicsService.getTopicsByGrade(currentUser.grade_id)
             if (topicsData.length > 0) {
                 setTopics(topicsData[0].temas)
             }
 
             // Fetch feedbacks del profesor
-            const feedbacksRes = await fetch(
-                `http://localhost:3001/feedbacks?teacher_id=${currentUser.id}`,
-            )
-            const feedbacksData = await feedbacksRes.json()
+            const feedbacksData = await feedbackService.getFeedbacksByTeacher(currentUser.id)
             setFeedbacks(feedbacksData)
         } catch (error) {
             console.error('Error cargando datos:', error)
-            setError('Error al cargar datos. Verifica que json-server esté corriendo.')
+            setError('Error al cargar datos. Verifica la conexión al servidor.')
         } finally {
             setLoading(false)
         }
@@ -99,27 +93,17 @@ const TeacherFeedback = () => {
                 date: new Date().toISOString().split('T')[0],
             }
 
-            const response = await fetch('http://localhost:3001/feedbacks', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            })
+            const newFeedback = await feedbackService.createFeedback(payload)
+            setFeedbacks([newFeedback, ...feedbacks])
+            setSuccess('✅ Retroalimentación enviada exitosamente')
 
-            if (response.ok) {
-                const newFeedback = await response.json()
-                setFeedbacks([newFeedback, ...feedbacks])
-                setSuccess('✅ Retroalimentación enviada exitosamente')
+            // Reset form
+            setSelectedStudent('')
+            setSelectedTopic('')
+            setFeedbackText('')
 
-                // Reset form
-                setSelectedStudent('')
-                setSelectedTopic('')
-                setFeedbackText('')
-
-                // Clear success message after 3 seconds
-                setTimeout(() => setSuccess(''), 3000)
-            } else {
-                setError('Error al guardar la retroalimentación')
-            }
+            // Clear success message after 3 seconds
+            setTimeout(() => setSuccess(''), 3000)
         } catch (error) {
             console.error('Error enviando feedback:', error)
             setError('Error al enviar la retroalimentación')

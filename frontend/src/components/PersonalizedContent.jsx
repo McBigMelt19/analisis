@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CCard, CCardHeader, CCardBody, CForm, CFormTextarea, CButton, CInputGroup, CBadge } from '@coreui/react';
 import { useAuth } from '../context/AuthContext';
+import * as topicsService from '../services/topics.service';
 
 const COLORS = {
     ASSISTANT_BG: '#795028ff',
@@ -84,8 +85,7 @@ ${facts}
             }
 
             try {
-                const response = await fetch(`http://localhost:3001/topics?grade_id=${currentUser.grade_id}`);
-                const data = await response.json();
+                const data = await topicsService.getTopicsByGrade(currentUser.grade_id);
                 if (data.length > 0) {
                     setAllowedTopics(data[0]);
                 }
