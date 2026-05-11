@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import * as authService from '../services/auth.service'
-import { isRenderMode } from '../services/api.config'
+import { isBackendMode } from '../services/api.config'
 
 const AuthContext = createContext()
 
@@ -50,8 +50,8 @@ export const AuthProvider = ({ children }) => {
 
             // Mensajes de error más específicos
             if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                const modeMsg = isRenderMode()
-                    ? '❌ No se puede conectar al servidor en Render. Verifica que el backend esté activo.'
+                const modeMsg = isBackendMode()
+                    ? '❌ No se puede conectar al servidor. Verifica que el backend local esté activo en el puerto 5001.'
                     : '❌ No se puede conectar al servidor. Asegúrate de ejecutar: npm run server'
                 return {
                     success: false,

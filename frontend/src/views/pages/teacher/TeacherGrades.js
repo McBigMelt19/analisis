@@ -87,10 +87,6 @@ const TeacherGrades = () => {
         setLoading(true)
         setError('')
         try {
-            const headers = { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${currentUser.token}` 
-            }
 
             // Fetch students del grado del profesor
             const studentsData = await usersService.getStudentsByGrade(currentUser.grade_id)
@@ -103,7 +99,7 @@ const TeacherGrades = () => {
 
                 // Inicializar fechas para cada tema
                 const initialDates = {}
-                themeNames.forEach((tema) => {
+                topicsData[0].temas.forEach((tema) => {
                     initialDates[tema] = selectedDate
                 })
                 setTopicDates(initialDates)
@@ -148,11 +144,6 @@ const TeacherGrades = () => {
         if (!gradeData || gradeData.score === '') return
 
         try {
-            // Adaptar para el backend real
-            const headers = { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${currentUser.token}` 
-            }
             
             // Simular guardado si el endpoint exacto (como profe) no está disponible en la app actual
             // Idealmente aquí llamaríamos a la actualización de progreso real o calificarActividad

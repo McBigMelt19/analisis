@@ -6,7 +6,7 @@ import { getBaseURL, isLocalMode, apiFetch } from './api.config'
 /**
  * Obtiene estudiantes por grado.
  * - Modo local: GET /users?role=student&grade_id=X
- * - Modo render: GET /auth/usuarios?rol=estudiante (y filtra por grado en frontend)
+ * - Modo render: GET /api/auth/usuarios?rol=estudiante (y filtra por grado en frontend)
  */
 export const getStudentsByGrade = async (gradeId) => {
     const base = getBaseURL()
@@ -18,6 +18,8 @@ export const getStudentsByGrade = async (gradeId) => {
     }
 
     // Modo Render
+    // Backend endpoint: GET /api/auth/usuarios?rol=estudiante
+    // Backend returns: { usuarios: [{ id_usuario, email, rol, persona: { nombre, apellido, estudiante: {...} } }] }
     const response = await apiFetch(`${base}/auth/usuarios?rol=estudiante`)
     if (!response.ok) throw new Error('Error al cargar estudiantes')
     const data = await response.json()
@@ -33,7 +35,7 @@ export const getStudentsByGrade = async (gradeId) => {
 /**
  * Obtiene un usuario por ID.
  * - Modo local: GET /users/:id
- * - Modo render: GET /auth/usuarios y busca por id
+ * - Modo render: GET /api/auth/usuarios y busca por id
  */
 export const getUserById = async (userId) => {
     const base = getBaseURL()
@@ -45,6 +47,8 @@ export const getUserById = async (userId) => {
     }
 
     // Modo Render - obtener perfil propio o buscar en lista
+    // Backend endpoint: GET /api/auth/usuarios
+    // Backend returns: { usuarios: [...] }
     const response = await apiFetch(`${base}/auth/usuarios`)
     if (!response.ok) throw new Error('Error al cargar usuario')
     const data = await response.json()
@@ -56,7 +60,29 @@ export const getUserById = async (userId) => {
 }
 
 /**
- * Adapta un usuario del backend Render al formato json-server (estudiante)
+ * Obtiene todos los profesores.
+ * - Modo local: GET /users?role=teacher
+ * - Modo render: GET /api/auth/usuarios?rol=profesor
+ */
+export const getTeachers = async () => {
+    const base = getBaseURL()
+
+    if (isLocalMode()) {
+        const response = await fetch(`${base}/users?role=teacher`)
+        if (!response.ok) throw new Error('Error al cargar profesores')
+        return await response.json()
+    }
+
+    const response = await apiFetch(`${base}/auth/usuarios?rol=profesor`)
+    if (!response.ok) throw new Error('Error al cargar profesores')
+    const data = await response.json()
+
+    return (data.usuarios || []).map(adaptRenderUserToStudent)
+}
+
+/**
+ * Adapta un usuario del backend Render al formato json-server (estudiante/profesor)
+ * Backend returns per user: { id_usuario, email, rol, persona: { nombre, apellido, estudiante: {...}, profesor: {...} } }
  */
 const adaptRenderUserToStudent = (renderUser) => {
     if (!renderUser) return null
@@ -88,6 +114,7 @@ const adaptRenderUserToStudent = (renderUser) => {
 
     if (profesor) {
         user.id_profesor = profesor.id_profesor
+        user.grade_id = profesor.id_grado || null
     }
 
     return user

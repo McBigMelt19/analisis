@@ -17,7 +17,7 @@ import {
 import CIcon from '@coreui/icons-react';
 import { cilLockLocked, cilUser } from '@coreui/icons';
 import { useAuth } from '../../../context/AuthContext';
-import { isRenderMode } from '../../../services/api.config';
+import { isBackendMode } from '../../../services/api.config';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ const Login = () => {
     if (!val.trim()) return 'El campo es obligatorio';
     if (/\s/.test(val)) return 'No puede contener espacios';
     // En modo render, permitir formato de email
-    if (isRenderMode()) {
+    if (isBackendMode()) {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val))
         return 'Ingresa un email válido (ej: usuario@correo.com)';
       return '';
@@ -166,8 +166,8 @@ const Login = () => {
                         <CIcon icon={cilUser} />
                       </CInputGroupText>
                       <CFormInput
-                        placeholder={isRenderMode() ? "Email" : "Usuario"}
-                        autoComplete={isRenderMode() ? "email" : "username"}
+                        placeholder={isBackendMode() ? "Email" : "Usuario"}
+                        autoComplete={isBackendMode() ? "email" : "username"}
                         value={username}
                         onChange={handleUsernameChange}
                         required
