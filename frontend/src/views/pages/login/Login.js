@@ -13,53 +13,52 @@ import {
   CInputGroupText,
   CRow,
   CAlert,
+  CBadge,
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilLockLocked, cilUser } from '@coreui/icons';
 import { useAuth } from '../../../context/AuthContext';
-import { isBackendMode } from '../../../services/api.config';
 
 const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const [username, setUsername] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
 
-  // ── Validaciones ──
-  // Acepta username (modo local) o email (modo render)
-  const validarUsername = (val) => {
+  // Detecta si el input parece un email (para mostrar hint al usuario)
+  const isEmailInput = identifier.includes('@');
+
+  // ── Validaciones ──────────────────────────────────────────
+  const validarIdentifier = (val) => {
     if (!val.trim()) return 'El campo es obligatorio';
     if (/\s/.test(val)) return 'No puede contener espacios';
-    // En modo render, permitir formato de email
-    if (isBackendMode()) {
+    if (val.includes('@')) {
+      // Es un email → validar formato
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val))
         return 'Ingresa un email válido (ej: usuario@correo.com)';
-      return '';
+    } else {
+      // Es un username → validar caracteres
+      if (!/^[a-zA-Z0-9._-]+$/.test(val))
+        return 'Solo letras, números, puntos (.), guiones (-) y guiones bajos (_)';
     }
-    // En modo local, validar como username
-    if (/[,;:'"!#$%^&*()+=\[\]{}|\\/\<\>?`~]/.test(val))
-      return 'El usuario no puede contener caracteres especiales';
-    if (!/^[a-zA-Z0-9._@-]+$/.test(val))
-      return 'Solo se permiten letras, números, puntos (.), guiones (-) y guiones bajos (_)';
     return '';
   };
 
-  // Contraseña: no puede tener espacios
   const validarPassword = (val) => {
     if (!val) return 'La contraseña es obligatoria';
     if (/\s/.test(val)) return 'La contraseña no puede contener espacios';
     return '';
   };
 
-  const handleUsernameChange = (e) => {
+  const handleIdentifierChange = (e) => {
     const val = e.target.value;
-    setUsername(val);
-    const err = validarUsername(val);
-    setFieldErrors((prev) => ({ ...prev, username: err }));
+    setIdentifier(val);
+    const err = validarIdentifier(val);
+    setFieldErrors((prev) => ({ ...prev, identifier: err }));
   };
 
   const handlePasswordChange = (e) => {
@@ -73,24 +72,18 @@ const Login = () => {
     e.preventDefault();
     setError('');
 
-    // Validar antes de enviar
-    const usernameErr = validarUsername(username);
+    const identifierErr = validarIdentifier(identifier);
     const passwordErr = validarPassword(password);
-    setFieldErrors({ username: usernameErr, password: passwordErr });
+    setFieldErrors({ identifier: identifierErr, password: passwordErr });
 
-    if (usernameErr || passwordErr) return;
+    if (identifierErr || passwordErr) return;
 
     setLoading(true);
-
-    const result = await login(username.trim(), password.trim());
+    const result = await login(identifier.trim(), password.trim());
 
     if (result.success) {
-      // Redirigir según el rol
-      if (result.user.role === 'teacher') {
-        navigate('/teacher/dashboard', { replace: true });
-      } else {
-        navigate('/dashboard', { replace: true });
-      }
+      // Redirigir a la ruta que devuelve el AuthContext según el rol
+      navigate(result.redirectTo || '/dashboard', { replace: true });
     } else {
       setError(result.message);
     }
@@ -101,9 +94,7 @@ const Login = () => {
   return (
     <div
       className="min-vh-100 d-flex flex-row align-items-center"
-      style={{
-        background: '#FEF8E6',
-      }}
+      style={{ background: '#FEF8E6' }}
     >
       <CContainer>
         <CRow className="justify-content-center">
@@ -115,9 +106,9 @@ const Login = () => {
                 overflow: 'hidden',
               }}
             >
-              {/* Panel izquierdo - Formulario */}
+              {/* Panel izquierdo — Formulario */}
               <CCard className="border-0" style={{ borderRadius: 0 }}>
-                {/* Header con amarillo de Venezuela */}
+                {/* Header */}
                 <div
                   style={{
                     background: 'linear-gradient(135deg, #FFD100 0%, #FFA000 100%)',
@@ -138,7 +129,7 @@ const Login = () => {
                     Iniciar Sesión
                   </h1>
                   <p style={{ color: 'rgba(0,34,68,0.7)', margin: 0, fontSize: '0.95rem', fontWeight: '500' }}>
-                    Historia de Venezuela - LMS
+                    Historia de Venezuela — LMS
                   </p>
                 </div>
 
@@ -155,6 +146,23 @@ const Login = () => {
                       </CAlert>
                     )}
 
+                    {/* Campo identifier (username o email) */}
+                    <div style={{ marginBottom: '4px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                        <small style={{ color: '#555', fontSize: '0.8rem' }}>
+                          {isEmailInput
+                            ? '📧 Profesores / Administradores / Zona Educativa'
+                            : '🎓 Estudiantes — usa tu nombre de usuario'}
+                        </small>
+                        {isEmailInput && (
+                          <CBadge color="info" style={{ fontSize: '0.7rem' }}>Email</CBadge>
+                        )}
+                        {!isEmailInput && identifier.length > 0 && (
+                          <CBadge color="success" style={{ fontSize: '0.7rem' }}>Usuario</CBadge>
+                        )}
+                      </div>
+                    </div>
+
                     <CInputGroup className="mb-1">
                       <CInputGroupText
                         style={{
@@ -166,22 +174,24 @@ const Login = () => {
                         <CIcon icon={cilUser} />
                       </CInputGroupText>
                       <CFormInput
-                        placeholder={isBackendMode() ? "Email" : "Usuario"}
-                        autoComplete={isBackendMode() ? "email" : "username"}
-                        value={username}
-                        onChange={handleUsernameChange}
+                        id="login-identifier"
+                        placeholder="Usuario o Email"
+                        autoComplete="username"
+                        value={identifier}
+                        onChange={handleIdentifierChange}
                         required
-                        invalid={!!fieldErrors.username}
+                        invalid={!!fieldErrors.identifier}
                         style={{ borderLeft: 'none', fontSize: '0.95rem', padding: '12px 16px' }}
                       />
                     </CInputGroup>
-                    {fieldErrors.username && (
+                    {fieldErrors.identifier && (
                       <small style={{ color: '#CF142B', fontSize: '0.8rem', display: 'block', marginBottom: '12px' }}>
-                        ⚠️ {fieldErrors.username}
+                        ⚠️ {fieldErrors.identifier}
                       </small>
                     )}
-                    {!fieldErrors.username && <div style={{ marginBottom: '12px' }} />}
+                    {!fieldErrors.identifier && <div style={{ marginBottom: '12px' }} />}
 
+                    {/* Campo contraseña */}
                     <CInputGroup className="mb-1">
                       <CInputGroupText
                         style={{
@@ -193,6 +203,7 @@ const Login = () => {
                         <CIcon icon={cilLockLocked} />
                       </CInputGroupText>
                       <CFormInput
+                        id="login-password"
                         type="password"
                         placeholder="Contraseña"
                         autoComplete="current-password"
@@ -211,6 +222,7 @@ const Login = () => {
                     {!fieldErrors.password && <div style={{ marginBottom: '16px' }} />}
 
                     <CButton
+                      id="login-submit-btn"
                       type="submit"
                       disabled={loading}
                       className="w-100"
@@ -238,13 +250,13 @@ const Login = () => {
                         e.target.style.boxShadow = '0 4px 15px rgba(0, 56, 147, 0.4)'
                       }}
                     >
-                      {loading ? 'Iniciando sesión...' : 'Ingresar'}
+                      {loading ? '⏳ Iniciando sesión...' : 'Ingresar'}
                     </CButton>
                   </CForm>
                 </CCardBody>
               </CCard>
 
-              {/* Panel derecho - Bienvenida con rojo de Venezuela */}
+              {/* Panel derecho — Bienvenida */}
               <CCard
                 className="d-none d-md-flex border-0"
                 style={{
@@ -258,10 +270,7 @@ const Login = () => {
                   style={{ padding: '40px 30px' }}
                 >
                   <div>
-                    {/* Estrellitas decorativas */}
-                    <div style={{ fontSize: '1.5rem', marginBottom: '12px', letterSpacing: '8px' }}>
-                      ⭐⭐⭐
-                    </div>
+                    <div style={{ fontSize: '1.5rem', marginBottom: '12px', letterSpacing: '8px' }}>⭐⭐⭐</div>
                     <h2
                       style={{
                         color: '#FFD100',
@@ -273,20 +282,26 @@ const Login = () => {
                     >
                       ¡Bienvenido!
                     </h2>
-                    <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.95rem', lineHeight: '1.6' }}>
-                      Disfruta de tu acceso para ver el portal educativo.
-                    </p>
-                    <p
-                      style={{
-                        color: 'rgba(255,255,255,0.75)',
-                        fontSize: '0.9rem',
-                        marginBottom: '28px',
-                      }}
-                    >
+                    <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', lineHeight: '1.8', marginBottom: '20px' }}>
+                      <div style={{ marginBottom: '8px' }}>
+                        <strong style={{ color: '#FFD100' }}>🎓 Estudiantes:</strong><br />
+                        <span style={{ opacity: 0.85 }}>Usa tu nombre de usuario asignado por tu profesor</span>
+                      </div>
+                      <div style={{ marginBottom: '8px' }}>
+                        <strong style={{ color: '#FFD100' }}>👩‍🏫 Profesores:</strong><br />
+                        <span style={{ opacity: 0.85 }}>Usa tu correo electrónico</span>
+                      </div>
+                      <div style={{ marginBottom: '20px' }}>
+                        <strong style={{ color: '#FFD100' }}>🏫 Administradores:</strong><br />
+                        <span style={{ opacity: 0.85 }}>Usa tu correo institucional</span>
+                      </div>
+                    </div>
+                    <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.9rem', marginBottom: '16px' }}>
                       ¿Aún no tienes una cuenta? Regístrate para comenzar a aprender.
                     </p>
                     <Link to="/register">
                       <CButton
+                        id="go-to-register-btn"
                         style={{
                           background: '#FFD100',
                           border: 'none',
