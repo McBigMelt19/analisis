@@ -51,11 +51,6 @@ const TeacherFeedback = () => {
     const fetchData = async () => {
         setLoading(true)
         try {
-            const headers = { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${currentUser.token}` 
-            }
-
             // Fetch students del grado
             const studentsData = await usersService.getStudentsByGrade(currentUser.grade_id)
             setStudents(studentsData)
@@ -119,7 +114,7 @@ const TeacherFeedback = () => {
     }
 
     const getStudentName = (studentId) => {
-        const student = students.find((s) => s.id === studentId)
+        const student = students.find((s) => s.id == studentId)
         return student ? student.name : 'Desconocido'
     }
 

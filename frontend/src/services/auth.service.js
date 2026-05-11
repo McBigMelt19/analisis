@@ -1,7 +1,7 @@
 // src/services/auth.service.js
 // Servicio de autenticación - maneja login/logout en ambos modos
 
-import { getBaseURL, isLocalMode, isRenderMode, apiFetch, setToken, removeToken } from './api.config'
+import { getBaseURL, isLocalMode, isBackendMode, apiFetch, setToken, removeToken } from './api.config'
 
 /**
  * Login del usuario.
@@ -51,6 +51,9 @@ const loginLocal = async (loginInput, password) => {
 
 /**
  * Login contra backend Render (Express + JWT)
+ * Backend endpoint: POST /api/auth/login
+ * Backend expects: { email, contrasena }
+ * Backend returns: { message, usuario, persona, entidad, token }
  */
 const loginRender = async (loginInput, password) => {
     const base = getBaseURL()
@@ -85,10 +88,10 @@ const loginRender = async (loginInput, password) => {
 /**
  * Adapta la respuesta del backend Render al formato que espera el frontend (formato json-server)
  * Backend Render devuelve: { usuario, persona, entidad, token }
- * Frontend espera: { id, username, name, email, role, grade_id, learning_style, ... }
+ * Frontend espera: { id, username, name, email, role, grade_id, learning_style, token, ... }
  */
 export const adaptRenderUserToLocal = (data) => {
-    const { usuario, persona, entidad } = data
+    const { usuario, persona, entidad, token } = data
 
     // Mapear roles del backend al frontend
     const roleMap = {
@@ -104,6 +107,7 @@ export const adaptRenderUserToLocal = (data) => {
         email: usuario.email,
         role: roleMap[usuario.rol] || usuario.rol,
         name: persona ? `${persona.nombre} ${persona.apellido}` : usuario.email,
+        token: token, // Guardar el token JWT en el objeto del usuario
     }
 
     // Si es estudiante, agregar datos específicos
@@ -117,17 +121,36 @@ export const adaptRenderUserToLocal = (data) => {
     if (usuario.rol === 'profesor' && entidad) {
         user.id_profesor = entidad.id_profesor
         // El profesor no tiene grade_id directo en el backend Render
-        // Podrías necesitar obtenerlo de otra fuente
+        // Se puede obtener de la relación con grado si existe
+        user.grade_id = entidad.id_grado || null
     }
 
     return user
 }
 
 /**
+ * Obtener perfil del usuario autenticado
+ * Backend endpoint: GET /api/perfil  o  GET /api/auth/profile
+ * Backend returns: { usuario, persona, entidad }
+ */
+export const getProfile = async () => {
+    if (isLocalMode()) return null
+
+    const base = getBaseURL()
+    const response = await apiFetch(`${base}/auth/profile`)
+
+    if (!response.ok) throw new Error('Error al obtener perfil')
+    const data = await response.json()
+
+    return adaptRenderUserToLocal({ ...data, token: null })
+}
+
+/**
  * Logout del usuario
+ * Backend endpoint: POST /api/auth/logout
  */
 export const logout = async () => {
-    if (isRenderMode()) {
+    if (isBackendMode()) {
         try {
             const base = getBaseURL()
             await apiFetch(`${base}/auth/logout`, { method: 'POST' })

@@ -1,18 +1,18 @@
 // src/services/api.config.js
-// Configuración centralizada de la API - soporta modo "local" (json-server) y "render" (backend Express)
+// Configuración centralizada de la API - soporta modo "local" (json-server) y "backend" (backend Express real)
 
-const API_MODE = import.meta.env.VITE_API_MODE || 'local'
+const API_MODE = import.meta.env.VITE_API_MODE || 'backend'
 const API_URL_LOCAL = import.meta.env.VITE_API_URL_LOCAL || 'http://localhost:3001'
-const API_URL_RENDER = import.meta.env.VITE_API_URL_RENDER || 'https://iahistoriabackend.onrender.com/api'
+const API_URL_BACKEND = import.meta.env.VITE_API_URL_BACKEND || 'http://localhost:5001/api'
 
 export const isLocalMode = () => API_MODE === 'local'
-export const isRenderMode = () => API_MODE === 'render'
+export const isBackendMode = () => API_MODE === 'backend'
 
 export const getBaseURL = () => {
     if (isLocalMode()) {
         return API_URL_LOCAL
     }
-    return API_URL_RENDER
+    return API_URL_BACKEND
 }
 
 /**
@@ -50,8 +50,8 @@ export const apiFetch = async (url, options = {}) => {
         ...options.headers,
     }
 
-    // En modo render, agregar token JWT si existe
-    if (isRenderMode()) {
+    // En modo backend, agregar token JWT si existe
+    if (isBackendMode()) {
         const token = getToken()
         if (token) {
             headers['Authorization'] = `Bearer ${token}`
@@ -61,8 +61,8 @@ export const apiFetch = async (url, options = {}) => {
     const response = await fetch(url, {
         ...options,
         headers,
-        // Incluir cookies en modo render (el backend también usa cookies)
-        credentials: isRenderMode() ? 'include' : 'same-origin',
+        // Incluir cookies en modo backend (el backend también usa cookies)
+        credentials: isBackendMode() ? 'include' : 'same-origin',
     })
 
     return response
