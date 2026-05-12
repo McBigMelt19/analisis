@@ -33,6 +33,12 @@ const TeacherContent = () => {
     }, [currentUser])
 
     const fetchData = async () => {
+        if (!currentUser.grade_id) {
+            setError('No tienes un grado asignado. Contacta al administrador de la escuela.');
+            setLoading(false);
+            return;
+        }
+
         setLoading(true)
         try {
             // Fetch topics del grado

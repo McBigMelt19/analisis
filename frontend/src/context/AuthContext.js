@@ -78,12 +78,17 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  const logout = () => {
-    authService.logout()
-    setCurrentUser(null)
-    setIsAuthenticated(false)
-    localStorage.removeItem('currentUser')
-    localStorage.removeItem('authToken')
+  const logout = async () => {
+    try {
+      await authService.logout()
+    } catch (e) {
+      console.error('Error durante el logout remoto:', e)
+    } finally {
+      setCurrentUser(null)
+      setIsAuthenticated(false)
+      localStorage.removeItem('currentUser')
+      localStorage.removeItem('authToken')
+    }
   }
 
   /**
