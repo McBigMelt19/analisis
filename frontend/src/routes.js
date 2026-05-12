@@ -1,58 +1,58 @@
 import React from 'react'
 
-// Student Pages
+// ── Páginas de Estudiante ──────────────────────────────────
 const HomePageCoreUI = React.lazy(() => import('./views/pages/home/HomePageCoreUI'))
 const GradePageCoreUI = React.lazy(() => import('./views/pages/chatbot/GradePageCoreUI'))
-
-// Student Components
+const StudentProgress = React.lazy(() => import('./views/pages/student/StudentProgress'))
+const StudentGrades = React.lazy(() => import('./views/pages/student/StudentGrades'))
+const ContenidoInteractivo = React.lazy(() => import('./views/pages/contenido interactivo/Contenido Interactivo'))
 const PersonalizedContent = React.lazy(() => import('./components/PersonalizedContent'))
 const InteractiveTimeline = React.lazy(() => import('./components/InteractiveTimeline'))
 const GamifiedQuiz = React.lazy(() => import('./components/GamifiedQuiz'))
 const VirtualFieldTrip = React.lazy(() => import('./components/VirtualFieldTrip'))
 const ProgressTracker = React.lazy(() => import('./components/ProgressTracker'))
-const StudentProgress = React.lazy(() => import('./views/pages/student/StudentProgress'))
-const StudentGrades = React.lazy(() => import('./views/pages/student/StudentGrades'))
-const ContenidoInteractivo = React.lazy(() => import('./views/pages/contenido interactivo/Contenido Interactivo'))
 
-// Teacher Pages
+// ── Páginas de Profesor ───────────────────────────────────
 const TeacherDashboard = React.lazy(() => import('./views/pages/teacher/TeacherDashboard'))
 const TeacherContent = React.lazy(() => import('./views/pages/teacher/TeacherContent'))
 const TeacherGrades = React.lazy(() => import('./views/pages/teacher/TeacherGrades'))
 const TeacherFeedback = React.lazy(() => import('./views/pages/teacher/TeacherFeedback'))
 const TeacherAddContent = React.lazy(() => import('./views/pages/teacher/TeacherAddContent'))
 
-// Auth Pages
-const Login = React.lazy(() => import('./views/pages/login/Login'))
+// ── Nuevos Módulos de Roles ───────────────────────────────
+const ZonaEducativaDashboard = React.lazy(() => import('./views/pages/zona_educativa/ZonaEducativaDashboard'))
+const AdminEscuelaDashboard = React.lazy(() => import('./views/pages/admin_escuela/AdminEscuelaDashboard'))
 
 const routes = [
-  // Student Routes
+  // ── Estudiante ──────────────────────────────────────────
   { path: '/home', name: 'Home', element: HomePageCoreUI },
+  { path: '/dashboard', name: 'Dashboard', element: HomePageCoreUI },
   { path: '/student/home', name: 'StudentHome', element: HomePageCoreUI },
   { path: '/student/grade/:grade', name: 'GradePage', element: GradePageCoreUI },
+  { path: '/student/progress', name: 'StudentProgress', element: StudentProgress },
+  { path: '/student/grades', name: 'StudentGrades', element: StudentGrades },
+  { path: '/student/chatbot', name: 'StudentChatbot', element: PersonalizedContent },
+  { path: '/student/content', name: 'ContenidoInteractivo', element: ContenidoInteractivo },
 
-  // Student Component Routes (standalone access if needed)
+  // Componentes de estudiante (acceso standalone)
   { path: '/PersonalizedContent', name: 'PersonalizedContent', element: PersonalizedContent },
   { path: '/InteractiveTimeline', name: 'InteractiveTimeline', element: InteractiveTimeline },
   { path: '/GamifiedQuiz', name: 'GamifiedQuiz', element: GamifiedQuiz },
   { path: '/VirtualFieldTrip', name: 'VirtualFieldTrip', element: VirtualFieldTrip },
   { path: '/ProgressTracker', name: 'ProgressTracker', element: ProgressTracker },
 
-  // Student Feature Routes
-  { path: '/student/progress', name: 'StudentProgress', element: StudentProgress },
-  { path: '/student/chatbot', name: 'StudentChatbot', element: PersonalizedContent },
-  { path: '/student/content', name: 'ContenidoInteractivo', element: ContenidoInteractivo },
-  { path: '/student/grades', name: 'StudentGrades', element: StudentGrades },
-  { path: '/dashboard', name: 'Dashboard', element: HomePageCoreUI },
-
-  // Teacher Routes
+  // ── Profesor ────────────────────────────────────────────
   { path: '/teacher/dashboard', name: 'TeacherDashboard', element: TeacherDashboard },
   { path: '/teacher/content', name: 'TeacherContent', element: TeacherContent },
   { path: '/teacher/upload-grades', name: 'TeacherGrades', element: TeacherGrades },
   { path: '/teacher/feedback', name: 'TeacherFeedback', element: TeacherFeedback },
   { path: '/teacher/add-content', name: 'TeacherAddContent', element: TeacherAddContent },
 
-  // Auth Routes
-  { path: '/login', name: 'Login', element: Login },
+  // ── Zona Educativa (Super Admin) ────────────────────────
+  { path: '/zona-educativa/dashboard', name: 'ZonaEducativaDashboard', element: ZonaEducativaDashboard },
+
+  // ── Admin Escuela (Secretario/Subdirector) ───────────────
+  { path: '/admin-escuela/dashboard', name: 'AdminEscuelaDashboard', element: AdminEscuelaDashboard },
 ]
 
 export default routes

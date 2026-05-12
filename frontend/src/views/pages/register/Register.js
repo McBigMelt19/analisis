@@ -153,14 +153,12 @@ const Register = () => {
 
       const base = getBaseURL()
 
-      const response = await apiFetch(`${base}/auth/register`, {
+      const response = await apiFetch(`${base}/auth/registro-publico`, {
         method: 'POST',
         body: JSON.stringify({
+          username: formData.username.trim().toLowerCase(),
           email: formData.email.trim().toLowerCase(),
           contrasena: formData.password,
-          rol: 'estudiante',
-          nombre: nombre,
-          apellido: apellido
         })
       })
 
