@@ -53,9 +53,18 @@ const TeacherDashboard = () => {
 
   // ── Estado para el modal de Agregar Estudiante ──
   const [addModalVisible, setAddModalVisible] = useState(false)
+  const [addModalStep, setAddModalStep] = useState(1) // 1 = Representante, 2 = Estudiante
   const [addSuccess, setAddSuccess] = useState('')
   const [addErrors, setAddErrors] = useState({})
   const [generatedCredentials, setGeneratedCredentials] = useState(null)
+
+  // Lista de representantes ya registrados (reemplazar con llamada API)
+  const REPRESENTANTES_EXISTENTES = [
+    { id: 1, nombre: 'María González', ci: 'V-12345678' },
+    { id: 2, nombre: 'Carlos Pérez', ci: 'V-87654321' },
+    { id: 3, nombre: 'Ana Rodríguez', ci: 'E-11223344' },
+  ]
+  const PARENTESCOS_LIST = ['Madre', 'Padre', 'Tutor/a', 'Abuelo/a', 'Tío/a', 'Otro']
 
   const initialFormData = {
     // Representante
@@ -71,6 +80,7 @@ const TeacherDashboard = () => {
     estCedula: '',
     estGrado: '',
     estParentesco: '',
+    repExistenteId: '', // ID del representante ya existente (paso 2)
   }
   const [formData, setFormData] = useState(initialFormData)
 
@@ -294,6 +304,7 @@ const TeacherDashboard = () => {
 
   const handleCloseAddModal = () => {
     setAddModalVisible(false)
+    setAddModalStep(1)
     setFormData(initialFormData)
     setAddErrors({})
     setAddSuccess('')
@@ -508,9 +519,28 @@ const TeacherDashboard = () => {
             borderBottom: 'none',
           }}
         >
-          <CModalTitle style={{ color: '#FFD100', fontWeight: '700' }}>
-            <CIcon icon={cilUserPlus} className="me-2" />
-            Registrar Nuevo Estudiante
+          <CModalTitle style={{ color: '#FFD100', fontWeight: '700', width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span>
+                <CIcon icon={cilUserPlus} className="me-2" />
+                {addModalStep === 1 ? '👤 Paso 1 — Registrar Representante' : '🎒 Paso 2 — Inscripción del Estudiante'}
+              </span>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <div style={{
+                  width: 28, height: 28, borderRadius: '50%',
+                  background: addModalStep >= 1 ? '#FFD100' : 'rgba(255,209,0,0.3)',
+                  color: '#002244', display: 'flex', alignItems: 'center',
+                  justifyContent: 'center', fontWeight: '700', fontSize: '0.8rem',
+                }}>1</div>
+                <div style={{ width: 24, height: 2, background: addModalStep === 2 ? '#FFD100' : 'rgba(255,209,0,0.3)' }} />
+                <div style={{
+                  width: 28, height: 28, borderRadius: '50%',
+                  background: addModalStep === 2 ? '#FFD100' : 'rgba(255,209,0,0.3)',
+                  color: '#002244', display: 'flex', alignItems: 'center',
+                  justifyContent: 'center', fontWeight: '700', fontSize: '0.8rem',
+                }}>2</div>
+              </div>
+            </div>
           </CModalTitle>
         </CModalHeader>
 
@@ -523,423 +553,456 @@ const TeacherDashboard = () => {
           )}
 
           <form onSubmit={handleAddStudent} id="formAddStudent">
-            {/* ──────────────── SECCIÓN REPRESENTANTE ──────────────── */}
-            <div
-              style={{
-                background: 'linear-gradient(135deg, #FFD100 0%, #FFA000 100%)',
-                padding: '12px 18px',
-                borderRadius: '10px',
-                marginBottom: '20px',
-              }}
-            >
-              <h5 style={{ margin: 0, color: '#002244', fontWeight: '700' }}>
-                👨‍👩‍👧 Datos del Representante
-              </h5>
-              <small style={{ color: 'rgba(0,34,68,0.7)' }}>
-                Información del adulto responsable del estudiante
-              </small>
-            </div>
-
-            <CRow className="mb-3">
-              <CCol md={6}>
-                <CFormLabel htmlFor="repNombre" className="fw-semibold">
-                  Nombre <span style={{ color: '#CF142B' }}>*</span>
-                </CFormLabel>
-                <CFormInput
-                  id="repNombre"
-                  placeholder="Ej: María"
-                  value={formData.repNombre}
-                  onChange={(e) => handleFormChange('repNombre', e.target.value)}
-                  invalid={!!addErrors.repNombre}
-                />
-                {addErrors.repNombre && (
-                  <small style={{ color: '#CF142B', fontSize: '0.8rem' }}>{addErrors.repNombre}</small>
-                )}
-              </CCol>
-              <CCol md={6}>
-                <CFormLabel htmlFor="repApellido" className="fw-semibold">
-                  Apellido <span style={{ color: '#CF142B' }}>*</span>
-                </CFormLabel>
-                <CFormInput
-                  id="repApellido"
-                  placeholder="Ej: Rodríguez"
-                  value={formData.repApellido}
-                  onChange={(e) => handleFormChange('repApellido', e.target.value)}
-                  invalid={!!addErrors.repApellido}
-                />
-                {addErrors.repApellido && (
-                  <small style={{ color: '#CF142B', fontSize: '0.8rem' }}>{addErrors.repApellido}</small>
-                )}
-              </CCol>
-            </CRow>
-
-            <CRow className="mb-3">
-              <CCol md={6}>
-                <CFormLabel htmlFor="repCedula" className="fw-semibold">
-                  Cédula de Identidad <span style={{ color: '#CF142B' }}>*</span>
-                </CFormLabel>
-                <CInputGroup>
-                  <CInputGroupText
-                    style={{
-                      background: '#003893',
-                      color: '#FFD100',
-                      border: 'none',
-                      fontWeight: '700',
-                    }}
-                  >
-                    V-
-                  </CInputGroupText>
-                  <CFormInput
-                    id="repCedula"
-                    placeholder="Ej: 12345678"
-                    maxLength={8}
-                    value={formData.repCedula}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, '')
-                      handleFormChange('repCedula', val)
-                    }}
-                    invalid={!!addErrors.repCedula}
-                  />
-                </CInputGroup>
-                {addErrors.repCedula && (
-                  <small style={{ color: '#CF142B', fontSize: '0.8rem' }}>{addErrors.repCedula}</small>
-                )}
-              </CCol>
-              <CCol md={6}>
-                <CFormLabel className="fw-semibold">
-                  Teléfono <span style={{ color: '#CF142B' }}>*</span>
-                </CFormLabel>
-                <div className="d-flex gap-2">
-                  <div style={{ width: '120px' }}>
-                    <CFormInput
-                      placeholder="0414"
-                      maxLength={4}
-                      value={formData.repTelPrefijo}
-                      onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, '')
-                        handleFormChange('repTelPrefijo', val)
-                      }}
-                      invalid={!!addErrors.repTelPrefijo}
-                    />
-                    {addErrors.repTelPrefijo && (
-                      <small style={{ color: '#CF142B', fontSize: '0.75rem' }}>
-                        {addErrors.repTelPrefijo}
-                      </small>
-                    )}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <CFormInput
-                      placeholder="1234567"
-                      maxLength={7}
-                      value={formData.repTelNumero}
-                      onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, '')
-                        handleFormChange('repTelNumero', val)
-                      }}
-                      invalid={!!addErrors.repTelNumero}
-                    />
-                    {addErrors.repTelNumero && (
-                      <small style={{ color: '#CF142B', fontSize: '0.75rem' }}>
-                        {addErrors.repTelNumero}
-                      </small>
-                    )}
-                  </div>
-                </div>
-              </CCol>
-            </CRow>
-
-            <CRow className="mb-4">
-              <CCol md={12}>
-                <CFormLabel htmlFor="repEmail" className="fw-semibold">
-                  Correo Electrónico <span style={{ color: '#CF142B' }}>*</span>
-                </CFormLabel>
-                <CInputGroup>
-                  <CInputGroupText
-                    style={{
-                      background: '#003893',
-                      color: '#FFD100',
-                      border: 'none',
-                      fontWeight: '700',
-                    }}
-                  >
-                    @
-                  </CInputGroupText>
-                  <CFormInput
-                    id="repEmail"
-                    type="email"
-                    placeholder="Ej: maria.rodriguez@correo.com"
-                    value={formData.repEmail}
-                    onChange={(e) => handleFormChange('repEmail', e.target.value)}
-                    invalid={!!addErrors.repEmail}
-                  />
-                </CInputGroup>
-                {addErrors.repEmail && (
-                  <small style={{ color: '#CF142B', fontSize: '0.8rem' }}>{addErrors.repEmail}</small>
-                )}
-              </CCol>
-            </CRow>
-
-            {/* ──────────────── SECCIÓN ESTUDIANTE ──────────────── */}
-            <div
-              style={{
-                background: 'linear-gradient(135deg, #003893 0%, #002766 100%)',
-                padding: '12px 18px',
-                borderRadius: '10px',
-                marginBottom: '20px',
-              }}
-            >
-              <h5 style={{ margin: 0, color: '#FFD100', fontWeight: '700' }}>
-                🎒 Datos del Estudiante
-              </h5>
-              <small style={{ color: 'rgba(255,255,255,0.7)' }}>
-                Información del niño/a que cursará estudios
-              </small>
-            </div>
-
-            <CRow className="mb-3">
-              <CCol md={6}>
-                <CFormLabel htmlFor="estNombre" className="fw-semibold">
-                  Nombre <span style={{ color: '#CF142B' }}>*</span>
-                </CFormLabel>
-                <CFormInput
-                  id="estNombre"
-                  placeholder="Ej: Juan"
-                  value={formData.estNombre}
-                  onChange={(e) => handleFormChange('estNombre', e.target.value)}
-                  invalid={!!addErrors.estNombre}
-                />
-                {addErrors.estNombre && (
-                  <small style={{ color: '#CF142B', fontSize: '0.8rem' }}>{addErrors.estNombre}</small>
-                )}
-              </CCol>
-              <CCol md={6}>
-                <CFormLabel htmlFor="estApellido" className="fw-semibold">
-                  Apellido <span style={{ color: '#CF142B' }}>*</span>
-                </CFormLabel>
-                <CFormInput
-                  id="estApellido"
-                  placeholder="Ej: Pérez"
-                  value={formData.estApellido}
-                  onChange={(e) => handleFormChange('estApellido', e.target.value)}
-                  invalid={!!addErrors.estApellido}
-                />
-                {addErrors.estApellido && (
-                  <small style={{ color: '#CF142B', fontSize: '0.8rem' }}>{addErrors.estApellido}</small>
-                )}
-              </CCol>
-            </CRow>
-
-            <CRow className="mb-3">
-              <CCol md={4}>
-                <CFormLabel htmlFor="estCedula" className="fw-semibold">
-                  Cédula de Identidad <CBadge color="secondary" className="ms-1">Opcional</CBadge>
-                </CFormLabel>
-                <CInputGroup>
-                  <CInputGroupText
-                    style={{
-                      background: '#003893',
-                      color: '#FFD100',
-                      border: 'none',
-                      fontWeight: '700',
-                    }}
-                  >
-                    V-
-                  </CInputGroupText>
-                  <CFormInput
-                    id="estCedula"
-                    placeholder="Opcional"
-                    maxLength={8}
-                    value={formData.estCedula}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, '')
-                      handleFormChange('estCedula', val)
-                    }}
-                    invalid={!!addErrors.estCedula}
-                  />
-                </CInputGroup>
-                {addErrors.estCedula && (
-                  <small style={{ color: '#CF142B', fontSize: '0.8rem' }}>{addErrors.estCedula}</small>
-                )}
-              </CCol>
-              <CCol md={4}>
-                <CFormLabel htmlFor="estGrado" className="fw-semibold">
-                  Grado a Cursar <span style={{ color: '#CF142B' }}>*</span>
-                </CFormLabel>
-                <CFormSelect
-                  id="estGrado"
-                  value={formData.estGrado}
-                  onChange={(e) => handleFormChange('estGrado', e.target.value)}
-                  invalid={!!addErrors.estGrado}
-                >
-                  <option value="">Seleccionar grado...</option>
-                  <option value="1">1° Grado</option>
-                  <option value="2">2° Grado</option>
-                  <option value="3">3° Grado</option>
-                  <option value="4">4° Grado</option>
-                  <option value="5">5° Grado</option>
-                  <option value="6">6° Grado</option>
-                </CFormSelect>
-                {addErrors.estGrado && (
-                  <small style={{ color: '#CF142B', fontSize: '0.8rem' }}>{addErrors.estGrado}</small>
-                )}
-              </CCol>
-              <CCol md={4}>
-                <CFormLabel htmlFor="estParentesco" className="fw-semibold">
-                  Parentesco <span style={{ color: '#CF142B' }}>*</span>
-                </CFormLabel>
-                <CFormSelect
-                  id="estParentesco"
-                  value={formData.estParentesco}
-                  onChange={(e) => handleFormChange('estParentesco', e.target.value)}
-                  invalid={!!addErrors.estParentesco}
-                >
-                  <option value="">Seleccionar...</option>
-                  <option value="Madre">Madre</option>
-                  <option value="Padre">Padre</option>
-                  <option value="Tío">Tío</option>
-                  <option value="Otro">Otro</option>
-                </CFormSelect>
-                {addErrors.estParentesco && (
-                  <small style={{ color: '#CF142B', fontSize: '0.8rem' }}>{addErrors.estParentesco}</small>
-                )}
-              </CCol>
-            </CRow>
-
-            {/* ──────────────── SECCIÓN CREDENCIALES (PREVIEW) ──────────────── */}
-            <div
-              style={{
-                background: 'linear-gradient(135deg, #CF142B 0%, #A0102B 100%)',
-                padding: '12px 18px',
-                borderRadius: '10px',
-                marginBottom: '20px',
-                marginTop: '12px',
-              }}
-            >
-              <h5 style={{ margin: 0, color: '#FFD100', fontWeight: '700' }}>
-                🔐 Credenciales de Acceso
-              </h5>
-              <small style={{ color: 'rgba(255,255,255,0.8)' }}>
-                Se generarán automáticamente al registrar
-              </small>
-            </div>
-
-            <div
-              style={{
-                background: '#f8f9fa',
-                borderRadius: '10px',
-                padding: '16px 20px',
-                border: '2px dashed #003893',
-                marginBottom: '12px',
-              }}
-            >
-              <CRow>
-                <CCol md={6}>
-                  <CFormLabel className="fw-semibold" style={{ color: '#003893' }}>
-                    👤 Usuario (se genera automáticamente)
-                  </CFormLabel>
-                  <CFormInput
-                    readOnly
-                    value={
-                      formData.estNombre.trim() && formData.estApellido.trim()
-                        ? generarUsername(formData.estNombre, formData.estApellido)
-                        : '(complete nombre y apellido del estudiante)'
-                    }
-                    style={{
-                      background: '#e9ecef',
-                      fontWeight: '700',
-                      color: '#002244',
-                      fontSize: '1.05rem',
-                      cursor: 'not-allowed',
-                    }}
-                  />
-                  <small className="text-muted">Formato: nombre.apellido</small>
-                </CCol>
-                <CCol md={6}>
-                  <CFormLabel className="fw-semibold" style={{ color: '#003893' }}>
-                    🔑 Contraseña (se genera al guardar)
-                  </CFormLabel>
-                  <CFormInput
-                    readOnly
-                    value="Se generará automáticamente (6 dígitos)"
-                    style={{
-                      background: '#e9ecef',
-                      fontStyle: 'italic',
-                      color: '#6c757d',
-                      cursor: 'not-allowed',
-                    }}
-                  />
-                  <small className="text-muted">Contraseña temporal de 6 dígitos</small>
-                </CCol>
-              </CRow>
-            </div>
-
-            {/* Tarjeta de credenciales generadas (post-registro) */}
-            {generatedCredentials && (
-              <div
-                style={{
-                  background: 'linear-gradient(135deg, #155724 0%, #1e7e34 100%)',
-                  borderRadius: '12px',
-                  padding: '20px 24px',
-                  marginTop: '16px',
-                  boxShadow: '0 4px 15px rgba(21,87,36,0.3)',
-                }}
-              >
-                <h5 style={{ color: '#FFD100', fontWeight: '700', marginBottom: '12px' }}>
-                  ✅ Credenciales Generadas — Entregar al Representante
-                </h5>
-                <p style={{ color: '#fff', marginBottom: '4px', fontSize: '0.85rem' }}>
-                  Estudiante: <strong>{generatedCredentials.nombreCompleto}</strong>
+            {/* ══ PASO 1: REPRESENTANTE ══ */}
+            {addModalStep === 1 && (
+              <>
+                <p style={{ color: '#555', fontSize: '0.88rem', marginBottom: '16px' }}>
+                  Completa los datos del representante. Si ya existe, haz clic en <strong>Omitir</strong>.
                 </p>
-                <CRow className="mt-2">
+                <div
+                  style={{
+                    background: 'linear-gradient(135deg, #FFD100 0%, #FFA000 100%)',
+                    padding: '12px 18px',
+                    borderRadius: '10px',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <h5 style={{ margin: 0, color: '#002244', fontWeight: '700' }}>
+                    👨‍👩‍👧 Datos del Representante
+                  </h5>
+                  <small style={{ color: 'rgba(0,34,68,0.7)' }}>
+                    Información del adulto responsable del estudiante
+                  </small>
+                </div>
+
+                <CRow className="mb-3">
                   <CCol md={6}>
-                    <div
-                      style={{
-                        background: 'rgba(255,255,255,0.15)',
-                        borderRadius: '8px',
-                        padding: '12px 16px',
-                      }}
-                    >
-                      <small style={{ color: 'rgba(255,255,255,0.7)' }}>Usuario</small>
-                      <p
-                        style={{
-                          color: '#FFD100',
-                          fontSize: '1.2rem',
-                          fontWeight: '700',
-                          margin: 0,
-                          letterSpacing: '0.5px',
-                        }}
-                      >
-                        {generatedCredentials.username}
-                      </p>
-                    </div>
+                    <CFormLabel htmlFor="repNombre" className="fw-semibold">
+                      Nombre <span style={{ color: '#CF142B' }}>*</span>
+                    </CFormLabel>
+                    <CFormInput
+                      id="repNombre"
+                      placeholder="Ej: María"
+                      value={formData.repNombre}
+                      onChange={(e) => handleFormChange('repNombre', e.target.value)}
+                      invalid={!!addErrors.repNombre}
+                    />
+                    {addErrors.repNombre && (
+                      <small style={{ color: '#CF142B', fontSize: '0.8rem' }}>{addErrors.repNombre}</small>
+                    )}
                   </CCol>
                   <CCol md={6}>
-                    <div
-                      style={{
-                        background: 'rgba(255,255,255,0.15)',
-                        borderRadius: '8px',
-                        padding: '12px 16px',
-                      }}
-                    >
-                      <small style={{ color: 'rgba(255,255,255,0.7)' }}>Contraseña</small>
-                      <p
+                    <CFormLabel htmlFor="repApellido" className="fw-semibold">
+                      Apellido <span style={{ color: '#CF142B' }}>*</span>
+                    </CFormLabel>
+                    <CFormInput
+                      id="repApellido"
+                      placeholder="Ej: Rodríguez"
+                      value={formData.repApellido}
+                      onChange={(e) => handleFormChange('repApellido', e.target.value)}
+                      invalid={!!addErrors.repApellido}
+                    />
+                    {addErrors.repApellido && (
+                      <small style={{ color: '#CF142B', fontSize: '0.8rem' }}>{addErrors.repApellido}</small>
+                    )}
+                  </CCol>
+                </CRow>
+
+                <CRow className="mb-3">
+                  <CCol md={6}>
+                    <CFormLabel htmlFor="repCedula" className="fw-semibold">
+                      Cédula de Identidad <span style={{ color: '#CF142B' }}>*</span>
+                    </CFormLabel>
+                    <CInputGroup>
+                      <CInputGroupText
                         style={{
+                          background: '#003893',
                           color: '#FFD100',
-                          fontSize: '1.2rem',
+                          border: 'none',
                           fontWeight: '700',
-                          margin: 0,
-                          letterSpacing: '2px',
                         }}
                       >
-                        {generatedCredentials.password}
-                      </p>
+                        V-
+                      </CInputGroupText>
+                      <CFormInput
+                        id="repCedula"
+                        placeholder="Ej: 12345678"
+                        maxLength={8}
+                        value={formData.repCedula}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '')
+                          handleFormChange('repCedula', val)
+                        }}
+                        invalid={!!addErrors.repCedula}
+                      />
+                    </CInputGroup>
+                    {addErrors.repCedula && (
+                      <small style={{ color: '#CF142B', fontSize: '0.8rem' }}>{addErrors.repCedula}</small>
+                    )}
+                  </CCol>
+                  <CCol md={6}>
+                    <CFormLabel className="fw-semibold">
+                      Teléfono <span style={{ color: '#CF142B' }}>*</span>
+                    </CFormLabel>
+                    <div className="d-flex gap-2">
+                      <div style={{ width: '120px' }}>
+                        <CFormInput
+                          placeholder="0414"
+                          maxLength={4}
+                          value={formData.repTelPrefijo}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, '')
+                            handleFormChange('repTelPrefijo', val)
+                          }}
+                          invalid={!!addErrors.repTelPrefijo}
+                        />
+                        {addErrors.repTelPrefijo && (
+                          <small style={{ color: '#CF142B', fontSize: '0.75rem' }}>
+                            {addErrors.repTelPrefijo}
+                          </small>
+                        )}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <CFormInput
+                          placeholder="1234567"
+                          maxLength={7}
+                          value={formData.repTelNumero}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, '')
+                            handleFormChange('repTelNumero', val)
+                          }}
+                          invalid={!!addErrors.repTelNumero}
+                        />
+                        {addErrors.repTelNumero && (
+                          <small style={{ color: '#CF142B', fontSize: '0.75rem' }}>
+                            {addErrors.repTelNumero}
+                          </small>
+                        )}
+                      </div>
                     </div>
                   </CCol>
                 </CRow>
-                <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem', marginTop: '12px', marginBottom: 0 }}>
-                  ⚠️ Anote estas credenciales. La contraseña no se podrá recuperar después de cerrar esta ventana.
+
+                <CRow className="mb-4">
+                  <CCol md={12}>
+                    <CFormLabel htmlFor="repEmail" className="fw-semibold">
+                      Correo Electrónico <span style={{ color: '#CF142B' }}>*</span>
+                    </CFormLabel>
+                    <CInputGroup>
+                      <CInputGroupText
+                        style={{
+                          background: '#003893',
+                          color: '#FFD100',
+                          border: 'none',
+                          fontWeight: '700',
+                        }}
+                      >
+                        @
+                      </CInputGroupText>
+                      <CFormInput
+                        id="repEmail"
+                        type="email"
+                        placeholder="Ej: maria.rodriguez@correo.com"
+                        value={formData.repEmail}
+                        onChange={(e) => handleFormChange('repEmail', e.target.value)}
+                        invalid={!!addErrors.repEmail}
+                      />
+                    </CInputGroup>
+                    {addErrors.repEmail && (
+                      <small style={{ color: '#CF142B', fontSize: '0.8rem' }}>{addErrors.repEmail}</small>
+                    )}
+                  </CCol>
+                </CRow>
+              </>
+            )}
+
+            {/* ══ PASO 2: ESTUDIANTE ══ */}
+            {addModalStep === 2 && (
+              <>
+                <p style={{ color: '#555', fontSize: '0.88rem', marginBottom: '16px' }}>
+                  Completa los datos del estudiante y selecciona su representante.
                 </p>
-              </div>
+                <div
+                  style={{
+                    background: 'linear-gradient(135deg, #003893 0%, #002766 100%)',
+                    padding: '12px 18px',
+                    borderRadius: '10px',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <h5 style={{ margin: 0, color: '#FFD100', fontWeight: '700' }}>
+                    🎒 Datos del Estudiante
+                  </h5>
+                  <small style={{ color: 'rgba(255,255,255,0.7)' }}>
+                    Información del niño/a que cursará estudios
+                  </small>
+                </div>
+
+                <CRow className="mb-3">
+                  <CCol md={6}>
+                    <CFormLabel htmlFor="estNombre" className="fw-semibold">
+                      Nombre <span style={{ color: '#CF142B' }}>*</span>
+                    </CFormLabel>
+                    <CFormInput
+                      id="estNombre"
+                      placeholder="Ej: Juan"
+                      value={formData.estNombre}
+                      onChange={(e) => handleFormChange('estNombre', e.target.value)}
+                      invalid={!!addErrors.estNombre}
+                    />
+                    {addErrors.estNombre && (
+                      <small style={{ color: '#CF142B', fontSize: '0.8rem' }}>{addErrors.estNombre}</small>
+                    )}
+                  </CCol>
+                  <CCol md={6}>
+                    <CFormLabel htmlFor="estApellido" className="fw-semibold">
+                      Apellido <span style={{ color: '#CF142B' }}>*</span>
+                    </CFormLabel>
+                    <CFormInput
+                      id="estApellido"
+                      placeholder="Ej: Pérez"
+                      value={formData.estApellido}
+                      onChange={(e) => handleFormChange('estApellido', e.target.value)}
+                      invalid={!!addErrors.estApellido}
+                    />
+                    {addErrors.estApellido && (
+                      <small style={{ color: '#CF142B', fontSize: '0.8rem' }}>{addErrors.estApellido}</small>
+                    )}
+                  </CCol>
+                </CRow>
+
+                <CRow className="mb-3">
+                  <CCol md={6}>
+                    <CFormLabel htmlFor="estCedula" className="fw-semibold">
+                      Cédula de Identidad <CBadge color="secondary" className="ms-1">Opcional</CBadge>
+                    </CFormLabel>
+                    <CInputGroup>
+                      <CInputGroupText
+                        style={{
+                          background: '#003893',
+                          color: '#FFD100',
+                          border: 'none',
+                          fontWeight: '700',
+                        }}
+                      >
+                        V-
+                      </CInputGroupText>
+                      <CFormInput
+                        id="estCedula"
+                        placeholder="Opcional"
+                        maxLength={8}
+                        value={formData.estCedula}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '')
+                          handleFormChange('estCedula', val)
+                        }}
+                        invalid={!!addErrors.estCedula}
+                      />
+                    </CInputGroup>
+                    {addErrors.estCedula && (
+                      <small style={{ color: '#CF142B', fontSize: '0.8rem' }}>{addErrors.estCedula}</small>
+                    )}
+                  </CCol>
+                  <CCol md={6}>
+                    <CFormLabel htmlFor="estGrado" className="fw-semibold">
+                      Grado a Cursar <span style={{ color: '#CF142B' }}>*</span>
+                    </CFormLabel>
+                    <CFormSelect
+                      id="estGrado"
+                      value={formData.estGrado}
+                      onChange={(e) => handleFormChange('estGrado', e.target.value)}
+                      invalid={!!addErrors.estGrado}
+                    >
+                      <option value="">Seleccionar grado...</option>
+                      <option value="1">1° Grado</option>
+                      <option value="2">2° Grado</option>
+                      <option value="3">3° Grado</option>
+                      <option value="4">4° Grado</option>
+                      <option value="5">5° Grado</option>
+                      <option value="6">6° Grado</option>
+                    </CFormSelect>
+                    {addErrors.estGrado && (
+                      <small style={{ color: '#CF142B', fontSize: '0.8rem' }}>{addErrors.estGrado}</small>
+                    )}
+                  </CCol>
+                </CRow>
+
+                <CRow className="mb-3">
+                  <CCol md={7}>
+                    <CFormLabel htmlFor="repExistenteId" className="fw-semibold">
+                      Representante Existente
+                    </CFormLabel>
+                    <CFormSelect
+                      id="repExistenteId"
+                      value={formData.repExistenteId}
+                      onChange={(e) => handleFormChange('repExistenteId', e.target.value)}
+                    >
+                      <option value="">— Seleccione un representante —</option>
+                      {REPRESENTANTES_EXISTENTES.map((r) => (
+                        <option key={r.id} value={r.id}>
+                          {r.nombre} — {r.ci}
+                        </option>
+                      ))}
+                    </CFormSelect>
+                  </CCol>
+                  <CCol md={5}>
+                    <CFormLabel htmlFor="estParentesco" className="fw-semibold">
+                      Parentesco <span style={{ color: '#CF142B' }}>*</span>
+                    </CFormLabel>
+                    <CFormSelect
+                      id="estParentesco"
+                      value={formData.estParentesco}
+                      onChange={(e) => handleFormChange('estParentesco', e.target.value)}
+                      invalid={!!addErrors.estParentesco}
+                    >
+                      <option value="">Seleccionar...</option>
+                      {PARENTESCOS_LIST.map((p) => (
+                        <option key={p} value={p}>{p}</option>
+                      ))}
+                    </CFormSelect>
+                    {addErrors.estParentesco && (
+                      <small style={{ color: '#CF142B', fontSize: '0.8rem' }}>{addErrors.estParentesco}</small>
+                    )}
+                  </CCol>
+                </CRow>
+
+                {/* ──────────────── SECCIÓN CREDENCIALES (PREVIEW) ──────────────── */}
+                <div
+                  style={{
+                    background: 'linear-gradient(135deg, #CF142B 0%, #A0102B 100%)',
+                    padding: '12px 18px',
+                    borderRadius: '10px',
+                    marginBottom: '20px',
+                    marginTop: '12px',
+                  }}
+                >
+                  <h5 style={{ margin: 0, color: '#FFD100', fontWeight: '700' }}>
+                    🔐 Credenciales de Acceso
+                  </h5>
+                  <small style={{ color: 'rgba(255,255,255,0.8)' }}>
+                    Se generarán automáticamente al registrar
+                  </small>
+                </div>
+
+                <div
+                  style={{
+                    background: '#f8f9fa',
+                    borderRadius: '10px',
+                    padding: '16px 20px',
+                    border: '2px dashed #003893',
+                    marginBottom: '12px',
+                  }}
+                >
+                  <CRow>
+                    <CCol md={6}>
+                      <CFormLabel className="fw-semibold" style={{ color: '#003893' }}>
+                        👤 Usuario (se genera automáticamente)
+                      </CFormLabel>
+                      <CFormInput
+                        readOnly
+                        value={
+                          formData.estNombre.trim() && formData.estApellido.trim()
+                            ? generarUsername(formData.estNombre, formData.estApellido)
+                            : '(complete nombre y apellido del estudiante)'
+                        }
+                        style={{
+                          background: '#e9ecef',
+                          fontWeight: '700',
+                          color: '#002244',
+                          fontSize: '1.05rem',
+                          cursor: 'not-allowed',
+                        }}
+                      />
+                      <small className="text-muted">Formato: nombre.apellido</small>
+                    </CCol>
+                    <CCol md={6}>
+                      <CFormLabel className="fw-semibold" style={{ color: '#003893' }}>
+                        🔑 Contraseña (se genera al guardar)
+                      </CFormLabel>
+                      <CFormInput
+                        readOnly
+                        value="Se generará automáticamente (6 dígitos)"
+                        style={{
+                          background: '#e9ecef',
+                          fontStyle: 'italic',
+                          color: '#6c757d',
+                          cursor: 'not-allowed',
+                        }}
+                      />
+                      <small className="text-muted">Contraseña temporal de 6 dígitos</small>
+                    </CCol>
+                  </CRow>
+                </div>
+
+                {/* Tarjeta de credenciales generadas (post-registro) */}
+                {generatedCredentials && (
+                  <div
+                    style={{
+                      background: 'linear-gradient(135deg, #155724 0%, #1e7e34 100%)',
+                      borderRadius: '12px',
+                      padding: '20px 24px',
+                      marginTop: '16px',
+                      boxShadow: '0 4px 15px rgba(21,87,36,0.3)',
+                    }}
+                  >
+                    <h5 style={{ color: '#FFD100', fontWeight: '700', marginBottom: '12px' }}>
+                      ✅ Credenciales Generadas — Entregar al Representante
+                    </h5>
+                    <p style={{ color: '#fff', marginBottom: '4px', fontSize: '0.85rem' }}>
+                      Estudiante: <strong>{generatedCredentials.nombreCompleto}</strong>
+                    </p>
+                    <CRow className="mt-2">
+                      <CCol md={6}>
+                        <div
+                          style={{
+                            background: 'rgba(255,255,255,0.15)',
+                            borderRadius: '8px',
+                            padding: '12px 16px',
+                          }}
+                        >
+                          <small style={{ color: 'rgba(255,255,255,0.7)' }}>Usuario</small>
+                          <p
+                            style={{
+                              color: '#FFD100',
+                              fontSize: '1.2rem',
+                              fontWeight: '700',
+                              margin: 0,
+                              letterSpacing: '0.5px',
+                            }}
+                          >
+                            {generatedCredentials.username}
+                          </p>
+                        </div>
+                      </CCol>
+                      <CCol md={6}>
+                        <div
+                          style={{
+                            background: 'rgba(255,255,255,0.15)',
+                            borderRadius: '8px',
+                            padding: '12px 16px',
+                          }}
+                        >
+                          <small style={{ color: 'rgba(255,255,255,0.7)' }}>Contraseña</small>
+                          <p
+                            style={{
+                              color: '#FFD100',
+                              fontSize: '1.2rem',
+                              fontWeight: '700',
+                              margin: 0,
+                              letterSpacing: '2px',
+                            }}
+                          >
+                            {generatedCredentials.password}
+                          </p>
+                        </div>
+                      </CCol>
+                    </CRow>
+                    <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem', marginTop: '12px', marginBottom: 0 }}>
+                      ⚠️ Anote estas credenciales. La contraseña no se podrá recuperar después de cerrar esta ventana.
+                    </p>
+                  </div>
+                )}
+              </>
             )}
           </form>
         </CModalBody>
@@ -948,9 +1011,15 @@ const TeacherDashboard = () => {
           style={{
             borderTop: '3px solid #FFD100',
             padding: '16px 28px',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: '10px'
           }}
         >
+          {/* BOTÓN CANCELAR — siempre visible */}
           <CButton
+            id="modal-btn-cancelar"
+            onClick={handleCloseAddModal}
             style={{
               background: 'transparent',
               border: '2px solid #CF142B',
@@ -968,35 +1037,92 @@ const TeacherDashboard = () => {
               e.target.style.background = 'transparent'
               e.target.style.color = '#CF142B'
             }}
-            onClick={handleCloseAddModal}
           >
             Cancelar
           </CButton>
+
+          {/* BOTÓN OMITIR — visible en ambos pasos */}
           <CButton
-            type="submit"
-            form="formAddStudent"
+            id="modal-btn-omitir"
+            onClick={() => setAddModalStep(2)}
             style={{
-              background: 'linear-gradient(135deg, #003893 0%, #002766 100%)',
-              border: 'none',
-              color: '#FFD100',
-              fontWeight: '700',
+              background: 'transparent',
+              border: '2px solid #6c757d',
+              color: '#6c757d',
+              fontWeight: '600',
               borderRadius: '8px',
-              padding: '8px 28px',
-              boxShadow: '0 4px 12px rgba(0,56,147,0.3)',
+              padding: '8px 24px',
               transition: 'all 0.3s ease',
             }}
             onMouseEnter={(e) => {
-              e.target.style.transform = 'translateY(-2px)'
-              e.target.style.boxShadow = '0 6px 16px rgba(0,56,147,0.5)'
+              e.target.style.background = '#6c757d'
+              e.target.style.color = '#fff'
             }}
             onMouseLeave={(e) => {
-              e.target.style.transform = 'translateY(0)'
-              e.target.style.boxShadow = '0 4px 12px rgba(0,56,147,0.3)'
+              e.target.style.background = 'transparent'
+              e.target.style.color = '#6c757d'
             }}
           >
-            <CIcon icon={cilCheckCircle} className="me-2" />
-            Registrar Estudiante
+            Omitir
           </CButton>
+
+          {/* PASO 1 → botón SIGUIENTE */}
+          {addModalStep === 1 && (
+            <CButton
+              id="modal-btn-siguiente"
+              onClick={() => setAddModalStep(2)}
+              style={{
+                background: 'linear-gradient(135deg, #003893 0%, #002766 100%)',
+                border: 'none',
+                color: '#FFD100',
+                fontWeight: '700',
+                borderRadius: '8px',
+                padding: '8px 28px',
+                boxShadow: '0 4px 12px rgba(0,56,147,0.3)',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-2px)'
+                e.target.style.boxShadow = '0 6px 16px rgba(0,56,147,0.5)'
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)'
+                e.target.style.boxShadow = '0 4px 12px rgba(0,56,147,0.3)'
+              }}
+            >
+              Siguiente →
+            </CButton>
+          )}
+
+          {/* PASO 2 → botón GUARDAR */}
+          {addModalStep === 2 && (
+            <CButton
+              type="submit"
+              form="formAddStudent"
+              id="modal-btn-guardar"
+              style={{
+                background: 'linear-gradient(135deg, #1a7a1a 0%, #155215 100%)',
+                border: 'none',
+                color: '#fff',
+                fontWeight: '700',
+                borderRadius: '8px',
+                padding: '8px 28px',
+                boxShadow: '0 4px 12px rgba(26,122,26,0.3)',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-2px)'
+                e.target.style.boxShadow = '0 6px 16px rgba(26,122,26,0.5)'
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)'
+                e.target.style.boxShadow = '0 4px 12px rgba(26,122,26,0.3)'
+              }}
+            >
+              <CIcon icon={cilCheckCircle} className="me-2" />
+              Guardar
+            </CButton>
+          )}
         </CModalFooter>
       </CModal>
 

@@ -44,9 +44,9 @@ const AppHeaderDropdown = () => {
   const openConfirm = () => setVisible(true)
   const closeConfirm = () => setVisible(false)
 
-  const handleConfirmLogout = () => {
+  const handleConfirmLogout = async () => {
     try {
-      logout()
+      await logout()
     } catch (e) {
       console.error('Logout error:', e)
     }

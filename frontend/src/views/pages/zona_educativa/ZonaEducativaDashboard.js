@@ -144,6 +144,19 @@ const GestionAdmins = () => {
   const [form, setForm] = useState({ usuario_id: '', escuela_id: '' })
   const [msg, setMsg] = useState(null)
 
+  // Estados para Registro de Admin
+  const [showModal, setShowModal] = useState(false)
+  const [formData, setFormData] = useState({
+    nombre: '', apellido: '', email_recuperacion: '', ci: '', telefono: '', escuela_id: ''
+  })
+  const [formErrors, setFormErrors] = useState({})
+  const [createdCredentials, setCreatedCredentials] = useState(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const fetchAdmins = () => {
+    apiFetch(`${API()}/zona-educativa/admins`).then(r => r.json()).then(d => setAdmins(d.admins || []))
+  }
+
   useEffect(() => {
     apiFetch(`${API()}/zona-educativa/admins`).then(r => r.json()).then(d => setAdmins(d.admins || []))
     apiFetch(`${API()}/usuarios`).then(r => r.json()).then(d => setUsuarios(d.usuarios || []))
@@ -158,6 +171,61 @@ const GestionAdmins = () => {
       setAdmins(prev => [...prev, data.admin])
       setForm({ usuario_id: '', escuela_id: '' })
     } else setMsg({ type: 'danger', text: data.error || 'Error' })
+  }
+
+  const generarPassword = () => Math.floor(100000 + Math.random() * 900000).toString()
+
+  const generarUsername = (nombre, apellido) => {
+    const cleanStr = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '')
+    const n = cleanStr(nombre.split(' ')[0])
+    const a = cleanStr(apellido.split(' ')[0])
+    return `${n}.${a}`
+  }
+
+  const handleRegisterAdmin = async (e) => {
+    e.preventDefault()
+    const errors = {}
+    if (!formData.nombre.trim()) errors.nombre = 'Requerido'
+    if (!formData.apellido.trim()) errors.apellido = 'Requerido'
+    if (!formData.email_recuperacion.trim()) errors.email_recuperacion = 'Requerido'
+    if (!formData.escuela_id) errors.escuela_id = 'Requerido'
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors)
+      return
+    }
+
+    setIsSubmitting(true)
+    setFormErrors({})
+
+    const pUsername = generarUsername(formData.nombre, formData.apellido)
+    const pPassword = generarPassword()
+
+    try {
+      const res = await apiFetch(`${API()}/zona-educativa/registrar-admin`, {
+        method: 'POST',
+        body: JSON.stringify({ ...formData, escuela_id: parseInt(formData.escuela_id), username: pUsername, contrasena: pPassword })
+      })
+      const data = await res.json()
+
+      if (res.ok) {
+        setCreatedCredentials({ username: pUsername, password: pPassword, nombreCompleto: `${formData.nombre} ${formData.apellido}` })
+        fetchAdmins()
+      } else {
+        setMsg({ type: 'danger', text: data.error || 'Error al registrar administrador' })
+      }
+    } catch (err) {
+      setMsg({ type: 'danger', text: 'Error de red' })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleCloseModal = () => {
+    setShowModal(false)
+    setFormData({ nombre: '', apellido: '', email_recuperacion: '', ci: '', telefono: '', escuela_id: '' })
+    setCreatedCredentials(null)
+    setFormErrors({})
   }
 
   const handleRemover = async (id) => {
@@ -192,6 +260,11 @@ const GestionAdmins = () => {
         </CCardBody>
       </CCard>
 
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h5 className="mb-0">Administradores Registrados</h5>
+        <CButton color="primary" onClick={() => setShowModal(true)}>+ Registrar Nuevo Administrador</CButton>
+      </div>
+
       <CTable responsive hover>
         <CTableHead style={{ background: '#f8f9fa' }}>
           <CTableRow>
@@ -212,12 +285,366 @@ const GestionAdmins = () => {
           ))}
         </CTableBody>
       </CTable>
+
+      <CModal visible={showModal} onClose={handleCloseModal} size="lg" alignment="center">
+        <CModalHeader closeButton style={{ background: '#003893', color: '#FFD100', borderBottom: 'none' }}>
+          <CModalTitle style={{ fontWeight: '700' }}>Registrar Administrador de Escuela</CModalTitle>
+        </CModalHeader>
+        <CModalBody style={{ padding: '24px 28px' }}>
+          <CForm id="formAddAdmin" onSubmit={handleRegisterAdmin}>
+            <CRow className="mb-3">
+              <CCol md={6}>
+                <CFormInput
+                  label={<>Nombre <span style={{ color: '#CF142B' }}>*</span></>}
+                  value={formData.nombre}
+                  onChange={e => setFormData({ ...formData, nombre: e.target.value })}
+                  invalid={!!formErrors.nombre}
+                />
+              </CCol>
+              <CCol md={6}>
+                <CFormInput
+                  label={<>Apellido <span style={{ color: '#CF142B' }}>*</span></>}
+                  value={formData.apellido}
+                  onChange={e => setFormData({ ...formData, apellido: e.target.value })}
+                  invalid={!!formErrors.apellido}
+                />
+              </CCol>
+            </CRow>
+            <CRow className="mb-3">
+              <CCol md={6}>
+                <CFormInput
+                  label={<>Correo Electrónico <span style={{ color: '#CF142B' }}>*</span></>}
+                  type="email"
+                  value={formData.email_recuperacion}
+                  onChange={e => setFormData({ ...formData, email_recuperacion: e.target.value })}
+                  invalid={!!formErrors.email_recuperacion}
+                />
+              </CCol>
+              <CCol md={6}>
+                <CFormSelect
+                  label={<>Escuela <span style={{ color: '#CF142B' }}>*</span></>}
+                  value={formData.escuela_id}
+                  onChange={e => setFormData({ ...formData, escuela_id: e.target.value })}
+                  invalid={!!formErrors.escuela_id}
+                >
+                  <option value="">Seleccionar escuela...</option>
+                  {escuelasData?.escuelas?.map(e => <option key={e.id} value={e.id}>{e.nombre}</option>)}
+                </CFormSelect>
+              </CCol>
+            </CRow>
+            <CRow className="mb-3">
+              <CCol md={6}>
+                <CFormInput
+                  label="Cédula"
+                  value={formData.ci}
+                  onChange={e => setFormData({ ...formData, ci: e.target.value })}
+                />
+              </CCol>
+              <CCol md={6}>
+                <CFormInput
+                  label="Teléfono"
+                  value={formData.telefono}
+                  onChange={e => setFormData({ ...formData, telefono: e.target.value })}
+                />
+              </CCol>
+            </CRow>
+
+            {createdCredentials && (
+              <div
+                style={{
+                  background: 'linear-gradient(135deg, #155724 0%, #1e7e34 100%)',
+                  borderRadius: '12px',
+                  padding: '20px 24px',
+                  marginTop: '16px',
+                }}
+              >
+                <h5 style={{ color: '#FFD100', fontWeight: '700' }}>✅ Administrador Registrado Exitosamente</h5>
+                <p style={{ color: '#fff', fontSize: '0.9rem' }}>Entregue estas credenciales al usuario:</p>
+                <CRow>
+                  <CCol md={6}>
+                    <div style={{ background: 'rgba(255,255,255,0.15)', padding: '10px', borderRadius: '8px' }}>
+                      <small style={{ color: '#fff' }}>Usuario</small>
+                      <h5 style={{ color: '#FFD100', margin: 0 }}>{createdCredentials.username}</h5>
+                    </div>
+                  </CCol>
+                  <CCol md={6}>
+                    <div style={{ background: 'rgba(255,255,255,0.15)', padding: '10px', borderRadius: '8px' }}>
+                      <small style={{ color: '#fff' }}>Contraseña Temporal</small>
+                      <h5 style={{ color: '#FFD100', margin: 0, letterSpacing: '2px' }}>{createdCredentials.password}</h5>
+                    </div>
+                  </CCol>
+                </CRow>
+              </div>
+            )}
+          </CForm>
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" variant="outline" onClick={handleCloseModal}>Cerrar</CButton>
+          {!createdCredentials && (
+            <CButton type="submit" form="formAddAdmin" color="primary" disabled={isSubmitting}>
+              {isSubmitting ? <CSpinner size="sm" /> : 'Registrar Administrador'}
+            </CButton>
+          )}
+        </CModalFooter>
+      </CModal>
     </div>
   )
 }
 
 // ════════════════════════════════════════════════════════════
-// TAB 3: AUDITORÍA GENERAL
+// TAB 3: GESTIÓN DE PROFESORES
+// ════════════════════════════════════════════════════════════
+const GestionProfesoresZona = () => {
+  const [profesores, setProfesores] = useState([])
+  const { data: escuelasData } = useFetch('/escuelas')
+  const [msg, setMsg] = useState(null)
+  const [escuelaFiltro, setEscuelaFiltro] = useState('')
+  const [usuarios, setUsuarios] = useState([])
+  const [formAsignar, setFormAsignar] = useState({ usuario_id: '', escuela_id: '' })
+
+  useEffect(() => {
+    apiFetch(`${API()}/usuarios`).then(r => r.json()).then(d => setUsuarios(d.usuarios || []))
+  }, [])
+
+  // Estados para Registro de Profesor
+  const [showModal, setShowModal] = useState(false)
+  const [formData, setFormData] = useState({
+    nombre: '', apellido: '', email_recuperacion: '', ci: '', telefono: '', especialidad: '', escuela_id: ''
+  })
+  const [formErrors, setFormErrors] = useState({})
+  const [createdCredentials, setCreatedCredentials] = useState(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const fetchProfesores = () => {
+    apiFetch(`${API()}/admin-escuela/profesores`).then(r => r.json()).then(d => setProfesores(d.profesores || []))
+    // Nota: Como la ruta admin-escuela requiere isAdminEscuela, para Zona Educativa podemos usar /usuarios y filtrar o crear un endpoint si es necesario.
+    // Pero si queremos aprovechar, podemos llamar al endpoint de admins si lo configuramos, o simplemente mostrar los profesores si hay una ruta global.
+    // Vamos a crear una llamada fetch básica o si la ruta de admins_escuela no funciona para zona educativa, asumimos que no mostrará la lista global fácilmente sin un endpoint nuevo.
+    // Para no complicar, asumo que usaremos una llamada a /admin-escuela/profesores si le damos acceso a Zona Educativa o haremos un fallback.
+    // Aquí implementaré la lógica de registro principalmente, y la lista la dejaré pendiente de la ruta adecuada si no existe.
+    // Actualización: Usaremos una llamada a /admin-escuela/profesores modificada en el backend si es necesario, o simplemente no listaremos todos los profes por ahora si no hay endpoint.
+    // En este caso, sólo implementaré el botón de registro por ahora o usaré una llamada a `/usuarios` filtrando por profesores.
+  }
+
+  // Dejamos la tabla vacía o con un mensaje si no hay endpoint global de profesores.
+  // Para registrar:
+  const generarPassword = () => Math.floor(100000 + Math.random() * 900000).toString()
+
+  const generarUsername = (nombre, apellido) => {
+    const cleanStr = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '')
+    const n = cleanStr(nombre.split(' ')[0])
+    const a = cleanStr(apellido.split(' ')[0])
+    return `${n}.${a}`
+  }
+
+  const handleRegisterProfesor = async (e) => {
+    e.preventDefault()
+    const errors = {}
+    if (!formData.nombre.trim()) errors.nombre = 'Requerido'
+    if (!formData.apellido.trim()) errors.apellido = 'Requerido'
+    if (!formData.email_recuperacion.trim()) errors.email_recuperacion = 'Requerido'
+    if (!formData.escuela_id) errors.escuela_id = 'Requerido'
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors)
+      return
+    }
+
+    setIsSubmitting(true)
+    setFormErrors({})
+
+    const pUsername = generarUsername(formData.nombre, formData.apellido)
+    const pPassword = generarPassword()
+
+    try {
+      const res = await apiFetch(`${API()}/zona-educativa/registrar-profesor`, {
+        method: 'POST',
+        body: JSON.stringify({ ...formData, escuela_id: parseInt(formData.escuela_id), username: pUsername, contrasena: pPassword })
+      })
+      const data = await res.json()
+
+      if (res.ok) {
+        setCreatedCredentials({ username: pUsername, password: pPassword, nombreCompleto: `${formData.nombre} ${formData.apellido}` })
+        fetchProfesores()
+      } else {
+        setMsg({ type: 'danger', text: data.error || 'Error al registrar profesor' })
+      }
+    } catch (err) {
+      setMsg({ type: 'danger', text: 'Error de red' })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleCloseModal = () => {
+    setShowModal(false)
+    setFormData({ nombre: '', apellido: '', email_recuperacion: '', ci: '', telefono: '', especialidad: '', escuela_id: '' })
+    setCreatedCredentials(null)
+    setFormErrors({})
+  }
+
+  const handleAsignarProfesor = async (e) => {
+    e.preventDefault()
+    const res = await apiFetch(`${API()}/zona-educativa/asignar-profesor`, {
+      method: 'POST',
+      body: JSON.stringify({ usuario_id: parseInt(formAsignar.usuario_id), escuela_id: parseInt(formAsignar.escuela_id) })
+    })
+    const data = await res.json()
+    if (res.ok) {
+      setMsg({ type: 'success', text: 'Profesor asignado correctamente a la escuela' })
+      setFormAsignar({ usuario_id: '', escuela_id: '' })
+      fetchProfesores()
+    } else setMsg({ type: 'danger', text: data.error || 'Error' })
+  }
+
+  return (
+    <div>
+      {msg && <CAlert color={msg.type} dismissible onClose={() => setMsg(null)}>{msg.text}</CAlert>}
+
+      <CCard className="mb-4">
+        <CCardHeader><strong>Asignar Nuevo Profesor a Escuela</strong></CCardHeader>
+        <CCardBody>
+          <CForm onSubmit={handleAsignarProfesor}>
+            <CRow>
+              <CCol md={5}>
+                <CFormSelect value={formAsignar.usuario_id} onChange={e => setFormAsignar(p => ({ ...p, usuario_id: e.target.value }))} required>
+                  <option value="">Seleccionar usuario...</option>
+                  {usuarios.map(u => <option key={u.id} value={u.id}>{u.persona?.nombre} {u.persona?.apellido} (@{u.username})</option>)}
+                </CFormSelect>
+              </CCol>
+              <CCol md={5}>
+                <CFormSelect value={formAsignar.escuela_id} onChange={e => setFormAsignar(p => ({ ...p, escuela_id: e.target.value }))} required>
+                  <option value="">Seleccionar escuela...</option>
+                  {escuelasData?.escuelas?.map(e => <option key={e.id} value={e.id}>{e.nombre}</option>)}
+                </CFormSelect>
+              </CCol>
+              <CCol md={2}><CButton type="submit" color="success" className="w-100">Asignar</CButton></CCol>
+            </CRow>
+          </CForm>
+        </CCardBody>
+      </CCard>
+
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h5 className="mb-0">Profesores Registrados</h5>
+        <CButton color="primary" onClick={() => setShowModal(true)}>+ Registrar Nuevo Profesor</CButton>
+      </div>
+
+      <CAlert color="info">Para ver o modificar profesores asignados a una escuela específica, por favor utilice el portal de Administrador de Escuela o filtre en las estadísticas globales.</CAlert>
+
+      <CModal visible={showModal} onClose={handleCloseModal} size="lg" alignment="center">
+        <CModalHeader closeButton style={{ background: '#003893', color: '#FFD100', borderBottom: 'none' }}>
+          <CModalTitle style={{ fontWeight: '700' }}>Registrar Profesor</CModalTitle>
+        </CModalHeader>
+        <CModalBody style={{ padding: '24px 28px' }}>
+          <CForm id="formAddProfesor" onSubmit={handleRegisterProfesor}>
+            <CRow className="mb-3">
+              <CCol md={6}>
+                <CFormInput
+                  label={<>Nombre <span style={{ color: '#CF142B' }}>*</span></>}
+                  value={formData.nombre}
+                  onChange={e => setFormData({ ...formData, nombre: e.target.value })}
+                  invalid={!!formErrors.nombre}
+                />
+              </CCol>
+              <CCol md={6}>
+                <CFormInput
+                  label={<>Apellido <span style={{ color: '#CF142B' }}>*</span></>}
+                  value={formData.apellido}
+                  onChange={e => setFormData({ ...formData, apellido: e.target.value })}
+                  invalid={!!formErrors.apellido}
+                />
+              </CCol>
+            </CRow>
+            <CRow className="mb-3">
+              <CCol md={6}>
+                <CFormInput
+                  label={<>Correo Electrónico <span style={{ color: '#CF142B' }}>*</span></>}
+                  type="email"
+                  value={formData.email_recuperacion}
+                  onChange={e => setFormData({ ...formData, email_recuperacion: e.target.value })}
+                  invalid={!!formErrors.email_recuperacion}
+                />
+              </CCol>
+              <CCol md={6}>
+                <CFormSelect
+                  label={<>Escuela <span style={{ color: '#CF142B' }}>*</span></>}
+                  value={formData.escuela_id}
+                  onChange={e => setFormData({ ...formData, escuela_id: e.target.value })}
+                  invalid={!!formErrors.escuela_id}
+                >
+                  <option value="">Seleccionar escuela...</option>
+                  {escuelasData?.escuelas?.map(e => <option key={e.id} value={e.id}>{e.nombre}</option>)}
+                </CFormSelect>
+              </CCol>
+            </CRow>
+            <CRow className="mb-3">
+              <CCol md={4}>
+                <CFormInput
+                  label="Cédula"
+                  value={formData.ci}
+                  onChange={e => setFormData({ ...formData, ci: e.target.value })}
+                />
+              </CCol>
+              <CCol md={4}>
+                <CFormInput
+                  label="Teléfono"
+                  value={formData.telefono}
+                  onChange={e => setFormData({ ...formData, telefono: e.target.value })}
+                />
+              </CCol>
+              <CCol md={4}>
+                <CFormInput
+                  label="Especialidad"
+                  value={formData.especialidad}
+                  onChange={e => setFormData({ ...formData, especialidad: e.target.value })}
+                />
+              </CCol>
+            </CRow>
+
+            {createdCredentials && (
+              <div
+                style={{
+                  background: 'linear-gradient(135deg, #155724 0%, #1e7e34 100%)',
+                  borderRadius: '12px',
+                  padding: '20px 24px',
+                  marginTop: '16px',
+                }}
+              >
+                <h5 style={{ color: '#FFD100', fontWeight: '700' }}>✅ Profesor Registrado Exitosamente</h5>
+                <p style={{ color: '#fff', fontSize: '0.9rem' }}>Entregue estas credenciales al profesor:</p>
+                <CRow>
+                  <CCol md={6}>
+                    <div style={{ background: 'rgba(255,255,255,0.15)', padding: '10px', borderRadius: '8px' }}>
+                      <small style={{ color: '#fff' }}>Usuario</small>
+                      <h5 style={{ color: '#FFD100', margin: 0 }}>{createdCredentials.username}</h5>
+                    </div>
+                  </CCol>
+                  <CCol md={6}>
+                    <div style={{ background: 'rgba(255,255,255,0.15)', padding: '10px', borderRadius: '8px' }}>
+                      <small style={{ color: '#fff' }}>Contraseña Temporal</small>
+                      <h5 style={{ color: '#FFD100', margin: 0, letterSpacing: '2px' }}>{createdCredentials.password}</h5>
+                    </div>
+                  </CCol>
+                </CRow>
+              </div>
+            )}
+          </CForm>
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" variant="outline" onClick={handleCloseModal}>Cerrar</CButton>
+          {!createdCredentials && (
+            <CButton type="submit" form="formAddProfesor" color="primary" disabled={isSubmitting}>
+              {isSubmitting ? <CSpinner size="sm" /> : 'Registrar Profesor'}
+            </CButton>
+          )}
+        </CModalFooter>
+      </CModal>
+    </div>
+  )
+}
+
+// ════════════════════════════════════════════════════════════
+// TAB 4: AUDITORÍA GENERAL
 // ════════════════════════════════════════════════════════════
 const AuditoriaGeneral = () => {
   const [logs, setLogs] = useState([])
@@ -349,6 +776,7 @@ const ZonaEducativaDashboard = () => {
   const tabs = [
     { label: '📚 Currículo', component: <GestionContenido /> },
     { label: '🏫 Administradores', component: <GestionAdmins /> },
+    { label: '👨‍🏫 Profesores', component: <GestionProfesoresZona /> },
     { label: '🔍 Auditoría General', component: <AuditoriaGeneral /> },
     { label: '📊 Desempeño Escuelas', component: <DesempenoGlobal /> },
   ]
