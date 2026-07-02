@@ -31,6 +31,7 @@ const TeacherFeedback = () => {
     const { currentUser } = useAuth()
     const [students, setStudents] = useState([])
     const [topics, setTopics] = useState([])
+    const [temasCompletos, setTemasCompletos] = useState([])
     const [feedbacks, setFeedbacks] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
@@ -59,6 +60,7 @@ const TeacherFeedback = () => {
             const topicsData = await topicsService.getTopicsByGrade(currentUser.grade_id)
             if (topicsData.length > 0) {
                 setTopics(topicsData[0].temas)
+                setTemasCompletos(topicsData[0]._temasCompletos || [])
             }
 
             // Fetch feedbacks del profesor
@@ -84,14 +86,18 @@ const TeacherFeedback = () => {
 
         setSubmitting(true)
 
+        // Encontrar el id_tema real
+        const temaEncontrado = temasCompletos.find(t => (t.nombre_tema || t.titulo || t.nombre) === selectedTopic)
+        const id_tema = temaEncontrado ? (temaEncontrado.id_tema || temaEncontrado.id) : 1
+
         try {
             const payload = {
-                id: Math.floor(Math.random() * 10000), // falso ID
                 student_id: parseInt(selectedStudent),
                 teacher_id: currentUser.id,
                 topic: selectedTopic,
+                id_tema: id_tema,
                 feedback: feedbackText,
-                date: new Date().toISOString().split('T')[0],
+                tipo: 'mejora_contenido',
             }
 
             const newFeedback = await feedbackService.createFeedback(payload)
@@ -107,7 +113,7 @@ const TeacherFeedback = () => {
             setTimeout(() => setSuccess(''), 3000)
         } catch (error) {
             console.error('Error enviando feedback:', error)
-            setError('Error al enviar la retroalimentación')
+            setError('Error al enviar la retroalimentación: ' + error.message)
         } finally {
             setSubmitting(false)
         }

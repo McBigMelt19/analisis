@@ -38,8 +38,8 @@ const StudentProgress = () => {
                 if (data.length > 0) {
                     const scores = data.map((p) => p.score)
                     const average = scores.reduce((a, b) => a + b, 0) / scores.length
-                    const excellent = scores.filter((s) => s >= 90).length
-                    const low = scores.filter((s) => s < 70).length
+                    const excellent = scores.filter((s) => s >= 18).length
+                    const low = scores.filter((s) => s < 10).length
 
                     setStats({
                         average: average.toFixed(1),
@@ -67,16 +67,16 @@ const StudentProgress = () => {
                 label: 'Calificaciones',
                 data: progressData.map((p) => p.score),
                 backgroundColor: progressData.map((p) =>
-                    p.score >= 90
+                    p.score >= 18
                         ? 'rgba(75, 192, 192, 0.6)' // Verde para excelente
-                        : p.score >= 70
+                        : p.score >= 10
                             ? 'rgba(255, 206, 86, 0.6)' // Amarillo para aprobado
                             : 'rgba(255, 99, 132, 0.6)', // Rojo para bajo
                 ),
                 borderColor: progressData.map((p) =>
-                    p.score >= 90
+                    p.score >= 18
                         ? 'rgba(75, 192, 192, 1)'
-                        : p.score >= 70
+                        : p.score >= 10
                             ? 'rgba(255, 206, 86, 1)'
                             : 'rgba(255, 99, 132, 1)',
                 ),
@@ -109,7 +109,7 @@ const StudentProgress = () => {
         scales: {
             y: {
                 beginAtZero: true,
-                max: 100,
+                max: 20,
             },
         },
     }
@@ -168,7 +168,7 @@ const StudentProgress = () => {
                     <CCard className="text-center">
                         <CCardBody>
                             <h3 className="text-info">{stats.excellent}</h3>
-                            <p className="text-muted mb-0">Notas Excelentes (≥90)</p>
+                            <p className="text-muted mb-0">Notas Excelentes (≥18)</p>
                         </CCardBody>
                     </CCard>
                 </CCol>
@@ -176,7 +176,7 @@ const StudentProgress = () => {
                     <CCard className="text-center">
                         <CCardBody>
                             <h3 className="text-warning">{stats.low}</h3>
-                            <p className="text-muted mb-0">Notas Bajas (&lt;70)</p>
+                            <p className="text-muted mb-0">Notas Bajas (&lt;10)</p>
                         </CCardBody>
                     </CCard>
                 </CCol>
@@ -243,12 +243,12 @@ const StudentProgress = () => {
                                                 <td>
                                                     <CBadge
                                                         color={
-                                                            item.score >= 90 ? 'success' : item.score >= 70 ? 'warning' : 'danger'
+                                                            item.score >= 18 ? 'success' : item.score >= 10 ? 'warning' : 'danger'
                                                         }
                                                     >
-                                                        {item.score >= 90
+                                                        {item.score >= 18
                                                             ? 'Excelente'
-                                                            : item.score >= 70
+                                                            : item.score >= 10
                                                                 ? 'Aprobado'
                                                                 : 'Necesita Mejorar'}
                                                     </CBadge>

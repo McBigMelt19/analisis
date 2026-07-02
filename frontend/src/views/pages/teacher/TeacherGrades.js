@@ -23,6 +23,7 @@ const TeacherGrades = () => {
     const { currentUser } = useAuth()
     const [students, setStudents] = useState([])
     const [topics, setTopics] = useState([])
+    const [temasCompletos, setTemasCompletos] = useState([])
     const [grades, setGrades] = useState({}) // { `${topicId}_${studentId}`: { score, saved, id } }
     const [topicDates, setTopicDates] = useState({}) // { `${topic}`: 'YYYY-MM-DD' }
     const [loading, setLoading] = useState(true)
@@ -87,7 +88,6 @@ const TeacherGrades = () => {
         setLoading(true)
         setError('')
         try {
-
             // Fetch students del grado del profesor
             const studentsData = await usersService.getStudentsByGrade(currentUser.grade_id)
             setStudents(studentsData)
@@ -96,6 +96,7 @@ const TeacherGrades = () => {
             const topicsData = await topicsService.getTopicsByGrade(currentUser.grade_id)
             if (topicsData.length > 0) {
                 setTopics(topicsData[0].temas)
+                setTemasCompletos(topicsData[0]._temasCompletos || [])
 
                 // Inicializar fechas para cada tema
                 const initialDates = {}
@@ -110,6 +111,16 @@ const TeacherGrades = () => {
 
             // Organizar grades en un objeto para fácil acceso
             const gradesMap = {}
+            if (Array.isArray(gradesData)) {
+                gradesData.forEach((item) => {
+                    const key = `${item.topic}_${item.student_id}`
+                    gradesMap[key] = {
+                        score: item.score,
+                        saved: true,
+                        id: item.id
+                    }
+                })
+            }
             setGrades(gradesMap)
             setLoading(false)
         } catch (error) {
@@ -143,15 +154,19 @@ const TeacherGrades = () => {
 
         if (!gradeData || gradeData.score === '') return
 
+        // Encontrar el id_tema real
+        const temaEncontrado = temasCompletos.find(t => (t.nombre_tema || t.titulo || t.nombre) === topic)
+        const id_tema = temaEncontrado ? (temaEncontrado.id_tema || temaEncontrado.id) : 1
+
         try {
-            
-            // Simular guardado si el endpoint exacto (como profe) no está disponible en la app actual
-            // Idealmente aquí llamaríamos a la actualización de progreso real o calificarActividad
             const payload = {
                 student_id: studentId,
                 topic: topic,
+                id_tema: id_tema,
                 score: gradeData.score,
                 date: topicDates[topic] || selectedDate,
+                actividades_completadas: 1,
+                tiempo_estudiado_minutos: 45,
             }
 
             const savedData = await progressService.saveProgress(payload, gradeData.id || null)
@@ -165,7 +180,7 @@ const TeacherGrades = () => {
             }))
         } catch (error) {
             console.error('Error guardando nota:', error)
-            alert('Error al guardar la nota')
+            alert('Error al guardar la nota: ' + error.message)
         }
     }
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import {
@@ -25,7 +25,7 @@ import {
   cilSun,
 } from '@coreui/icons'
 
-import { AppBreadcrumb } from './index'
+import { AppBreadcrumb, UserManualModal } from './index'
 import { AppHeaderDropdown } from './header/index'
 import { useAuth } from '../context/AuthContext'
 import { logo } from '../assets/brand/logo' // sticker logo svg
@@ -34,6 +34,7 @@ const AppHeader = () => {
   const headerRef = useRef()
   const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
   const { currentUser } = useAuth()
+  const [manualVisible, setManualVisible] = useState(false)
 
   const dispatch = useDispatch()
   const sidebarShow = useSelector((state) => state.sidebarShow)
@@ -76,7 +77,15 @@ const AppHeader = () => {
         </CHeaderNav>
         <CHeaderNav className="ms-auto">
           <CNavItem>
-            <CNavLink href="#">
+            <CNavLink
+              href="#"
+              onClick={(e) => {
+                e.preventDefault()
+                setManualVisible(true)
+              }}
+              title="Manual de Usuario"
+              style={{ cursor: 'pointer' }}
+            >
               <CIcon icon={cilBell} size="lg" />
             </CNavLink>
           </CNavItem>
@@ -149,6 +158,7 @@ const AppHeader = () => {
       <CContainer className="px-4" fluid>
         <AppBreadcrumb />
       </CContainer>
+      <UserManualModal visible={manualVisible} onClose={() => setManualVisible(false)} />
     </CHeader>
   )
 }

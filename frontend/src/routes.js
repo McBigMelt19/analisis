@@ -27,32 +27,32 @@ const routes = [
   // ── Estudiante ──────────────────────────────────────────
   { path: '/home', name: 'Home', element: HomePageCoreUI },
   { path: '/dashboard', name: 'Dashboard', element: HomePageCoreUI },
-  { path: '/student/home', name: 'StudentHome', element: HomePageCoreUI },
-  { path: '/student/grade/:grade', name: 'GradePage', element: GradePageCoreUI },
-  { path: '/student/progress', name: 'StudentProgress', element: StudentProgress },
-  { path: '/student/grades', name: 'StudentGrades', element: StudentGrades },
-  { path: '/student/chatbot', name: 'StudentChatbot', element: PersonalizedContent },
-  { path: '/student/content', name: 'ContenidoInteractivo', element: ContenidoInteractivo },
+  { path: '/student/home', name: 'StudentHome', element: HomePageCoreUI, allowedRoles: ['student'] },
+  { path: '/student/grade/:grade', name: 'GradePage', element: GradePageCoreUI, allowedRoles: ['student'] },
+  { path: '/student/progress', name: 'StudentProgress', element: StudentProgress, allowedRoles: ['student'] },
+  { path: '/student/grades', name: 'StudentGrades', element: StudentGrades, allowedRoles: ['student'] },
+  { path: '/student/chatbot', name: 'StudentChatbot', element: PersonalizedContent, allowedRoles: ['student'] },
+  { path: '/student/content', name: 'ContenidoInteractivo', element: ContenidoInteractivo, allowedRoles: ['student'] },
 
   // Componentes de estudiante (acceso standalone)
-  { path: '/PersonalizedContent', name: 'PersonalizedContent', element: PersonalizedContent },
-  { path: '/InteractiveTimeline', name: 'InteractiveTimeline', element: InteractiveTimeline },
-  { path: '/GamifiedQuiz', name: 'GamifiedQuiz', element: GamifiedQuiz },
-  { path: '/VirtualFieldTrip', name: 'VirtualFieldTrip', element: VirtualFieldTrip },
-  { path: '/ProgressTracker', name: 'ProgressTracker', element: ProgressTracker },
+  { path: '/PersonalizedContent', name: 'PersonalizedContent', element: PersonalizedContent, allowedRoles: ['student'] },
+  { path: '/InteractiveTimeline', name: 'InteractiveTimeline', element: InteractiveTimeline, allowedRoles: ['student'] },
+  { path: '/GamifiedQuiz', name: 'GamifiedQuiz', element: GamifiedQuiz, allowedRoles: ['student'] },
+  { path: '/VirtualFieldTrip', name: 'VirtualFieldTrip', element: VirtualFieldTrip, allowedRoles: ['student'] },
+  { path: '/ProgressTracker', name: 'ProgressTracker', element: ProgressTracker, allowedRoles: ['student'] },
 
   // ── Profesor ────────────────────────────────────────────
-  { path: '/teacher/dashboard', name: 'TeacherDashboard', element: TeacherDashboard },
-  { path: '/teacher/content', name: 'TeacherContent', element: TeacherContent },
-  { path: '/teacher/upload-grades', name: 'TeacherGrades', element: TeacherGrades },
-  { path: '/teacher/feedback', name: 'TeacherFeedback', element: TeacherFeedback },
-  { path: '/teacher/add-content', name: 'TeacherAddContent', element: TeacherAddContent },
+  { path: '/teacher/dashboard', name: 'TeacherDashboard', element: TeacherDashboard, allowedRoles: ['teacher'] },
+  { path: '/teacher/content', name: 'TeacherContent', element: TeacherContent, allowedRoles: ['teacher'] },
+  { path: '/teacher/upload-grades', name: 'TeacherGrades', element: TeacherGrades, allowedRoles: ['teacher'] },
+  { path: '/teacher/feedback', name: 'TeacherFeedback', element: TeacherFeedback, allowedRoles: ['teacher'] },
+  { path: '/teacher/add-content', name: 'TeacherAddContent', element: TeacherAddContent, allowedRoles: ['teacher'] },
 
   // ── Zona Educativa (Super Admin) ────────────────────────
-  { path: '/zona-educativa/dashboard', name: 'ZonaEducativaDashboard', element: ZonaEducativaDashboard },
+  { path: '/zona-educativa/dashboard', name: 'ZonaEducativaDashboard', element: ZonaEducativaDashboard, allowedRoles: ['zona_educativa'] },
 
   // ── Admin Escuela (Secretario/Subdirector) ───────────────
-  { path: '/admin-escuela/dashboard', name: 'AdminEscuelaDashboard', element: AdminEscuelaDashboard },
+  { path: '/admin-escuela/dashboard', name: 'AdminEscuelaDashboard', element: AdminEscuelaDashboard, allowedRoles: ['admin_escuela'] },
 ]
 
 export default routes

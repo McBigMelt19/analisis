@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
     CCard, 
     CCardHeader, 
@@ -6,28 +6,101 @@ import {
     CProgress, 
     CRow, 
     CCol,
-    CWidgetStatsA
+    CWidgetStatsA,
+    CSpinner
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilLevelUp, cilSpeedometer, cilCheck, cilStar } from '@coreui/icons';
-
-// Datos de progreso simulados que variarían según el grado (gradeLevel) y el usuario
-const progressData = {
-    // Datos de ejemplo
-    averageScore: '85%',
-    unitsCompleted: 4,
-    totalUnits: 6,
-    totalQuizzes: 12,
-    quizzesPassed: 10,
-    currentLevel: 4,
-    pointsEarned: 1500,
-};
+import { getBaseURL, apiFetch } from '../services/api.config';
 
 const ProgressTracker = ({ gradeLevel }) => {
-    
-    // Cálculos para la visualización
-    const unitsProgress = (progressData.unitsCompleted / progressData.totalUnits) * 100;
-    const quizzesProgress = (progressData.quizzesPassed / progressData.totalQuizzes) * 100;
+    const [progressData, setProgressData] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchProgress = async () => {
+            setLoading(true);
+            try {
+                const base = getBaseURL();
+
+                // Intentar cargar estadísticas reales
+                const statsRes = await apiFetch(`${base}/estadisticas`);
+                if (statsRes.ok) {
+                    const statsData = await statsRes.json();
+                    const stats = statsData.estadisticas || statsData;
+
+                    setProgressData({
+                        averageScore: stats.promedio ? `${(stats.promedio * 10).toFixed(0)}%` : '—',
+                        unitsCompleted: stats.completadas || 0,
+                        totalUnits: stats.total || 0,
+                        totalQuizzes: stats.total || 0,
+                        quizzesPassed: stats.completadas || 0,
+                        currentLevel: Math.max(1, Math.floor((stats.promedio || 0) / 2)),
+                        pointsEarned: (stats.completadas || 0) * 150 + (stats.racha || 0) * 50,
+                        letra: stats.letra || '—',
+                        racha: stats.racha || 0,
+                        porTema: stats.porTema || {},
+                    });
+                } else {
+                    // Fallback: cargar desde /api/progreso
+                    const progRes = await apiFetch(`${base}/progreso`);
+                    if (progRes.ok) {
+                        const progData = await progRes.json();
+                        const progresos = progData.progresos || [];
+                        const totalMin = progresos.reduce((acc, p) => acc + (p.tiempo_estudiado_minutos || 0), 0);
+                        const totalAct = progresos.reduce((acc, p) => acc + (p.actividades_completadas || 0), 0);
+
+                        setProgressData({
+                            averageScore: `${totalAct > 0 ? Math.round((totalAct / Math.max(1, progresos.length * 5)) * 100) : 0}%`,
+                            unitsCompleted: progresos.length,
+                            totalUnits: progresos.length || 6,
+                            totalQuizzes: totalAct,
+                            quizzesPassed: totalAct,
+                            currentLevel: Math.max(1, progresos.length),
+                            pointsEarned: totalMin * 10,
+                            racha: 0,
+                            porTema: {},
+                        });
+                    } else {
+                        throw new Error('No se pudo cargar progreso');
+                    }
+                }
+            } catch (err) {
+                console.warn('Error cargando progreso, usando defaults:', err.message);
+                setProgressData({
+                    averageScore: '—',
+                    unitsCompleted: 0,
+                    totalUnits: 0,
+                    totalQuizzes: 0,
+                    quizzesPassed: 0,
+                    currentLevel: 1,
+                    pointsEarned: 0,
+                    racha: 0,
+                    porTema: {},
+                });
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProgress();
+    }, [gradeLevel]);
+
+    if (loading) {
+        return (
+            <CCard className="text-center p-5">
+                <CSpinner color="primary" />
+                <p className="mt-3 text-muted">Cargando progreso...</p>
+            </CCard>
+        );
+    }
+
+    const unitsProgress = progressData.totalUnits > 0 
+        ? (progressData.unitsCompleted / progressData.totalUnits) * 100 
+        : 0;
+    const quizzesProgress = progressData.totalQuizzes > 0 
+        ? (progressData.quizzesPassed / progressData.totalQuizzes) * 100 
+        : 0;
 
     return (
         <CCard>
@@ -96,19 +169,27 @@ const ProgressTracker = ({ gradeLevel }) => {
                     </CProgress>
                 </div>
 
-                {/* Sección 3: Placeholder para Gráfico */}
-                <h6 className="mt-4 mb-3">Histórico de Puntuaciones</h6>
-                <CCard className="shadow-sm">
-                    <CCardBody style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f9f9f9' }}>
-                        {/* Aquí es donde se integraría el componente de gráfico de CoreUI React Chart.js
-                            Ej: <CChart type="line" data={chartData} /> 
-                        */}
-                        <p className="text-muted text-center">
-                            **Placeholder de Gráfico**<br />
-                            (Integrar librería de *charts* de CoreUI aquí para ver la tendencia de rendimiento).
-                        </p>
-                    </CCardBody>
-                </CCard>
+                {/* Sección 3: Racha de actividad */}
+                {progressData.racha > 0 && (
+                    <div className="mt-4 p-3 rounded" style={{ background: 'linear-gradient(135deg, #FFD100, #FFA000)', color: '#002244' }}>
+                        <h6 className="mb-0">🔥 Racha activa: {progressData.racha} {progressData.racha === 1 ? 'día' : 'días'} consecutivos</h6>
+                    </div>
+                )}
+
+                {/* Sección 4: Progreso por Tema */}
+                {Object.keys(progressData.porTema || {}).length > 0 && (
+                    <>
+                        <h6 className="mt-4 mb-3">Rendimiento por Tema</h6>
+                        {Object.entries(progressData.porTema).map(([tema, data]) => (
+                            <div key={tema} className="mb-3">
+                                <p className="small mb-1">{tema} — Promedio: {data.promedio} ({data.total} evaluaciones)</p>
+                                <CProgress value={(data.promedio / 10) * 100} color={data.promedio >= 7 ? 'success' : data.promedio >= 5 ? 'warning' : 'danger'} height={16}>
+                                    {data.promedio}
+                                </CProgress>
+                            </div>
+                        ))}
+                    </>
+                )}
                 
             </CCardBody>
         </CCard>

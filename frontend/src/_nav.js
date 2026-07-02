@@ -38,6 +38,14 @@ export const getNavigation = (currentUser) => {
     return getTeacherNav(currentUser)
   }
 
+  if (currentUser.role === 'zona_educativa') {
+    return getZonaNav(currentUser)
+  }
+
+  if (currentUser.role === 'admin_escuela') {
+    return getAdminEscuelaNav(currentUser)
+  }
+
   return []
 }
 
@@ -209,6 +217,62 @@ const getTeacherNav = (currentUser) => {
       name: 'Agregar Contenido',
       to: '/teacher/add-content',
       icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
+    },
+  ]
+}
+
+// ─────────────────────────────────────────────
+// Navegación de ZONA EDUCATIVA
+// ─────────────────────────────────────────────
+const getZonaNav = (currentUser) => {
+  return [
+    {
+      component: CNavTitle,
+      name: (
+        <div className="text-center">
+          <img
+            src={mapImage}
+            alt="Mapa de Venezuela"
+            style={{ maxWidth: '80%', borderRadius: '10px', marginBottom: '10px' }}
+          />
+          <div>Sector Público Estatal 🏛️</div>
+        </div>
+      ),
+      className: 'home-hero nav-title',
+    },
+    {
+      component: CNavItem,
+      name: 'Inicio Zona 🏠',
+      to: '/zona-educativa/dashboard',
+      icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
+    },
+  ]
+}
+
+// ─────────────────────────────────────────────
+// Navegación de ADMIN ESCUELA
+// ─────────────────────────────────────────────
+const getAdminEscuelaNav = (currentUser) => {
+  return [
+    {
+      component: CNavTitle,
+      name: (
+        <div className="text-center">
+          <img
+            src={mapImage}
+            alt="Mapa de Venezuela"
+            style={{ maxWidth: '80%', borderRadius: '10px', marginBottom: '10px' }}
+          />
+          <div>Gestión Escolar 🏫</div>
+        </div>
+      ),
+      className: 'home-hero nav-title',
+    },
+    {
+      component: CNavItem,
+      name: 'Inicio Admin 🏠',
+      to: '/admin-escuela/dashboard',
+      icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
     },
   ]
 }
