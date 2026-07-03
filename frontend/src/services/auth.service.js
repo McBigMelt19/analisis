@@ -103,6 +103,9 @@ export const adaptBackendUser = (data) => {
   if (rol === 'estudiante' && entidad) {
     user.id_estudiante = entidad.id
     user.escuela_id = entidad.escuela_id
+    if (entidad.matriculas && entidad.matriculas.length > 0) {
+      user.grade_id = entidad.matriculas[0].grado_id
+    }
   }
 
   if (rol === 'profesor' && entidad) {

@@ -1,17 +1,10 @@
 {
-  "name": "@coreui/coreui-free-react-admin-template",
+  "name": "IA Historia de Venezuela",
   "version": "5.5.0",
-  "description": "CoreUI Free React Admin Template",
+  "description": "Plantel de ia interactiva de la historia de venezuela ",
   "homepage": ".",
-  "bugs": {
-    "url": ""
-  },
-  "repository": {
-    "type": "git",
-    "url": ""
-  },
   "license": "MIT",
-  "author": "The CoreUI Team (https://github.com/orgs/coreui/people)",
+  "author": "The CoreUI Team & JuanJo",
   "scripts": {
     "build": "vite build",
     "lint": "eslint",
