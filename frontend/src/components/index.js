@@ -8,6 +8,7 @@ import DocsComponents from './DocsComponents'
 import DocsIcons from './DocsIcons'
 import DocsLink from './DocsLink'
 import DocsExample from './DocsExample'
+import UserManualModal from './UserManualModal'
 
 export {
   AppBreadcrumb,
@@ -20,4 +21,5 @@ export {
   DocsIcons,
   DocsLink,
   DocsExample,
+  UserManualModal,
 }

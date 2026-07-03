@@ -251,7 +251,7 @@ const TeacherDashboard = () => {
     return Object.keys(errors).length === 0
   }
 
-  const handleAddStudent = (e) => {
+  const handleAddStudent = async (e) => {
     e.preventDefault()
     setAddSuccess('')
     setGeneratedCredentials(null)
@@ -259,14 +259,6 @@ const TeacherDashboard = () => {
     if (!validarFormulario()) return
 
     // Formatear datos
-    const representante = {
-      nombre: capitalizar(formData.repNombre.trim()),
-      apellido: capitalizar(formData.repApellido.trim()),
-      cedula: formData.repCedula.trim(),
-      telefono: `${formData.repTelPrefijo.trim()}-${formData.repTelNumero.trim()}`,
-      email: formData.repEmail.trim().toLowerCase(),
-    }
-
     const estNombreCapitalizado = capitalizar(formData.estNombre.trim())
     const estApellidoCapitalizado = capitalizar(formData.estApellido.trim())
 
@@ -274,32 +266,52 @@ const TeacherDashboard = () => {
     const username = generarUsername(formData.estNombre, formData.estApellido)
     const password = generarPassword()
 
-    const estudiante = {
+    // Construir payload para el backend: POST /api/admin-escuela/registrar-estudiante
+    const payload = {
+      username,
+      contrasena: password,
       nombre: estNombreCapitalizado,
       apellido: estApellidoCapitalizado,
-      cedula: formData.estCedula.trim() || null,
-      grado: parseInt(formData.estGrado),
-      parentesco: formData.estParentesco,
-      username,
-      password,
+      ci: formData.estCedula.trim() || null,
+      telefono: null,
+      representante_nombre: `${capitalizar(formData.repNombre.trim())} ${capitalizar(formData.repApellido.trim())}`,
+      representante_email: formData.repEmail.trim().toLowerCase(),
+      representante_telefono: `${formData.repTelPrefijo.trim()}-${formData.repTelNumero.trim()}`,
+      relacion_representante: formData.estParentesco || 'tutor',
+      grado_id: parseInt(formData.estGrado),
+      periodo_escolar_id: null, // Se asignará después si es necesario
     }
 
-    console.log('Representante:', representante)
-    console.log('Estudiante:', estudiante)
+    try {
+      const { apiFetch, getBaseURL } = await import('../../../services/api.config')
+      const response = await apiFetch(`${getBaseURL()}/admin-escuela/registrar-estudiante`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      })
+      const data = await response.json()
 
-    // Guardar credenciales para mostrarlas
-    const creds = {
-      nombreCompleto: `${estNombreCapitalizado} ${estApellidoCapitalizado}`,
-      username,
-      password,
+      if (response.ok) {
+        // Guardar credenciales para mostrarlas
+        const creds = {
+          nombreCompleto: `${estNombreCapitalizado} ${estApellidoCapitalizado}`,
+          username: data.credenciales?.username || username,
+          password,
+        }
+        setGeneratedCredentials(creds)
+        setAddSuccess(
+          `¡Registro exitoso! Las credenciales del estudiante se muestran abajo. Por favor, entrégueselas al representante.`,
+        )
+        setFormData(initialFormData)
+        setAddErrors({})
+        // Refrescar lista de estudiantes
+        fetchStudents()
+      } else {
+        setAddErrors({ general: data.error || 'Error al registrar estudiante' })
+      }
+    } catch (err) {
+      console.error('Error al registrar estudiante:', err)
+      setAddErrors({ general: 'Error de red. Verifica la conexión al servidor.' })
     }
-    setGeneratedCredentials(creds)
-
-    setAddSuccess(
-      `¡Registro exitoso! Las credenciales del estudiante se muestran abajo. Por favor, entrégueselas al representante.`,
-    )
-    setFormData(initialFormData)
-    setAddErrors({})
   }
 
   const handleCloseAddModal = () => {

@@ -51,7 +51,7 @@ export const getFeedbacksByTeacher = async (teacherId) => {
 /**
  * Crea un nuevo feedback/sugerencia.
  * - Modo local: POST /feedbacks
- * - Modo render: POST /api/chatbot/sugerir
+ * - Modo backend: POST /api/sugerencias
  *   Backend expects: { id_tema, tipo, descripcion }
  *   Backend returns: { message, sugerencia }
  */
@@ -68,10 +68,10 @@ export const createFeedback = async (feedbackData) => {
         return await response.json()
     }
 
-    // Modo Render
-    // Backend endpoint: POST /api/chatbot/sugerir
+    // Modo Backend
+    // Backend endpoint: POST /api/sugerencias
     // Backend expects: { id_tema, tipo, descripcion }
-    const response = await apiFetch(`${base}/chatbot/sugerir`, {
+    const response = await apiFetch(`${base}/sugerencias`, {
         method: 'POST',
         body: JSON.stringify({
             id_tema: feedbackData.topic_id || feedbackData.id_tema || 1,
