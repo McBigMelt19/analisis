@@ -16,7 +16,6 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import {
-  cilBell,
   cilContrast,
   cilEnvelopeOpen,
   cilList,
@@ -24,6 +23,12 @@ import {
   cilMoon,
   cilSun,
 } from '@coreui/icons'
+
+// Icono personalizado de interrogación compatible con CIcon de CoreUI
+const cilQuestion = [
+  '512 512',
+  "<path fill='var(--ci-primary-color, currentcolor)' d='M256 8C119.043 8 8 119.083 8 256c0 136.92 111.043 248 248 248s248-111.08 248-248C504 119.083 392.957 8 256 8zm0 448c-110.28 0-200-89.72-200-200S145.72 56 256 56s200 89.72 200 200-89.72 200-200 200zm10.26-267.3c-15.63 9.4-23.76 21.6-24.26 38.3a12 12 0 0 1-12 11.7h-27.5c-6.6 0-11.9-5.3-12-11.9-.9-29.2 13.9-52.6 37-67.6 15.6-10.1 20.3-19.1 20.3-31.5 0-17.7-14.3-32-32-32s-32 14.3-32 32c0 6.6-5.4 12-12 12h-27.5c-6.6 0-12-5.4-12-12 0-48.5 39.5-88 88-88s88 39.5 88 88c0 29.5-14.7 49-34.24 61.3zM256 352a24 24 0 1 1 24-24 24 24 0 0 1-24 24z' class='ci-primary'/>"
+]
 
 import { AppBreadcrumb, UserManualModal } from './index'
 import { AppHeaderDropdown } from './header/index'
@@ -86,7 +91,7 @@ const AppHeader = () => {
               title="Manual de Usuario"
               style={{ cursor: 'pointer' }}
             >
-              <CIcon icon={cilBell} size="lg" />
+              <CIcon icon={cilQuestion} size="lg" />
             </CNavLink>
           </CNavItem>
           <CNavItem>

@@ -196,63 +196,95 @@ const UserManualModal = ({ visible, onClose }) => {
                 <CIcon icon={cilUser} className="me-2" /> Portal del Estudiante
               </h4>
               <p className="text-muted mb-4">
-                Como estudiante, tu panel está diseñado para hacer del estudio de la historia una experiencia fascinante e interactiva. Aquí te explicamos tus principales herramientas:
+                Como estudiante, cuentas con un panel diseñado para hacer del aprendizaje de la Historia de Venezuela una experiencia inmersiva y adaptativa. A continuación, se detallan las funciones de cada módulo y modal:
               </p>
 
-              <div className="timeline-steps">
-                <div className="d-flex mb-4">
-                  <div className="me-3 text-center">
-                    <span className="badge bg-primary rounded-circle p-3 d-inline-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px', fontSize: '1.1rem' }}>1</span>
-                  </div>
-                  <div>
-                    <h5 className="fw-bold">Chatear con la IA de Historia</h5>
-                    <p className="text-muted">
-                      Accede al chat e interactúa con el Tutor de IA. Puedes hacer preguntas como <em>"¿Cómo fue la Campaña Admirable?"</em> o pedir que te explique un tema difícil. La IA te responderá usando tu <strong>estilo de aprendizaje</strong> configurado (Visual, Auditivo o Kinestésico) para que lo entiendas a la perfección.
-                    </p>
-                  </div>
-                </div>
+              <CRow className="g-4 mb-4">
+                <CCol md={12}>
+                  <h5 className="fw-bold text-primary mb-3">🖥️ Módulos Principales (Secciones y Pantallas)</h5>
+                </CCol>
+                
+                <CCol md={6}>
+                  <CCard style={customStyles.cardHover} className="h-100 shadow-sm border-0">
+                    <CCardBody className="p-4">
+                      <h6 className="fw-bold text-primary mb-2">🏠 Inicio / Dashboard</h6>
+                      <p className="text-muted small mb-0">
+                        Tu punto de partida personalizado. Muestra un saludo dinámico, una ilustración temática de Venezuela y accesos rápidos a tus últimas lecciones. Además, te indica tu Estilo de Aprendizaje actual para guiarte en el estudio.
+                      </p>
+                    </CCardBody>
+                  </CCard>
+                </CCol>
 
-                <div className="d-flex mb-4">
-                  <div className="me-3 text-center">
-                    <span className="badge bg-primary rounded-circle p-3 d-inline-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px', fontSize: '1.1rem' }}>2</span>
-                  </div>
-                  <div>
-                    <h5 className="fw-bold">Explorar el Contenido Interactivo</h5>
-                    <p className="text-muted">
-                      Visita el menú de <strong>Contenido Interactivo</strong> para aprender jugando:
-                    </p>
-                    <ul className="text-muted ps-3">
-                      <li><strong>Línea de Tiempo:</strong> Haz clic en los eventos históricos clave (como la Declaración de Independencia o la Batalla de Carabobo) para ver detalles y resúmenes multimedia.</li>
-                      <li><strong>Viajes de Campo Virtuales:</strong> Visita monumentos emblemáticos nacionales de forma virtual.</li>
-                    </ul>
-                  </div>
-                </div>
+                <CCol md={6}>
+                  <CCard style={customStyles.cardHover} className="h-100 shadow-sm border-0">
+                    <CCardBody className="p-4">
+                      <h6 className="fw-bold text-primary mb-2">🤖 Chatbot de IA Adaptativo</h6>
+                      <p className="text-muted small mb-0">
+                        Un tutor virtual inteligente con el que puedes chatear para consultar cualquier tema histórico. Adapta sus explicaciones (lenguaje, metáforas y recursos) a tu **Estilo de Aprendizaje**:
+                      </p>
+                      <ul className="text-muted small ps-3 mt-2 mb-0">
+                        <li><strong>Visual:</strong> Respuestas enriquecidas con esquemas detallados, descripciones gráficas e hitos estructurados.</li>
+                        <li><strong>Auditivo:</strong> Narraciones claras, metáforas poéticas o explicaciones tipo cuento dialogado.</li>
+                        <li><strong>Kinestésico:</strong> Retos prácticos, analogías con la vida cotidiana y decisiones históricas hipotéticas.</li>
+                      </ul>
+                    </CCardBody>
+                  </CCard>
+                </CCol>
 
-                <div className="d-flex mb-4">
-                  <div className="me-3 text-center">
-                    <span className="badge bg-primary rounded-circle p-3 d-inline-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px', fontSize: '1.1rem' }}>3</span>
-                  </div>
-                  <div>
-                    <h5 className="fw-bold">Tomar Exámenes Gamificados</h5>
-                    <p className="text-muted">
-                      Pon a prueba tus conocimientos con quizzes de 5 preguntas autogenerados por la IA en tiempo real. 
-                      ¡Obtén puntuaciones perfectas de 20 puntos para demostrar tu dominio y desbloquear nuevos retos!
-                    </p>
-                  </div>
-                </div>
+                <CCol md={6}>
+                  <CCard style={customStyles.cardHover} className="h-100 shadow-sm border-0">
+                    <CCardBody className="p-4">
+                      <h6 className="fw-bold text-primary mb-2">🎮 Contenido Interactivo</h6>
+                      <p className="text-muted small mb-0">
+                        Tu espacio de exploración multimedia e interactiva, donde accedes a dos herramientas didácticas:
+                      </p>
+                      <ul className="text-muted small ps-3 mt-2 mb-0">
+                        <li><strong>Línea de Tiempo Interactiva:</strong> Viaja cronológicamente a través de los hitos cruciales de Venezuela (Independencia, Batallas, etc.) y haz clic en ellos para ver explicaciones.</li>
+                        <li><strong>Viajes de Campo Virtuales:</strong> Recorre monumentos históricos y lugares patrios emblemáticos de forma interactiva.</li>
+                      </ul>
+                    </CCardBody>
+                  </CCard>
+                </CCol>
 
-                <div className="d-flex">
-                  <div className="me-3 text-center">
-                    <span className="badge bg-primary rounded-circle p-3 d-inline-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px', fontSize: '1.1rem' }}>4</span>
-                  </div>
-                  <div>
-                    <h5 className="fw-bold">Verificar tu Historial y Progreso</h5>
-                    <p className="text-muted">
-                      En la sección de <strong>Calificaciones y Progreso</strong> podrás ver gráficos detallados de tu evolución, promedio de notas y las áreas que necesitas repasar.
-                    </p>
-                  </div>
-                </div>
-              </div>
+                <CCol md={6}>
+                  <CCard style={customStyles.cardHover} className="h-100 shadow-sm border-0">
+                    <CCardBody className="p-4">
+                      <h6 className="fw-bold text-primary mb-2">📊 Mi Progreso y Calificaciones</h6>
+                      <p className="text-muted small mb-0">
+                        Un espacio visual donde puedes consultar tus calificaciones históricas asentadas por tus docentes o acumuladas en las actividades gamificadas. Muestra tus promedios, porcentajes de logro y gráficos de evolución.
+                      </p>
+                    </CCardBody>
+                  </CCard>
+                </CCol>
+              </CRow>
+
+              <CRow className="g-4">
+                <CCol md={12}>
+                  <h5 className="fw-bold text-primary mb-3">🪟 Modales Interactivos (Ventanas Emergentes)</h5>
+                </CCol>
+
+                <CCol md={6}>
+                  <CCard style={customStyles.cardHover} className="h-100 shadow-sm border-0 border-start border-primary border-3">
+                    <CCardBody className="p-4">
+                      <h6 className="fw-bold text-primary mb-2">📝 Modal de Examen (Quizzes de IA)</h6>
+                      <p className="text-muted small mb-0">
+                        Ventana emergente interactiva autogenerada por la IA al iniciar un quiz. Presenta un cuestionario interactivo de 5 preguntas de selección múltiple sobre la Historia de Venezuela. Al finalizar, calcula tu nota de inmediato en una escala de 20 puntos y te ofrece retroalimentación detallada de tus respuestas.
+                      </p>
+                    </CCardBody>
+                  </CCard>
+                </CCol>
+
+                <CCol md={6}>
+                  <CCard style={customStyles.cardHover} className="h-100 shadow-sm border-0 border-start border-primary border-3">
+                    <CCardBody className="p-4">
+                      <h6 className="fw-bold text-primary mb-2">📖 Modal de Manual de Usuario</h6>
+                      <p className="text-muted small mb-0">
+                        Este modal informativo (en el que te encuentras) que despliega la guía didáctica de la plataforma en cualquier momento desde el encabezado superior para resolver tus dudas sobre la navegación y el rol escolar.
+                      </p>
+                    </CCardBody>
+                  </CCard>
+                </CCol>
+              </CRow>
             </div>
           </CTabPane>
 
@@ -263,37 +295,79 @@ const UserManualModal = ({ visible, onClose }) => {
                 <CIcon icon={cilSchool} className="me-2" /> Portal del Profesor
               </h4>
               <p className="text-muted mb-4">
-                La plataforma empodera a los educadores con potentes herramientas de seguimiento pedagógico y control sobre los parámetros de aprendizaje del estudiante.
+                Como docente, dispones de herramientas avanzadas para la gestión del aula virtual y el control del comportamiento pedagógico de la Inteligencia Artificial:
               </p>
 
-              <CRow className="g-4">
-                <CCol md={6}>
+              <CRow className="g-4 mb-4">
+                <CCol md={12}>
+                  <h5 className="fw-bold text-success mb-3">🖥️ Módulos Principales (Secciones y Pantallas)</h5>
+                </CCol>
+
+                <CCol md={4}>
                   <CCard style={customStyles.cardHover} className="h-100 shadow-sm border-0">
-                    <CCardBody>
-                      <h5 className="fw-bold text-success mb-3">🔍 Monitoreo y Diagnóstico Pedagógico</h5>
-                      <p className="text-muted">
-                        Visualiza los grados y secciones bajo tu tutela. Al hacer clic en un estudiante, abrirás el 
-                        <strong> Panel de Progreso</strong>, que muestra:
+                    <CCardBody className="p-4">
+                      <h6 className="fw-bold text-success mb-2">🏠 Inicio / Dashboard Docente</h6>
+                      <p className="text-muted small mb-0">
+                        Vista globalizada que muestra tu grado escolar a cargo, tarjetas estadísticas rápidas de acceso directo y el listado general de tus estudiantes matriculados con su respectivo estilo de aprendizaje detectado.
                       </p>
-                      <ul className="text-muted ps-3">
-                        <li>El estilo de aprendizaje detectado del estudiante.</li>
-                        <li>Estadísticas de quizzes completados, promedio acumulado de calificaciones y nivel de desempeño.</li>
-                        <li>Gráficos detallados de rendimiento por tema específico de Historia de Venezuela.</li>
+                    </CCardBody>
+                  </CCard>
+                </CCol>
+
+                <CCol md={4}>
+                  <CCard style={customStyles.cardHover} className="h-100 shadow-sm border-0">
+                    <CCardBody className="p-4">
+                      <h6 className="fw-bold text-success mb-2">📚 Gestión y Carga de Contenido</h6>
+                      <p className="text-muted small mb-0">
+                        Sección donde administras y visualizas la lista de temas y unidades curriculares de historia nacional. Permite añadir nuevos textos, lecturas de apoyo y pautas generales para actualizar la base de conocimientos.
+                      </p>
+                    </CCardBody>
+                  </CCard>
+                </CCol>
+
+                <CCol md={4}>
+                  <CCard style={customStyles.cardHover} className="h-100 shadow-sm border-0">
+                    <CCardBody className="p-4">
+                      <h6 className="fw-bold text-success mb-2">✍️ Calificaciones y Feedback</h6>
+                      <p className="text-muted small mb-0">
+                        Módulos integrados de <strong>Subir Notas</strong> para ingresar manualmente las calificaciones de tareas tradicionales, y <strong>Retroalimentación</strong> para enviar observaciones y consejos personalizados que los alumnos verán directamente en sus perfiles.
+                      </p>
+                    </CCardBody>
+                  </CCard>
+                </CCol>
+              </CRow>
+
+              <CRow className="g-4">
+                <CCol md={12}>
+                  <h5 className="fw-bold text-success mb-3">🪟 Modales Interactivos (Ventanas Emergentes)</h5>
+                </CCol>
+
+                <CCol md={6}>
+                  <CCard style={customStyles.cardHover} className="h-100 shadow-sm border-0 border-start border-success border-3">
+                    <CCardBody className="p-4">
+                      <h6 className="fw-bold text-success mb-2">👤 Modal de Registro de Estudiante</h6>
+                      <p className="text-muted small mb-0">
+                        Formulario interactivo en dos pasos que permite matricular alumnos de forma ágil y segura:
+                      </p>
+                      <ul className="text-muted small ps-3 mt-2 mb-0">
+                        <li><strong>Paso 1 (Representante):</strong> Datos de contacto del adulto responsable (Cédula, nombre, correo, teléfono).</li>
+                        <li><strong>Paso 2 (Estudiante):</strong> Registro de los datos del alumno (Cédula opcional, nombre, grado, parentesco). El sistema genera automáticamente el nombre de usuario y una clave temporal de 6 dígitos.</li>
                       </ul>
                     </CCardBody>
                   </CCard>
                 </CCol>
 
                 <CCol md={6}>
-                  <CCard style={customStyles.cardHover} className="h-100 shadow-sm border-0">
-                    <CCardBody>
-                      <h5 className="fw-bold text-success mb-3">⚙️ Configuración Personalizada de IA</h5>
-                      <p className="text-muted">
-                        Como profesor, tienes control sobre el Tutor de IA para guiar la experiencia de tus estudiantes:
+                  <CCard style={customStyles.cardHover} className="h-100 shadow-sm border-0 border-start border-success border-3">
+                    <CCardBody className="p-4">
+                      <h6 className="fw-bold text-success mb-2">📊 Modal de Progreso Estudiantil (Detalles del Alumno)</h6>
+                      <p className="text-muted small mb-0">
+                        Se despliega al hacer clic en "Ver Progreso" de cualquier estudiante. Muestra en tiempo real:
                       </p>
-                      <ul className="text-muted ps-3">
-                        <li><strong>Ajuste de Dificultad:</strong> Configura la complejidad pedagógica según el grado y las necesidades de la sección.</li>
-                        <li><strong>Parámetros Temáticos:</strong> Prioriza épocas específicas (ej. Período Precolombino, Época de la Colonia, Gesta Emancipadora, República de Venezuela) en las conversaciones del chatbot.</li>
+                      <ul className="text-muted small ps-3 mt-2 mb-0">
+                        <li>Estadísticas rápidas: total de evaluaciones, promedio académico general, notas de excelencia (&gt;=18) e insuficiencias (&lt;14).</li>
+                        <li>Gráficos analíticos de rendimiento histórico por cada tema curricular.</li>
+                        <li>Historial detallado con fecha, actividad, tipo, nota y estado (Aprobado, Excelente, Necesita repasar).</li>
                       </ul>
                     </CCardBody>
                   </CCard>
@@ -309,37 +383,39 @@ const UserManualModal = ({ visible, onClose }) => {
                 <CIcon icon={cilSettings} className="me-2" /> Roles de Administración y Gestión
               </h4>
               <p className="text-muted mb-4">
-                La estructura del sistema incluye roles administrativos clave para coordinar la infraestructura escolar a nivel local y estatal.
+                El sistema cuenta con un ecosistema de gobernanza multinivel que garantiza la correcta administración de la infraestructura escolar y el monitoreo pedagógico general:
               </p>
 
-              <CRow className="g-4">
+              <CRow className="g-4 mb-4">
                 <CCol md={6}>
                   <CCard style={customStyles.cardHover} className="h-100 shadow-sm border-0">
-                    <CCardBody>
-                      <h5 className="fw-bold text-dark mb-3">🏢 Administración de la Escuela</h5>
-                      <p className="text-muted">
-                        El <strong>Admin de Escuela</strong> gestiona el corazón del plantel educativo:
+                    <CCardBody className="p-4">
+                      <h5 className="fw-bold text-dark mb-3">🏫 Administración de la Escuela (Director/Subdirector)</h5>
+                      <h6 className="fw-semibold text-muted">🖥️ Módulos:</h6>
+                      <p className="text-muted small">
+                        <strong>Dashboard de Gestión Escolar:</strong> Panel principal para supervisar la matrícula escolar global del plantel, revisar la nómina de profesores activos, grados y secciones configuradas.
                       </p>
-                      <ul className="text-muted ps-3">
-                        <li><strong>Registro de Personal:</strong> Da de alta y gestiona las cuentas de los profesores pertenecientes al plantel.</li>
-                        <li><strong>Gestión de Matrícula:</strong> Registra a los estudiantes en sus grados, secciones y estilos de aprendizaje.</li>
-                        <li><strong>Asignaciones:</strong> Vincula a los docentes con los grados que imparten clases de historia.</li>
-                      </ul>
+                      <h6 className="fw-semibold text-muted">🪟 Modales:</h6>
+                      <p className="text-muted small mb-0">
+                        <strong>Modal de Registro de Estudiante:</strong> Ventana emergente idéntica a la del profesor, permitiendo al administrador registrar estudiantes junto con sus representantes de manera institucional.
+                      </p>
                     </CCardBody>
                   </CCard>
                 </CCol>
 
                 <CCol md={6}>
                   <CCard style={customStyles.cardHover} className="h-100 shadow-sm border-0">
-                    <CCardBody>
-                      <h5 className="fw-bold text-dark mb-3">🇻🇪 Zona Educativa</h5>
-                      <p className="text-muted">
-                        El nivel máximo de supervisión y gobernanza a nivel estatal:
+                    <CCardBody className="p-4">
+                      <h5 className="fw-bold text-dark mb-3">🏛️ Zona Educativa (Super Admin Regional)</h5>
+                      <h6 className="fw-semibold text-muted">🖥️ Módulos:</h6>
+                      <p className="text-muted small">
+                        <strong>Dashboard de Control de Zona:</strong> Centro de mando a nivel estatal. Audita las escuelas activas de su zona, visualiza tasas globales de interacción con la Inteligencia Artificial y estadísticas académicas agregadas.
                       </p>
-                      <ul className="text-muted ps-3">
-                        <li><strong>Control de Escuelas:</strong> Registra y audita las instituciones educativas bajo su jurisdicción.</li>
-                        <li><strong>Asignación Directiva:</strong> Designa y administra las cuentas de los Directores / Administradores de las Escuelas.</li>
-                        <li><strong>Métricas de Alto Nivel:</strong> Monitorea estadísticas globales de uso de la IA, rendimiento académico por zona y efectividad educativa.</li>
+                      <h6 className="fw-semibold text-muted">🪟 Modales:</h6>
+                      <ul className="text-muted small ps-3 mb-0">
+                        <li><strong>Registrar Administrador de Escuela:</strong> Modal para crear cuentas a Directores escolares y asignarlos a planteles.</li>
+                        <li><strong>Registrar Profesor:</strong> Modal para dar de alta docentes e integrarlos en la base general de la Zona Educativa.</li>
+                        <li><strong>Malla Curricular (Crear/Editar Tema):</strong> Modal para agregar o corregir los temas oficiales de la Historia de Venezuela que regirán el comportamiento de los tutores de IA.</li>
                       </ul>
                     </CCardBody>
                   </CCard>
