@@ -144,19 +144,32 @@ ${allowedTopics.temas.length > 5 ? `...y ${allowedTopics.temas.length - 5} temas
         setIsLoading(true);
 
         try {
-            const base = getBaseURL()
-            
+            const base = getBaseURL();
+
+            // Creamos el paquete de datos base
+            const payload = {
+                mensaje: userMessage,
+                modo: 'tutor'
+            };
+
+            // Solo agregamos id_tema si realmente es un número válido (no null)
+            if (allowedTopics && allowedTopics.id_tema_actual) {
+                payload.id_tema = allowedTopics.id_tema_actual;
+            }
+
             const response = await apiFetch(`${base}/chatbot/chat`, {
                 method: 'POST',
-                body: JSON.stringify({
-                    mensaje: userMessage,
-                    id_tema: allowedTopics.id_tema_actual || null,
-                    modo: 'tutor'
-                })
+                body: JSON.stringify(payload)
             });
 
+            // ── REEMPLAZA EL IF POR ESTE BLOQUE DEFENSIVO ──
             if (!response.ok) {
-                throw new Error("Error en la petición");
+                // Leemos el mensaje exacto que escupió el servidor Express
+                const errorDelServidor = await response.json();
+                console.error("🚨 MOTIVO REAL DEL ERROR 400:", errorDelServidor);
+
+                // Mostramos el error real en la pantalla en lugar de un error genérico
+                throw new Error(errorDelServidor.error || JSON.stringify(errorDelServidor) || "Rechazado por el servidor");
             }
 
             const data = await response.json();
@@ -174,11 +187,14 @@ ${allowedTopics.temas.length > 5 ? `...y ${allowedTopics.temas.length - 5} temas
             setIsLoading(false);
 
         } catch (error) {
-            console.error("Error con Ollama:", error);
+            console.error("Error:", error);
+            // Si es un error de backend, mostramos el mensaje que nos dio el servidor
+            const errorMessage = error.message || "Error de conexión con el servidor";
+
             setMessages(prev => [...prev, {
                 id: Date.now() + 2,
                 role: 'assistant',
-                content: "⚠️ Error de conexión."
+                content: `❌ ${errorMessage}`
             }]);
             setIsLoading(false);
         }
